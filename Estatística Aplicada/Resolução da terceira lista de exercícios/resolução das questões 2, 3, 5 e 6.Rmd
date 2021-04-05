@@ -1,0 +1,162 @@
+---
+title: "Resolução das questões 2, 3 e 5"
+author: "Ivanildo Batista"
+date: "2 de abril de 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Resolução da questão 2, 3 e 5
+
+**Questão 2**
+
+Um empreiteiro apresentou orçamentos separados para a execução da parte elétrica e da parte de encanamento de um edifício. Ele acha que a probabilidade de ganhar a concorrência da parte elétrica é de 1/2. Caso ele ganhe a parte elétrica, a chance de ganhar a parte de encanamento é de 3/4; caso contrário, essa probabilidade é de 1/3. Qual a probabilidade de ele:
+
+Dados da questão:
+
+```{r}
+p1<- 1/2 
+p2<-3/4
+p3<- 1/3
+```
+
+a) ganhar os dois contratos?
+
+**Resposta**:
+```{r}
+
+a<- p1*p2
+a
+```
+
+b) ganhar apenas um?
+
+**Resposta**:
+```{r}
+b<-(p1*(1-p2))+((1 - p1)*p3)
+b
+```
+
+c) não ganhar nada?
+
+**Resposta**:
+```{r}
+p4 = (p1*p2)+((1-p1)*p3)
+c<-1 - (p1+p4 - a)
+c
+```
+
+**Questão 3**
+
+Para estudar o comportamento do mercado automobilístico, as marcas foram divididas em três categorias: marca F, marca W, e as demais reunidas como marca X. Um estudo sobre o hábito de mudança de marca mostrou o seguinte quadro de probabilidade:
+
+Dados da questão:
+```{r}
+w1<- 0.5 
+f1<-0.3
+x1<- 0.2
+```
+
+```{r}
+w2w1<-0.5 #carro2 ser w sendo que o carro1 foi w. 
+w2f1<-0.15
+w2x1<-0.3
+```
+
+```{r}
+f2w1<-0.25
+f2f1<-0.7
+f2x1<-0.3
+```
+
+```{r}
+x2w1<-0.25
+x2f1<- 0.15
+x2x1<-0.4
+```
+
+```{r}
+w3w2<-0.5
+w3f2<-0.15
+w3x2<- 0.30
+```
+
+a) Qual a probabilidade de um indivíduo comprar o terceiro carro da marca W?
+
+**Resposta**:
+
+```{r}
+w2<- (w1*w2w1)+(f1*w2f1)+(x1*w2x1)
+f2<-(w1*f2w1)+(f1*f2f1)+(x1*f2x1)
+x2<-(w1*x2w1)+(f1*x2f1)+(x1*x2x1)
+
+#então,
+w3<-(w2*w3w2)+(f2*w3f2)+(x2*w3x2)
+w3
+```
+
+b) Se o terceiro carro é da marca W, qual a probabilidade de o primeiro também ter sido W?
+
+**Resposta**:
+
+```{r}
+w3w1<-(w3w2*w2w1)+(w3f2*f2w1)+(w3x2*x2w1)
+w1w3<-((w1*w3w1)/(w3))
+w1w3
+```
+
+**Questão 5**
+
+Um sistema é composto de três componentes 1, 2 e 3, com confiabilidade 0.9, 0.8 e 0.7,respectivamente. O componente 1 é indispensável ao funcionamento do sistema; se 2 ou 3 não funcionam, o sistema funciona, mas com um rendimento inferior. A falha simultânea de 2 e 3 implica o não-funcionamento do sistema. Supondo que os componentes funcionem independentemente, calcular a confiabilidade do sistema.
+
+Dados da questão:
+```{r}
+c1<-0.9
+c2<-0.8
+c3<-0.7
+```
+
+```{r}
+c2c3<-c2*c3 #prob da interseção - eventos independentes 
+c2c3
+```
+
+Então a confiabilidade do sistema será:
+```{r}
+S <-c1*(c2+c3-c2c3)
+S
+```
+
+**Questão 6**
+
+
+Dados da questão:
+```{r}
+a<-0.2
+b<-0.5
+c<-0.3
+fa<-0.2
+fb<-0.05
+fc<-0.02
+```
+
+f: contratos futuros, escreve como reunião de a, b e c. 
+```{r}
+f<-(a*fa)+(b*fb)+(c*fc)
+f
+```
+
+Então, a prob de 1 contrato futuro ser negociado por A: 
+```{r}
+af<-((a*fa)/f)
+af
+```
+
+e por C
+```{r}
+cf<-((c*fc)/f)
+cf
+```
