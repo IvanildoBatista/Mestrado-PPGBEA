@@ -1,0 +1,45 @@
+---
+title: "Resolução da questão 1 (lista 3)"
+author: "Ivanildo Batista"
+date: "6 de abril de 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Resolução da questão 1 da lista 3
+
+Questão 1 - Duas lâmpadas queimadas foram acidentalmente misturadas com seis lâmpadas boas. Se vamos testando as lâmpadas, uma por uma, até encontrar duas defeituosas, qual é a probabilidade de que a última defeituosa seja encontrada no quarto teste?
+
+Instalando o pacote
+```{r}
+library(stringr)
+```
+
+```{r}
+lampadas<-rep(c("B", "D"), times = c(6, 2))
+lampadas
+L <-100000
+```
+
+```{r}
+#casos em que tem 2 lampadas defeituosas 
+
+experimento <- sample(lampadas,4)
+lampdefeituosa <- replicate(L,{experimento <- sample(lampadas,4)
+(experimento[4]=="D") 
+n <- str_count(experimento, "D")
+length(which(n==1))==2})
+```
+
+```{r}
+s<-mean(lampdefeituosa)
+```
+
+Solução 
+
+```{r}
+round(s/2,3)
+```
