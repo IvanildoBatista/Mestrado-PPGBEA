@@ -29,24 +29,6 @@ dbinom (2, size = 6, prob = 0.1) +
 dbinom (0, size = 5, prob = 0.1) + 
   + dbinom (1, size = 5, prob = 0.1)
 
-#Um contador eletrônico de bactérias registra, em média, cinco 
-#bactérias por cm3 de um líquido. Admitindo-se que esta variável tenha
-#distribuição de Poisson,
-
-#a) Qual é o desvio padrão do número de bactérias por cm^3 ?
-
-# Em uma distribuição Poisson a variância é igual e média, e a média, 
-#no nosso exemplo, é igual a 5, logo a variância é igual a 5; assim 
-#sendo o desvio padrão é a raiz da variância, logo
-lambda <-5
-sqrt(lambda)
-  
-#b) Encontre a probabilidade de que pelo menos duas bactérias ocorram
-#num volume de líquido de 2 cm^3.
-
-t <- 2
-mu <- lambda*t
-1 - ppois(1, mu)
 
 #5.	Uma limusine de aeroporto pode acomodar até quatro passageiros 
 #em qualquer corrida. A empresa aceitará um máximo de seis reservas 
