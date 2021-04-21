@@ -1,0 +1,55 @@
+---
+title: "Resolução da lista 5"
+author: "Ivanildo Batista da Silva Júnior"
+date: "20 de abril de 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Questão 1
+
+A distribuição dos pesos de coelhos criados numa granja pode muito bem ser representada por uma distribuição normal, com média de 5 kg e desvio padrão de 0,8 kg. Um abatedouro comprará 5.000 coelhos e pretende classificá-los de acordo com o peso, do seguinte modo: 20% dos leves como pequenos, os 55% seguintes como médios, os 15% seguintes como grandes e os 10% mais pesados como extras. Quais os limites de peso para cada classe?
+
+Para encontrar os limites das classes irei criar uma função que recebe o valor do percentual e transforma o valor críticos nos valores limites de classificação.
+
+```{r}
+classe = function(a){
+  # a função é 0.8Z+5, onde z é o valor crítico dado pela função qnorm
+  # a função qnorm retorna o valor crítico da tabela Z.
+  0.8*qnorm(a)+5
+}
+```
+
+**Calculando os limites das Classes**
+
+Para os 20% : irei calcular o valor limite até 20%
+```{r}
+#para até 20%
+classe(0.2)
+```
+
+Para os 75% : irei calcular o valor limite até 75%. Aqui estou calculando o limite superior dessa classe, visto que o limite inferior já foi calculado anteiormente.
+
+```{r}
+#para até 75% (20% + 55%)
+classe(0.75)
+```
+
+Para 90% : limite da classe entre Grandes e Extras, cujo limite inferior foi calculado anteriomente.
+```{r}
+#para até 90% (20% + 55% + 15%)
+classe(0.9)
+```
+
+Temos que as seguintes classificações :
+
+Se os coelhos serão do tipo **PEQUENO** se seu peso for menor que 4.326703.
+
+Se o peso ficar entre 4.326703 até 5.539592, serão **MÉDIO**.
+
+Se o peso estiver entre 5.539592 até 6.025241, serão classificados como **GRANDE**.
+
+E acima de 6.025241 serão classificados como **EXTRA**.
