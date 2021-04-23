@@ -1,0 +1,48 @@
+---
+title: "Questão 4 da lista 5"
+author: "Ivanildo Batista da Silva Júnior"
+date: "22 de abril de 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Suponha que o tempo gasto por um aluno selecionado aleatoriamente que usa um terminal conectado a uma instalação de computador com *time-sharing* tem uma distribuição gama com média de 20 minutos e variância de 80 $\textrm{min}^2$.
+
+
+**a.Quais são os valores de $\alpha$ e $\beta$ ?**
+
+Feito manuscrito.
+    
+**b. Qual é a probabilidade de um aluno usar o terminal por no máximo 24 minutos?**
+
+No *R* a resposta pode ser encontrada de duas formas
+```{r}
+#atribuindo as variáveis os valores encontrados na letra a)
+alpha <-5
+beta <-4
+
+#Primeira forma
+pgamma(24, alpha, rate = 1/beta)
+
+#segunda forma
+library(pracma)
+gammainc(6,5)[3]
+```
+
+**c. Qual é a probabilidade de um aluno passar entre 20 e 40 minutos usando o terminal?**
+
+```{r}
+#Probabilidade do aluno passar 40 minutos usando o terminal
+pg40 = pgamma(40, alpha, rate = 1/beta)
+
+#Probabilidade do aluno passar 20 minutos usando o terminal
+pg20 = pgamma(20, alpha, rate = 1/beta)
+
+#A probabilidade do aluno passar entre 
+#20 a 40 minutos usando o terminal é a 
+#diferença entre as probabilidade
+pg40 - pg20
+```
