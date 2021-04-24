@@ -1,0 +1,102 @@
+---
+title: "Teste de independência de qui-quadrado"
+author: "Ivanildo Batista da Silva Júnior"
+date: "19 de abril de 2021"
+output:   
+  rmarkdown::html_document:
+    theme: flatly
+    highlight: zenburn
+    toc: true
+    toc_float:  
+      collapsed: true
+      smooth_scroll: true 
+      
+                        # Adiciona um sumÃ¡rio ao documento
+#default , cerulean , journal , flatly , darkly , readable ,
+#spacelab , united , cosmo , lumen , paper , sandstone ,
+#simplex , yeti         
+
+#default , tango , pygments , kate , monochrome ,
+#espresso , zenburn , haddock , textmate
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+<div style="text-align: justify">
+
+# 1 Introdução
+
+O **teste de independência qui-quadrado** testa se duas variáveis qualitativas são independentes, ou seja, se existe uma relação entre duas variáveis categóricas. Em outras palavras, este teste é usado para determinar se os valores de uma das duas variáveis qualitativas dependem dos valores da outra variável qualitativa. Este documento descreve como realizar o teste de independência de qui-quadrado em R e como interpretar seus resultados.
+
+# 2 Hipóteses e estatística do teste
+
+As hipótese nula ($H_0$) e alternativa ($H_1$) do teste estão apresentadas a seguir:
+
+ - $H_0$: as variáveis são independentes, nãoo há relação entre as duas variáveis categóricas. Saber o valor de uma variável não ajuda a prever o valor da outra variável.
+
+ - $H_1$: as variáveis são dependentes, existe uma relação entre as duas variáveis categóricas. Saber o valor de uma variável ajuda a prever o valor da outra variável.
+
+O teste de independência qui-quadrado tem como base a comparaçãoo das frequências observadas com as frequências esperadas e, portanto, sua estatística de teste é dada como segue
+
+$$ Q^2_{obs} = \sum^r_{i=1}\sum^c_{i=1} \frac{(O_{ij} - E_{ij})^2}{E_{ij}} \sim \chi^2_{([r-1][c-1])}$$
+Onde $O_{ij} = (O_{11}, O_{12}, \dots, O_{rc})$ é o vetor de contagens observadas e e $E_{ij}$ são as frequências esperadas
+
+$$ E_{ij} = n\frac{n_{i.}}{n}\frac{n_{j.}}{n} = \frac{n_{i.}n_{j.}}{n}, \textrm{ com } i = 1, \dots,r \textrm{ e } j = 1, \dots, c$$
+
+# 3 Dados
+
+Para aplicação do teste de independência de qui-quadrado vamos utilizar o conjuto de dados `iris`, o qual está apresentado parcialmente a seguir:
+
+```{r, echo=FALSE}
+DT:: datatable ( iris , options = list ( pageLength =4, lengthMenu =c(4 , 8, 12 , 16) ))
+```
+
+
+O conjunto de dados é formado pelas variáveis contínuas: comprimento da sépala (Sepal.Length), largura da sépala (Sepal.Width), comprimento da pétala (Petal.Length), largura da pépala (Petal.Width); e pela variável categórica espécies (Species). Observe que este conjunto de dados precisa de uma pequena modificação para aplicação do teste de independência de qui-quadrado, uma vez que o teste requer duas variáveis categóricas e o conjunto de dados possui apenas uma. Para contornar isto, vamos criar a variável categórica `size` que possui nível `small` se o comprimento da sépala for menor do que a mediana do comprimento da sépala de todas as flores e nível `big` caso contrario.
+
+```{r}
+dat <- iris
+dat$size <- ifelse(dat$Sepal.Length < median(dat$Sepal.Length),
+  "small", "big"
+)
+```
+
+Observe que o conjunto de dados com a nova variável foi armazenado em `dat`. Agora vamos criar a tabela de contigência para as variáveis `Species` e `size` com a função `table()`, como segue:
+
+```{r}
+table(dat$Species, dat$size)
+```
+
+A tabela de contigência fornece o número de casos observados em cada subgrupo. Por exemplo, existe apenas 1 flor `big` do tipo `setosa`, enquanto existem 49 flores `small` do tipo `setosa` no conjunto de dados.
+
+# 4 Teste de independência de qui-quadrado no R
+
+Para este conjunto de dados, vamos testar em R se existe uma relação entre as variáveis `Species` e `size`. Para isto utiliza-se a função `chisq.test()`, como segue:
+
+```{r}
+test <- chisq.test(table(dat$Species, dat$size))
+test
+```
+
+Nesta saída tem-se as seguintes informações: o título do teste, quais variáveis foram usadas, a estatística de teste, os graus de liberdade e o $p$-valor do teste. O valor da estatística $\chi^2$ e o $p$-valor também podem ser acessados com:
+
+
+```{r}
+test$statistic # estatistica do teste
+```
+
+```{r}
+test$p.value # p-valor
+```
+As frequências esperadas podem ser acessadas com `test$expected`.
+
+# 5 Conclusão e interpretação
+
+A partir do `test\$p.value` podemos observar que o $p$-valor é menor que o nível de significância de 5%, ou seja, `2.2e-16 < 0.05`. Como qualquer outro teste estatístico, se o $p$-valor é menor que o nível de significância, podemos rejeitar a hipótese nula. Assim, em nosso contexto, a rejeição da hipótese nula para o teste de independência do qui-quadrado, significa que existe uma relação significativa entre a espécie e o tamanho da sépala. Portanto, saber o valor de uma variável ajuda a prever o valor da outra variável.
+
+# 6 Meu primeiro R Markdown
+
+![Rstudio](fig1.png)
+![Rstudio](fig2.png)
+![Rstudio](fig3.png){.class width=230 height=200px}
