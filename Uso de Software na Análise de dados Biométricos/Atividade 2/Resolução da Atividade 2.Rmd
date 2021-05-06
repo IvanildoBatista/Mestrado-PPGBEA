@@ -1,0 +1,491 @@
+---
+title: "Resolução da atividade 2"
+author: "Ivanildo Batista da Silva Júnior"
+date: "27 de abril de 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<div style="text-align: justify">
+
+### Universidade Federal Rural de Pernambuco (UFRPE)
+### Programa de Pós-Graduação em Biometria e Estatástica Aplicada (PPGBEA)
+### Uso de software na análise de dados biométricos (PBEA7331)
+
+**1. Calcule o valor da expressão** \((\frac{1+\sqrt{5}}{2})\) **no R.**
+
+```{r}
+(1 + sqrt(5))/2
+```
+
+**2 .Mostre como pode ser feita a adição de duas unidade a cada um dos elementos do vetor: c(10,3,6,45,19,33,2). Como poderia proceder com a multiplicação?**
+
+```{r}
+vetor = c(10,3,6,45,19,33,2)
+```
+
+Adicionando duas unidades a casa elemento
+```{r}
+vetor+2
+```
+
+Muliplicando cada elemento por 2
+```{r}
+vetor*2
+```
+
+Muliplicando cada elemento por 3
+```{r}
+vetor*3
+```
+
+**3. Qual a diferença entre `NaN`, `NULL`, `NA`, `Inf` e `-Inf`. Digite expressões no R que retornem cada um desses resultados.**
+
+`NaN` é o resultado de uma operação indefinida.
+```{r}
+0/0
+```
+
+`NULL` é o resultado mais comum de listas com comprimento igual a zero ou vetores nulos.
+```{r}
+list1 = list()
+list1[1]
+```
+
+`NA` é usada para especificar valores ausentes (*Not Avaliable*).
+```{r}
+x = c(1,2,4,NA)
+mean(x)
+```
+
+e `Inf` e `-Inf` para divisões com valor zero.
+```{r}
+2/0
+
+-2/0
+```
+
+**4. Qual o resultado obtido em cada uma das expressáµes: `5 + 3 * 10 %/% 3 == 15` e `5 + (3 * 10) %/% 3 == 15`. Discuta o resultado com os colegas e depois utilize o R para conferir a saáda.**
+
+O operador `%/%` retorna apenas a parte inteira do resultado de uma divisão. Na primeira expressão, ao dividir 10 por 3, o resultado retornará 3 (parte inteira), que será multiplicada por 3 resultando em 9 e somada a 5, então o resultado final será 14. Como 14 é diferente de 15, o resultado da primeira expressão será `FALSE`
+
+```{r}
+5 + 3 * 10 %/% 3 == 15
+```
+
+Na segunda expressão, a preferência é começar pelo que está entre parênteses, logo `(3*10)` será 30, que divido por 3 será 10 (parte inteira) e somada a 5, resultará em 15. Como 15 é igual a 15, o resultado será `TRUE`.
+
+```{r}
+5 + (3 * 10) %/% 3 == 15
+```
+
+
+**5. O código apresentado a seguir traz a mensagem de erro apresentada. Explique o motivo do erro e apresente uma solução para o problema. Com o erro corrigido, armazene a amostra aleatória em vetor e exiba quantas vezes (frequência absoluta) os meses selecionados aparecem. Qual a frequência relativa? Utilize set.seed(1) para garantir que a amostra gerada seja a mesma.**
+
+O comando usado gera um erro, pois por padrão o *replace* é `FALSE`, portanto é necessário alterar para `TRUE`.
+```{r}
+set.seed(1)
+sample(month.name,replace = T, 30)
+```
+
+Armazenando a amostra aleatória em um vetor
+
+```{r}
+set.seed(1)
+month = c(sample(month.name,replace = T, 30))
+month
+```
+
+Frequência absoluta:
+```{r}
+#library(plyr)
+#count(month)
+table(month)
+```
+
+Frequência relativa:
+```{r}
+prop.table(table(month))
+```
+
+**6. Reescreva as expressões abaixo utilizando o pipe `%>%`:**
+
+Importando o pacote
+
+```{r}
+library(magrittr)
+```
+
+Letra a):
+```{r}
+round(mean(sum(1:10)/3), digits = 1)
+```
+
+Em pipe `%>%` :
+```{r}
+c(1:10) %>%
+  sum() %>%
+  `/` (3) %>%
+  round(1)
+```
+
+Dica: utilize "/"(3) para fazer a divisão por 3. Se necessário consulte o *help* do pacote `magrittr`.
+
+Letra b)
+
+```{r}
+set.seed(2)
+x <- runif(100)
+media <- mean(x)
+saida <- round(media, 1)
+print(saida)
+```
+
+Reescrevendo a função com `%>%`:
+
+```{r}
+set.seed(2)
+#x = runif(100)
+
+runif(100) %>%
+  mean() %>%
+  round(1)
+```
+
+**7. Sem executar o R, informe qual a saáda do código abaixo e comente-a. Consulte o *help* das funções (pacote `magrittr`) caso precise.**
+
+Nessa primeira parte ele pega o valor 2 e adiciona (soma) mais 2, cujo o resultado é 4.
+
+2 %>% 
+  add(2) %>%
+  
+Em seguida ele pega o valor 4 e insere dentro de um vetor com o valor 6 e um valor ausente.
+
+  c(6, NA) %>% 
+
+Depois ele tira a média do vetor, desconsiderando os valores ausentes.
+
+  mean(na.rm = T) %>%
+
+Por fim, o resultado final é comparado com o valor 5 para retornar o valor de TRUE ou FALSE.
+
+  equals(5)
+
+No caso, ele retorna o valor `TRUE`.
+
+**8.Criar um vetor de que contenha a nota de 5 alunos: 2, 8, 10, 9, 5. Com base nesse vetor responder os seguintes itens:**
+
+Definindo o vetor:
+```{r}
+vetor2 = c(2,8,10,9,5)
+```
+
+
+**a. Exiba a menor $(\min)$ e a maior $(\max)$ nota obtida pelos estudantes.**
+
+Exibindo os valores máximo e mánimo:
+
+```{r}
+#mánimo
+min(vetor2)
+
+#máximo
+max(vetor2)
+```
+
+
+
+**b. Calcular a nota média ($\overline{x}$) e desvio padrão ($\sigma$) destes alunos sem o uso da funções `mean()` e `sd()`, respectivamente. O cálculo deve ser feito com e sem o uso do pipes `%>%`. Utilize as funções `mean()` e `sd()` para verificar se sua resposta está correta! A média, variância ($\sigma^2$) e desvio padrão para uma amostra aleatória ($x_{1},x_{2},\ldots,x_{n}$) são dados por, respectivamente:**
+
+\[\overline{x}=\frac{1}{n}\sum_{i=1}^{n}x_{i} \quad\quad \sigma^2=\frac{1}{n-1}\sum_{i=1}^{n}(x_{i}-\overline{x})^2 \quad\quad \sigma=\sqrt{\sigma^2}\]
+
+Criando a função média:
+```{r}
+
+media = function(vtr){sum(vtr)/length(vtr)}
+```
+
+Calculando a média:
+
+```{r}
+media(vetor2)
+```
+Calculando com pipes:
+
+```{r}
+vetor2 %>%
+  sum()%>%
+  `/` (length(vetor2))
+  
+```
+
+Verificando as respostas média calculadas:
+
+```{r}
+mean(vetor2)
+```
+
+Criando a função da variância:
+```{r}
+variancia = function(vtr){sum(((vtr-media(vtr))^2)/(length(vtr)-1))}
+```
+
+```{r}
+variancia(vetor2)
+```
+
+Calculando a variância com pipes:
+
+```{r}
+vetor2%>%
+  -(mean(vetor2))%>%
+  "^"(2)%>% 
+  sum() %>%
+  `/` (length(vetor2)-1)
+```
+
+Verificando as respostas das variâncias calculadas:
+```{r}
+var(vetor2)
+```
+
+Criando a função de desvio padrão:
+```{r}
+desvio = function(vtr){sum(((vtr-media(vtr))^2)/(length(vtr)-1))^0.5}
+```
+
+```{r}
+desvio(vetor2)
+```
+
+Calculando o desvio padrão com pipes:
+
+```{r}
+vetor2%>%
+  -(mean(vetor2))%>%
+  "^"(2)%>% 
+  sum() %>%
+  `/` (length(vetor2)-1)%>%
+  "^"(0.5)
+```
+
+Verificando as respostas anteriores:
+```{r}
+sd(vetor2)
+```
+
+**c. Calcule a nota mediana (\(Md\)) dos estudantes sem o uso da função median. O cálculo deve ser feito com e sem o uso do pipes %>%. Compare o resultado com o obtido com o da função median. A mediana de uma amostra ordenda** \(x_{(1)},x_{(2)},\ldots,x_{(n)}\) **é dada pela seguinte fórmula:** \[Md=\begin{cases} x_{([n+1]/2)} & \text{se $n$ é ámpar} \\ \left[x_{([n/2])}+x_{([n/2]+1)}\right]/2 & \text{se $n$ é par} \end{cases} \]
+
+```{r}
+#criando a função mediana
+
+mediana = function(lista){
+  n = length(lista)
+  s = sort(lista)
+  ifelse(n%%2==1, s[(n+1)/2],mean(s[n/2+0:1]))
+}
+```
+
+Calculando a mediana:
+```{r}
+mediana(vetor2)
+```
+
+Calculando a mediana com pipes:
+
+```{r}
+vetor2%>% 
+  sort()%>%
+  "["(3:3)%>%
+  mean()
+```
+
+Verificando o resultado:
+
+```{r}
+median(vetor2)
+```
+
+
+**d. Responder os itens "a", "b" e "c", supondo que um novo aluno tenha sido adicionado a lista de alunos e que sua nota seja 9.**
+
+Inserindo a nota do novo aluno no vetor:
+```{r}
+vetor2[6]=9
+vetor2
+```
+
+Calculando a média:
+```{r}
+#sem pipes
+media(vetor2)
+
+#com pipes
+vetor2 %>%
+  sum()%>%
+  `/` (length(vetor2))
+
+#verificando o resultado
+mean(vetor2)
+```
+
+Calculando a variância:
+```{r}
+#sem pipes
+variancia(vetor2)
+
+#com pipes
+vetor2%>%
+  -(mean(vetor2))%>%
+  "^"(2)%>% 
+  sum() %>%
+  `/` (length(vetor2)-1)
+
+#verificando os resultados
+var(vetor2)
+```
+
+Calculando o desvio padrão:
+```{r}
+#sem pipes
+desvio(vetor2)
+
+#com pipes
+vetor2%>%
+  -(mean(vetor2))%>%
+  "^"(2)%>% 
+  sum() %>%
+  `/` (length(vetor2)-1)%>%
+  "^"(0.5)
+
+#veririficando os resultados
+sd(vetor2)
+```
+
+Calculando a mediana:
+```{r}
+#sem pipes
+mediana(vetor2)
+
+#com pipes
+vetor2%>% 
+  sort()%>%
+  "["(3:4)%>%
+  mean()
+
+#verificando os resultados
+median(vetor2)
+```
+
+
+**9. Com um único comando (linha) crie uma sequência preenchida com inteiros de 4 a 12 e exiba o terceiro e quinto elemento.**
+
+Exibindo o terceiro e o quinto elemento.
+```{r}
+c(4:12)[c(3,5)]
+```
+
+
+**10. Utilize `set.seed(1)` como semente paras fixar o preenchimento de um vetor com números 100 números selecionados aleatoriamente entre 0 e 1. Exiba a soma, produtório, média, variância, desvio padrão.**
+
+Gerando o vetor de número
+```{r}
+set.seed(1)
+vetor3 = c(runif(100))
+vetor3
+```
+
+Soma dos valores do vetor:
+```{r}
+sum(vetor3)
+```
+
+Produtório dos valores do vetor:
+```{r}
+prod(vetor3)
+```
+
+Média dos valores do vetor:
+```{r}
+mean(vetor3)
+```
+
+Variância dos valores do vetor:
+```{r}
+var(vetor3)
+```
+
+Desvio padrão dos valores do vetor:
+```{r}
+sd(vetor3)
+```
+
+**11. Suponha que uma moeda não viciada seja lançada um grande número de vezes (pelo menos 1000), e que em seguida, seja observada a frequência de "caras" e "coroas" obtidas. Utilize o R para produzir a situação descrita, isto é, crie a moeda, realize os lançamentos e calcule a frequência. Caso a moeda seja viciada, como se daria a construção da situação no R?**
+
+Simulando uma moeda não viciada.
+
+Definindo um vetor com os valores da moeda
+```{r}
+moeda = c("Cara","Coroa")
+```
+
+Com a função *sample* irei gerar uma amostra de 1000 jogadas da moeda não viciada e irei atribuir a uma variável:
+```{r}
+#definindo uma semente para as simulações
+set.seed(1)
+#simulações para uma moeda não viciada
+vetor4 = c(sample(moeda, size=1000, replace = TRUE, prob = c(0.5,0.5)))
+```
+
+Frequência absoluta.
+```{r}
+table(vetor4)
+```
+
+Frequência relativa.
+```{r}
+prop.table(table(vetor4))
+```
+Podemos notar que os resultados da moeda não viciada não são iguais, mas estão próximos.
+
+Agora irei realizar o mesmo procedimento, mas para uma moeda **viciada**. Para isso irei alterar o vetor de probabilidade para `prob = c(0.4,0.6)` e gerarei os resultados.
+
+```{r}
+#definindo uma semente para as simulações
+set.seed(1)
+#simulações para uma moeda viciada
+vetor5 = c(sample(moeda, size=1000, replace = TRUE, prob = c(0.4,0.6)))
+```
+
+Frequência absoluta.
+```{r}
+table(vetor5)
+```
+
+Frequência relativa.
+```{r}
+prop.table(table(vetor5))
+```
+
+Aqui observa-se que os resultados estão bem distantes, com valores maiores para coroa, que tem uma probabilidade maior de ocorrer. Posso também alterar as probabilidades dessa moeda viciada para `prob = c(1/3,2/3)`.
+
+
+```{r}
+#definindo uma semente para as simulações
+set.seed(1)
+#simulações para uma moeda viciada
+vetor5 = c(sample(moeda, size=1000, replace = TRUE, prob = c(1/3,2/3)))
+```
+
+Frequência absoluta.
+```{r}
+table(vetor5)
+```
+
+Frequência relativa.
+```{r}
+prop.table(table(vetor5))
+```
