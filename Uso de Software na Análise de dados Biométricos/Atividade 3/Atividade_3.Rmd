@@ -1,0 +1,262 @@
+---
+title: "Atividade 3"
+subtitle: |
+      | Universidade Federal Rural de Pernambuco (UFRPE)
+      | Programa de Pós-Graduaçãoo em Biometria e Estatística Aplicada (PPGBEA) 
+      | Uso de software na análise de dados biométricos (PBEA7331)
+author: "Ivanildo Batista da Silva Júnior"
+date: "Aluno : 27 de maio de 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<div style="text-align: justify">
+
+1. Carregue o conjunto de dados `HairEyeColor` com o comando 
+
+<center>
+`data(HairEyeColor)`
+</center>
+$$\\[0.001in]$$e responda as seguintes perguntas fornecendo o comando no R: (a) Qual o total de pessoas na amostra? (b) Qual a proporção de homens e de mulheres na amostra? (c) Quantos são os homens de cabelos pretos? (d) Quantas mulheres têm cabelos loiros? (e) Qual a proporção de homens e de mulheres entre as pessoas ruivas? (f) Quantas pessoas tem olhos verdes?
+
+</div>
+**RESPOSTA**
+
+```{r}
+#Carregando a base de dados
+data(HairEyeColor)
+```
+
+
+**Letra a)**
+```{r}
+#(a) Qual o total de pessoas na amostra?
+sum(HairEyeColor)
+```
+
+**Letra b)**
+```{r}
+#(b) Qual a proporção de homens e de mulheres na amostra?
+sum(HairEyeColor[,,'Male'])/sum(HairEyeColor)
+sum(HairEyeColor[,,'Female'])/sum(HairEyeColor)
+```
+
+**Letra c)**
+```{r}
+#(c) Quantos são os homens de cabelos pretos?
+sum(HairEyeColor[,,'Male'][1, c('Brown','Blue','Hazel','Green')])
+```
+
+**Letra d)**
+```{r}
+#(d) Quantas mulheres têm cabelos loiros? 
+sum(HairEyeColor[,,'Female'][4, c('Brown','Blue','Hazel','Green')])
+```
+
+**Letra e)**
+```{r}
+#(e) Qual a proporção de homens e de mulheres entre as pessoas ruivas? 
+
+#proporção de homens ruivos entre pessoas ruivas
+sum(HairEyeColor[,,'Male'][3,])/
+  (sum(HairEyeColor[,,'Male'][3,])+ sum(HairEyeColor[,,'Female'][3,]))
+
+#proporção de mulheres ruivas entre pessoas ruivas
+sum(HairEyeColor[,,'Female'][3,])/
+  (sum(HairEyeColor[,,'Male'][3,])+ sum(HairEyeColor[,,'Female'][3,]))
+```
+
+**Letra f)**
+```{r}
+#(f) Quantas pessoas tem olhos verdes?
+(sum(HairEyeColor[,,'Male'][1:4,c('Green')])+
+    sum(HairEyeColor[,,'Female'][1:4,c('Green')]))
+```
+
+2. Considere a tabela com frequências apresentadas a seguir.
+
+<center>
+![](tabela.png){width=50%}
+</center>
+
+Armazene estas informações de forma adequada em um `data.frame` e exiba comandos para respoder as perguntas que seguem: (a) Qual o número total de pessoas? (b) Qual o número de fumantes e não fumantes? (c) Quantas pessoas são do sexo masculino? (d) Quantas mulheres são não fumantes?
+
+**RESPOSTA**
+
+```{r}
+#criando o dataframe
+
+dataframe = data.frame(
+  idade = c("Menor que 20","20 a 40","Maior que 40"),
+  homem_fumante = c(50,39,37),
+  mulher_fumante = c(30,28,36),
+  homem_nao_fumante = c(55,31,25),
+  mulher_nao_fumante = c(41,30,15)
+)
+dataframe
+```
+
+**Letra a)**
+
+```{r}
+#a) Qual o número total de pessoas?
+sum(dataframe[c('homem_fumante','mulher_fumante',
+                'homem_nao_fumante','mulher_nao_fumante')])
+```
+
+**Letra b)**
+
+```{r}
+#(b) Qual o número de fumantes e não fumantes?
+sum(dataframe[c('homem_fumante','mulher_fumante')])
+```
+
+**Letra c)**
+```{r}
+#(c) Quantas pessoas são do sexo masculino?
+sum(dataframe[c('homem_fumante','homem_nao_fumante')])
+```
+
+**Letra d)**
+
+```{r}
+#(d) Quantas mulheres são não fumantes?
+sum(dataframe[c('mulher_nao_fumante')])
+```
+
+
+
+3. Construa uma matriz triangular superior utilizando estruturas de controle e repetição. Garanta que seus elementos sejam preenchidos com o produto de seus respectivos índices, conforme mostrado a seguir:
+
+```{r,  echo=FALSE}
+m<-matrix ( nrow =5 , ncol =5)
+
+ # repeticao aninhada
+ for ( i in 1:dim(m) [1]) {
+   for ( j in 1:dim(m) [2]) {
+     m[i,j] = i*j
+     }
+   }
+
+m[lower.tri(m)] <- 0
+print (m)
+
+```
+
+**RESPOSTA**
+```{r}
+m<-matrix ( nrow =5 , ncol =5)
+
+ # repeticao aninhada
+ for ( i in 1:dim(m) [1]) {
+   for ( j in 1:dim(m) [2]) {
+     m[i,j] = i*j
+     }
+   }
+
+m[lower.tri(m)] <- 0
+print (m)
+
+```
+4. Calcule as seguintes somas **sem** e **com** o uso de estrutura de repetição (`for` ou `while`).
+
+\[\mbox{(a)}\quad \dfrac{1}{100}\displaystyle\sum_{i=0}^{100}\left(i-50\right)^{2}\quad\quad \mbox{(b)}\quad \displaystyle\sum_{i=10}^{100}\left(i^3+4i^2\right) \quad\quad \mbox{(c)}\quad \displaystyle\sum_{i=1}^{25}\left(\frac{2^i}{i}+\frac{3^i}{i^2}\right) \quad\quad \mbox{(d)}\quad \displaystyle\sum_{i=1}^{20}\sum_{j=1}^{5}\dfrac{i^4}{3+j}\]
+ 
+**RESPOSTA**
+
+**Letra a)**
+
+```{r}
+#com loop
+total=0
+for (i in 0:100) {
+  total<-total + ((i-50)^2/100)
+}
+total
+
+#sem loop
+x = 0:100
+sum((x-50)^2)/100
+```
+
+**Letra b)**
+
+```{r}
+#com loop
+total=0
+for (i in 10:100) {
+  total<-total + (i^3 + 4*i^2)
+}
+total
+
+#sem loop
+x = 10:100
+sum(x^3 + 4*x^2)
+```
+
+**Letra c)**
+
+```{r}
+#com loop
+total=0
+for (i in 1:25) {
+  total<-total + (((2^i)/i) + (3^i/(i^2)))
+}
+total
+
+#sem loop
+x=seq(1:25)
+x2 = 2^x
+x3 = 3^x
+x_2=x^2
+sum(x2/x) + sum(x3/x_2)
+```
+
+**Letra d)**
+
+```{r}
+#com loop
+sum = 0
+for(i in 1:20) {
+  for(j in 1:5) {
+    sum = sum + ((i^4)/(3+j))
+  }
+}
+print(sum)
+
+#sem loop
+a= seq(1:20)
+a4 = a^4
+
+b = seq(1:5)
+
+c = 3 + b[1]
+d = 3 + b[2]
+e = 3 + b[3]
+f = 3 + b[4]
+g = 3 + b[5]
+
+sum(a4/c) + sum(a4/d) + sum(a4/e) + sum(a4/f) + sum(a4/g)
+```
+
+
+5. \(X_{1},X_{2}\ldots,X_{n}\) é uma amostral aleatória obtida a partir de uma variável aleatória \(X\sim N(\mu,\sigma^2)\), tal que a variância é conhecida, então o intervalo de confiança de nível \((1-\alpha)\) para a média populacional \(\mu\) é dado por: \[\left(\overline{X}-z_{\alpha/2}\frac{\sigma}{\sqrt{n}};\overline{X}+z_{\alpha/2}\frac{\sigma}{\sqrt{n}}\right),\] em que \(z_{\alpha/2}\) é o quantil da distribuição normal padrão tal que \(P(Z < z_{\alpha/2})=\alpha/2\). Com base na expressão para o cálculo do intervalo de confiança para \(\mu\), elaborar uma função que tenha como entrada a média amostral (\(\overline{x}\)), o desvio padrão populacional (\(\sigma\)), o tamanho da amostra (\(n\)) e o nível de confiança (\(1-\alpha\)), e retorne um vetor contendo os limites inferior e o superior do intervalo. Para média amostral, desvio padrão populacional, tamanho da amostra e nível de confiança iguais a 5, 2, 20 e 0.95, respectivamente, tem-se que o intervalo de confiança é `(4.123,5.877)`. Utilize estes valores para testar a função criada. Dica: para cálculo do valor \(z_{\alpha/2}\) utilize a função `qnorm`.
+ 
+**RESPOSTA**
+```{r}
+#criando a função para calcular o intervalo de confiança
+intervalo_de_confianca = function(media, sd, n, alpha){
+  c(round(media - qnorm((1-alpha/2),mean=0,sd=1)*sd/(sqrt(n)),3),
+    round(media + qnorm((1-alpha/2),mean=0,sd=1)*sd/(sqrt(n)),3))
+}
+```
+
+```{r}
+#Calculando o intervalo (limite superior e limite inferior)
+intervalo_de_confianca(5,2,20,0.05)
+```
+
+</div>
