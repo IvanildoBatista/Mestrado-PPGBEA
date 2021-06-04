@@ -1,0 +1,54 @@
+# Exemplo I
+
+```{r results='hide'}
+lista1<- list(a = 1:30, b=c(23,56,89,96,36,25,74), c=rnorm(10))
+lista1
+```
+
+# Simplificação
+
+```{r echo=TRUE}
+
+x1<- sapply(lista1, sum, simplify = TRUE)
+
+print(x1)
+
+print(class(x1))
+```
+
+# Sem simplificação
+
+```{r echo=TRUE}
+
+x2<- sapply(lista1, sum, simplify = FALSE)
+
+print(x2)
+
+print(class(x2))
+```
+
+# Exemplo 2
+
+# Simplificação
+
+```{r echo=TRUE}
+
+y1<- sapply(mtcars[c('mpg','hp')],
+            range, simplify = TRUE)
+
+print(y1)
+
+print(class(y1))
+```
+
+# Sem simplificação
+
+```{r echo=TRUE}
+
+y2<- sapply(mtcars[c('mpg','hp')],
+            range, simplify = FALSE)
+
+print(y2)
+
+print(class(y2))
+```
