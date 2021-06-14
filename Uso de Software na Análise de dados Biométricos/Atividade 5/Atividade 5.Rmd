@@ -1,0 +1,544 @@
+---
+title: "Pacote GGCORRPLOT"
+subtitle:
+author:  |
+      |
+      | Carlos Roberto de Nazaré Carvalho Junior
+      |
+      | Fernando José Pessoa Andrade
+      |
+      | Ivanildo Batista da Silva Júnior
+      |
+      | Vanessa Karoline Inacio Gomes
+      |
+      | Vaniele da Silva Barros
+institute: "Professor Dr. Antonio Samuel - PPGBEA (UFRPE)"
+date: "14 de Junho de 2021"
+output:
+  xaringan::moon_reader:
+    css:
+      uio-fonts
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: true
+      
+#"metropolis-fonts" "fc", middlebury-fonts, nhsr, rladies-fonts
+#tamu-fonts, uio-fonts,uio-fonts, uo-fonts
+
+
+
+      ##  [1] "chocolate-fonts"  "chocolate"        "default-fonts"   
+##  [4] "default"          "duke-blue"        "fc-fonts"        
+##  [7] ""               "hygge-duke"       "hygge"           
+## [10] "ki-fonts"         "ki"               "kunoichi"        
+## [13] "lucy-fonts"       "lucy"             
+## [16] "metropolis"       "" "middlebury"      
+## [19] "nhsr-fonts"       "nhsr"             "ninjutsu"        
+## [22] "rladies-fonts"    "rladies"          "robot-fonts"     
+## [25] "robot????"            "rutgers-fonts??????"    "rutgers??"         
+## [28] "shinobi"          "tamu-fonts"       "tamu"            
+## [31] "uio-fonts"        "uio"              "uo-fonts"        
+## [34] "uo"               "uol-fonts"        "uol"             
+## [37] "useR-fonts"       "useR"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<div style="text-align: justify">
+
+## Autor do Pacote
+
+O autor desse pacote chama-se Alboukadel Kassambara que, além desse pacote, é autor de livros na área de estatística e aprendizado de máquina com *R*. Seu repositório público no *Github* e seu *blog* podem ser conferidos, respectivamente, [aqui](https://github.com/kassambara) e [aqui](http://www.alboukadel.com/). 
+
+O pacote foi publicado no **CRAN** em 19 de Maio de 2019 e atualmente está na sua versão 0.1.3 e documentação usada nessa apresentação pode ser acessada [aqui](https://cran.r-project.org/web/packages/ggcorrplot/index.html).
+
+---
+<div style="text-align: justify">
+
+## Descrição do Pacote
+
+O pacote *ggcorrplot* é usado para visualizar facilmente uma matriz de correlação usando o pacote *ggplot2*. Isso fornece uma solução para reodernar a matriz de correlação e exibição dos níveis de significância no gráfico. Também está inclusa a função *cor_pmat()* para calcular os p-valores da matriz de correlação (com base na função *cor.test()*).
+
+##### Vantagens do *GGCORRPLOT*
+
+--
+- Lida com vários testes de correlação ao mesmo tempo;
+
+--
+- Visualiza bem os resultados;
+
+--
+- Menos código para gerar o gráfico;
+
+--
+- Mantém as características do *GGPLOT2*;
+
+--
+- Pode produzir p-valores, intervalos de confiança ou alguma outra maneira de sugerir se as correlações encontradas são estatisticamente significativas ou não.
+---
+<div style="text-align: justify">
+
+## Instalação do pacote
+
+```{r eval=FALSE, tidy=FALSE}
+install.packages('ggcorrplot')
+library(ggcorrplot)
+```
+
+## Principais funções do pacote
+
+**ggcorrplot()** : Essa função gera uma exibição gráfica da matriz de correlação usando o pacote *GGPLOT2*.
+
+**Composição da função**:
+<center>
+![Rstudio](fig4.png)
+<center/>
+
+---
+** Parâmetros da função ggcorrplot()**:
+
+<div style="text-align: justify">
+
+--
+- **corr** : a matriz de correlação para visualizar
+
+--
+- **method** : é um caracter que irá definir o método de visualização da matriz de correlação. Por padrão usa o "square" (formato quadrado), mas também pode ser usado o formato circular ou "*circle*".
+
+--
+- **type** : Por padrão usa o argumento "*full*", porém permite o uso de "lower" e "upper" para exibição da matriz de correlação.
+
+--
+- *ggtheme* :  função ggplot2 ou objeto tema. Por padrão o valor é *theme_minimal*. Permite temas oficiais da *ggplot2*, incluindo *theme_gray*, *theme_bw*, *theme_minimal*, *theme_classic*, *theme_void*,etc.
+
+--
+- *title* : Título do gráfico.
+
+--
+- *show.legend* : Para exibir a legenda do gráfico.
+
+--
+- *legend.title* : Exibir o título da legenda.
+
+--
+- *show.diag* : argumento lógico, para exibir os coeficientes de correlação na diagonal principal.
+
+--
+- *colors* : um vetor de 3 cores para valores de correlação baixo, médio e alto.
+
+--
+- *outline.color* : a cor do contorno de um quadrado ou círculo. O valor padrão é cinza ("gray").
+
+--
+- **hc.order** : valor lógico. Se *TRUE*, a matriz de correlação será ordenada usando a função *hclust*.
+
+--
+- **hc.method** : o método de aglomeração a ser utilizado no *hclust*.
+
+--
+- **lab** : valor lógico. Se *TRUE*, adicione o coeficiente de correlação no gráfico.
+
+---
+
+<div style="text-align: justify">
+
+--
+- *lab_col, lab_size* : tamanho e cor a serem usados para os rótulos do coeficiente de correlação. usado quando *lab* = *TRUE*.
+
+--
+- **p.mat** : matriz do p-valor. Se *NULL*, os argumentos *sig.level*, *insig*, *pch*, *pch.col* e *pch.cex* são inválidos.
+
+--
+- *sig.level* :  nível significativo, se o valor p em *p-mat* for maior que *sig.level*, então o coeficiente de correlação correspondente é considerado insignificante.
+
+--
+- *insig* :  coeficientes de correlação insignificantes especializados, "pch" (padrão), "em branco". Se estiver "em branco", limpe os glifos correspondentes; se "pch", adiciona caracteres nos glifos correspondentes.
+
+--
+- *pch* : adiciona caracteres nos glifos de coeficientes de correlação insignificantes (válido apenas quando insig é "pch"). O valor padrão é 4.
+
+--
+- *pch.col, pch.cex* : a cor e o cex (tamanho) de *pch* (válido apenas quando insig é "pch").
+
+--
+- *tl.cex, tl.col, tl.srt* : o tamanho, a cor e a rotação da *string* do rótulo de texto (nomes de variáveis). Decide o número de casas decimais a serem exibidas, por padrão esse valor é 2.
+
+
+Ao final a função irá retornar um gráfico *ggplot2*.
+
+---
+
+**cor_pmat()**: Calcula matriz de correlação de p-valores. Essa função aplica todas as variáveis do *dataframe* o teste de correlação de *Pearson*.
+
+**Composição da função**:
+<center>
+![Rstudio](fig5.png)
+<center/>
+
+<div style="text-align: justify">
+**Parâmetros da função cor_pmat()**
+
+--
+- **x** : matriz numérica ou um *dataframe*.
+
+--
+- **...** : outros argumentos a serem passados na função *cor.test*, que é a função usada para calcular a correlação. É possível definir o método de cálculo de correlação (*method* - *pearson* (padrão), *kendall* ou *spearman*), alterar a hipótese do teste (*alternative* - "*two.sided*", "*greater*" ou "*less*"), nível de confiança do teste de correlação (*conf.level*) e se o p-valor deve ser ou não calculado (*exact*).
+
+---
+class: inverse, middle, center
+
+# Usando o pacote GGCORRPLOT
+---
+<div style="text-align: justify">
+
+Para essa apresentação usaremos o *dataset* *iris*, que é conjunto de dados nativo do *R* e o *quakes*. Segue abaixo as cinco primeiras observações de cada *dataset*:
+
+--
+```{r, warning=FALSE}
+head(iris[1:4],5)
+```
+--
+```{r, warning=FALSE}
+head(quakes,5)
+```
+---
+<div style="text-align: justify">
+
+Antes de gerar os gráficos de correlação, será abordada a função *cor_pmat()* que, como dito anteriormente, gera uma matriz de correlação com p-valores. Esses p-valores são gerados da função *cor.test()*. No exemplo abaixo usaremos essa função com um exemplo, usando as colunas *Sepal.Length* e *Sepal.Width*
+
+```{r, fig.width=11}
+cor.test(iris$Sepal.Length,iris$Sepal.Width)
+```
+
+Nesse exemplo o p-valor igual a **0.1519**. Por padrão usa-se o método de *Pearson*, mas é possível usar o método de *Kendall* e de *Spearman*.
+---
+<div style="text-align: justify">
+Usando o método de *Kendall* e extraindo o p-valor.
+
+```{r, fig.width=11}
+cor.test(iris$Sepal.Length,iris$Sepal.Width, method = "kendall")[3]
+```
+
+Usando o método de *Spearman* e extraindo o p-valor.
+
+```{r, fig.width=11, warning=F}
+cor.test(iris$Sepal.Length,iris$Sepal.Width, method = "spearman")[3]
+```
+
+Todos os valores são diferentes. Alterar o método de cálculo de correlação também pode ser aplicado para a função *cor_pmat()*, conforme veremos a seguir.
+
+---
+
+Abaixo temos a matriz com os p-valores, com o método padrão.
+```{r echo=FALSE, cache=F, results=F, warning=F, comment=F, warning=F, include=F}
+library(ggcorrplot)
+```
+```{r, fig.width=11}
+cor_pmat(iris[1:4])
+```
+
+Por *Kendall*.
+```{r, fig.width=11}
+cor_pmat(iris[1:4], method="kendall")
+```
+---
+<div style="text-align: justify">
+
+Por *Spearman*.
+```{r, fig.width=11}
+cor_pmat(iris[1:4], method="spearman", exact=FALSE)
+```
+
+--
+A função *cor_pmat()* é importante, pois serve de argumento para a função *ggcorrplort()*, que será aplicada mais a frente. Para mais informações sobre a função *cor.test()* deve-se consultar sua [documentação](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/cor.test).
+
+---
+<div style="text-align: justify">
+
+**Calculando a correlação**
+
+Antes de gerar os gráficos é necessário criar a matriz de correlação com a função `cor()`:
+
+```{r warning=FALSE}
+corr <- round(cor(quakes),2)
+corr
+```
+
+---
+<div style="text-align: justify">
+O objeto gerado é inserido dentro da função `ggcorrplot()`. Abaixo é gerado uma plotagem simples, sem nenhuma informação, a não ser a barra lateral do gráfico que mostra que cores mais "quentes"" indicam correlação positiva e cores "frias" correlação negativa.
+
+```{r echo=FALSE, cache=F, results=F, warning=F, comment=F, warning=F, include=F}
+library(ggcorrplot)
+```
+```{r warning=FALSE, fig.align='center'}
+ggcorrplot(corr)
+```
+
+---
+<div style="text-align: justify">
+Alterando o formato de apresentação das correlações do formato padrão para círculos.
+
+```{r echo=FALSE, cache=F, results=F, warning=F, comment=F, warning=F, include=F}
+library(ggcorrplot)
+```
+```{r warning=FALSE, fig.align='center'}
+ggcorrplot(corr, method = "circle")
+```
+---
+
+<div style="text-align: justify">
+Reordenando a matriz de correlação.
+
+```{r echo=FALSE, cache=F, results=F, warning=F, comment=F, warning=F, include=F}
+library(ggcorrplot)
+```
+```{r warning=FALSE, fig.align='center'}
+ggcorrplot(corr, hc.order = T, outline.color = "white")
+```
+---
+
+<div style="text-align: justify">
+
+#### Alterando o *layout*
+
+Alterando o *layout* para *lower triangle*.
+
+```{r echo=FALSE, cache=F, results=F, warning=F, comment=F, warning=F, include=F}
+library(ggcorrplot)
+```
+```{r warning=FALSE, fig.width=6, fig.align='center'}
+ggcorrplot(corr, hc.order = T, type = "lower",
+           outline.color = "white")
+```
+---
+
+Alterando o *layout* para *upper triangle*.
+
+```{r echo=FALSE, cache=F, results=F, warning=F, comment=F, warning=F, include=F}
+library(ggcorrplot)
+```
+```{r warning=FALSE, fig.width=6, fig.align='center'}
+ggcorrplot(corr, hc.order = T, type = "upper",
+           outline.color = "white")
+
+```
+---
+
+Alterando as cores e o tema.
+
+```{r echo=FALSE, cache=F, results=F, warning=F, comment=F, warning=F, include=F}
+library(ggcorrplot)
+```
+```{r warning=FALSE, fig.width=6, fig.align='center'}
+ggcorrplot(corr, hc.order = T, type = "lower", outline.color = "white",
+           ggtheme = ggplot2::theme_gray, colors = c("#6D9EC1","white", "#E46726"))
+
+```
+---
+
+Adicionando coeficientes de correlação e mudando o tema.
+
+```{r echo=FALSE, cache=F, results=F, warning=F, comment=F, warning=F, include=F}
+library(ggcorrplot)
+```
+```{r warning=FALSE, fig.width=6, fig.align='center'}
+ggcorrplot(corr, hc.order = T, type = "lower",
+           lab = T,ggtheme = ggplot2::theme_dark())
+```
+---
+
+Adicionando o nível de confiança da correlação. Aplicamos para a função o argumento `p.mat` e os coeficientes não significativos são excluídos.
+
+```{r echo=FALSE, cache=F, results=F, warning=F, comment=F, warning=F, include=F}
+library(ggcorrplot)
+```
+```{r warning=FALSE, fig.width=6, fig.align='center'}
+p.mat <- cor_pmat(quakes)
+ggcorrplot(corr,hc.order = T, type = "lower", p.mat = p.mat)
+```
+---
+
+Deixando espaço vazio para coeficientes não significantes. Utilizando *insig* = "*blank*".
+
+```{r echo=FALSE, cache=F, results=F, warning=F, comment=F, warning=F, include=F}
+library(ggcorrplot)
+```
+```{r warning=FALSE, fig.width=6, fig.align='center'}
+ggcorrplot(corr, p.mat = p.mat, hc.order = T,type = "lower", insig = "blank")
+```
+---
+Inserindo título e tirando a legenda.
+
+```{r echo=FALSE, cache=F, results=F, warning=F, comment=F, warning=F, include=F}
+library(ggcorrplot)
+```
+```{r warning=FALSE, fig.width=5, fig.align='center'}
+ggcorrplot(corr,hc.order = T, type = "lower", title='Gráfico de correlação',
+           show.legend = F, show.diag = T)
+```
+
+---
+Matriz de correlação com e sem a **diagonal principal**.
+
+```{r,  echo=FALSE, cache=F, results=F, warning=F, comment=F, warning=F, include=F}
+library(gridExtra)
+```
+
+```{r warning=FALSE, fig.width=9}
+p1 <- ggcorrplot(corr,hc.order = T, type = "lower", title='Gráfico de correlação',
+                 show.legend = F, show.diag = T)
+p2<- ggcorrplot(corr,hc.order = T, type = "lower", title='Gráfico de correlação',
+                show.legend = F, show.diag = F)
+grid.arrange(p1, p2, ncol = 2)
+```
+---
+
+Trabalhando com a legenda (cor e tamanho).
+
+```{r echo=FALSE, cache=F, results=F, warning=F, comment=F, warning=F, include=F}
+library(ggcorrplot)
+```
+```{r warning=FALSE, fig.width=6, fig.align='center'}
+ggcorrplot(corr, type = "lower", lab=T, lab_col = 'black', lab_size = 6)
+```
+---
+
+Agrupando a matriz de correlação. Abaixo usamos apenas três métodos de agrupamento, mas além desses existem "*ward.D*", "*ward.D2*", "*single*", "*average*" e "*centroid*".
+
+```{r echo=FALSE, cache=F, results=F, warning=F, comment=F, warning=F, include=F}
+library(ggcorrplot)
+```
+
+```{r warning=FALSE, fig.width=11, fig.align='center'}
+p1 <- ggcorrplot(corr,hc.order = T, hc.method = "complete")
+p2 <- ggcorrplot(corr,hc.order = T, hc.method = "median")
+grid.arrange(p1, p2, ncol = 2, nrow = 1)
+```
+---
+class: inverse, middle, center
+
+# GGCORRPLOT vs GGPLOT2
+---
+```{r echo=FALSE, cache=F, results=F, warning=F, comment=F, warning=F, include=F}
+library(ggplot2)
+library(reshape2)
+```
+
+Criando um gráfico de correlação com *ggplot2*.
+```{r warning=FALSE, fig.width=6,fig.align='center'}
+gplot <- ggplot(data = melt(round(cor(iris[c(2,1,3,4)]),2), na.rm = TRUE), aes(Var2, Var1, fill = value))+  geom_tile(color = "white")+ scale_fill_gradient2(low = "blue", high = "red",mid="white", midpoint = 0, limit = c(-1,1), space = "Lab", name="Pearson\nCorrelation") + theme_minimal()+ theme(axis.text.x = element_text(angle = 45, vjust = 1, size = 12, hjust = 1))+ coord_fixed()
+gplot
+```
+---
+Criando um gráfico de correlação com *ggcorrplot*.
+```{r warning=FALSE, fig.width=6, fig.align='center'}
+gcor <- ggcorrplot(cor(iris[c(2,1,3,4)]),hc.order = T, legend.title = "Pearson\nCorrelation")
+gcor
+```
+---
+**Comparação**
+<div style="text-align: justify">
+
+--
+- No primeiro gráfico gerado foi necessário instalar os pacotes **ggplot2** e **reshape2**, mas no segundo gráfico apenas o pacote **ggcorrplot**. 
+
+--
+- No segundo gráfico a quantidade de código e argumentos necessário para obter o mesmo resultado do primeiro foi bem menor, temos um código mais simples e mais compreensível.
+
+--
+- A princípio o desempenho de ambos os cógidos são iguais, então, replicamos uma quantidade de vezes muito grande e o resultado pode ser visto abaixo:
+
+--
+```{r}
+system.time(replicate(10000000,gplot))
+system.time(replicate(10000000,gcor))
+```
+
+Então vemos que o segundo código tem um desempenho melhor que o primeiro.
+
+---
+class: inverse, middle, center
+
+# Outros pacotes para plotagem de correlogramas
+---
+```{r echo=FALSE, cache=F, results=F, warning=F, comment=F, warning=F, include=F}
+library(corrgram)
+```
+
+#### Correlograma com o pacote *CORRGRAM*.
+```{r warning=FALSE, fig.width=5, fig.height=5,fig.align='center'}
+corrgram(iris, lorder = TRUE, lower.panel = panel.shade, upper.panel = panel.pie, 
+    text.panel = panel.txt)
+```
+---
+#### Correlograma com o pacote *ELLIPSE*.
+
+```{r echo=FALSE, cache=F, results=F, warning=F, comment=F, warning=F, include=F}
+library(ellipse)
+```
+
+```{r warning=FALSE, fig.width=6, fig.height=6,fig.align='center'}
+plotcorr(cor(iris[,1:4]), col = colorRampPalette(c("firebrick3", "white", "navy"))(10))
+```
+---
+#### Correlograma com o pacote *GGCORRPLOT2*.
+```{r echo=FALSE, cache=F, results=F, warning=F, comment=F, warning=F, include=F}
+library(ggcorrplot2)
+```
+```{r warning=FALSE, fig.width=5, fig.height=5,fig.align='center'}
+ggcorrplot(corr, method = "square")
+```
+
+---
+#### Correlograma com o pacote *GGALLY*.
+```{r echo=FALSE, cache=F, results=F, warning=F, comment=F, warning=F, include=F}
+library(GGally)
+```
+```{r warning=FALSE, fig.width=6, fig.height=6,fig.align='center'}
+ggcorr(mtcars)
+```
+---
+#### Correlograma com o pacote *CORRELATION* e *DPLYR*.
+```{r echo=FALSE, cache=F, results=F, warning=F, comment=F, warning=F, include=F}
+library(correlation)
+library(dplyr)
+library(see)
+```
+```{r warning=FALSE, fig.width=6, fig.height=6,fig.align='center'}
+correlation(iris) %>% summary(redundant = TRUE) %>% plot()
+```
+---
+#### Documentação consultada
+
+Segue abaixo a documentação de cada um dos pacotes desse trabalho:
+
+--
+- [GGCORRPLOT](https://cran.r-project.org/web/packages/ggcorrplot/index.html);
+
+--
+- [GGCORRPLOT2](https://github.com/caijun/ggcorrplot2) (Não encontra-se no *CRAN*);
+
+--
+- [CORRGRAM](https://cran.r-project.org/web/packages/corrgram/index.html);
+
+--
+- [ELLIPSE](https://cran.r-project.org/web/packages/ellipse/index.html);
+
+--
+- [GGALLY](https://cran.r-project.org/web/packages/GGally/index.html);
+
+--
+- [CORRELATION](https://cran.r-project.org/web/packages/correlation/index.html);
+
+---
+class: inverse, middle, center
+
+# Obrigado!
+
+
+

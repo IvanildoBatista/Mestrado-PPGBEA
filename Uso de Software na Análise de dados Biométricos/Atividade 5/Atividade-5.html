@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Pacote GGCORRPLOT</title>
+    <meta charset="utf-8" />
+    <link href="libs/remark-css-0.0.1/uio-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Pacote GGCORRPLOT
+### <div style="white-space: pre-line;">
+Carlos Roberto de Nazaré Carvalho Junior
+
+Fernando José Pessoa Andrade
+
+Ivanildo Batista da Silva Júnior
+
+Vanessa Karoline Inacio Gomes
+
+Vaniele da Silva Barros</div>
+### Professor Dr. Antonio Samuel - PPGBEA (UFRPE)
+### 14 de Junho de 2021
+
+---
+
+
+
+
+&lt;div style="text-align: justify"&gt;
+
+## Autor do Pacote
+
+O autor desse pacote chama-se Alboukadel Kassambara que, além desse pacote, é autor de livros na área de estatística e aprendizado de máquina com *R*. Seu repositório público no *Github* e seu *blog* podem ser conferidos, respectivamente, [aqui](https://github.com/kassambara) e [aqui](http://www.alboukadel.com/). 
+
+O pacote foi publicado no **CRAN** em 19 de Maio de 2019 e atualmente está na sua versão 0.1.3 e documentação usada nessa apresentação pode ser acessada [aqui](https://cran.r-project.org/web/packages/ggcorrplot/index.html).
+
+---
+&lt;div style="text-align: justify"&gt;
+
+## Descrição do Pacote
+
+O pacote *ggcorrplot* é usado para visualizar facilmente uma matriz de correlação usando o pacote *ggplot2*. Isso fornece uma solução para reodernar a matriz de correlação e exibição dos níveis de significância no gráfico. Também está inclusa a função *cor_pmat()* para calcular os p-valores da matriz de correlação (com base na função *cor.test()*).
+
+##### Vantagens do *GGCORRPLOT*
+
+--
+- Lida com vários testes de correlação ao mesmo tempo;
+
+--
+- Visualiza bem os resultados;
+
+--
+- Menos código para gerar o gráfico;
+
+--
+- Mantém as características do *GGPLOT2*;
+
+--
+- Pode produzir p-valores, intervalos de confiança ou alguma outra maneira de sugerir se as correlações encontradas são estatisticamente significativas ou não.
+---
+&lt;div style="text-align: justify"&gt;
+
+## Instalação do pacote
+
+
+```r
+install.packages('ggcorrplot')
+library(ggcorrplot)
+```
+
+## Principais funções do pacote
+
+**ggcorrplot()** : Essa função gera uma exibição gráfica da matriz de correlação usando o pacote *GGPLOT2*.
+
+**Composição da função**:
+&lt;center&gt;
+![Rstudio](fig4.png)
+&lt;center/&gt;
+
+---
+** Parâmetros da função ggcorrplot()**:
+
+&lt;div style="text-align: justify"&gt;
+
+--
+- **corr** : a matriz de correlação para visualizar
+
+--
+- **method** : é um caracter que irá definir o método de visualização da matriz de correlação. Por padrão usa o "square" (formato quadrado), mas também pode ser usado o formato circular ou "*circle*".
+
+--
+- **type** : Por padrão usa o argumento "*full*", porém permite o uso de "lower" e "upper" para exibição da matriz de correlação.
+
+--
+- *ggtheme* :  função ggplot2 ou objeto tema. Por padrão o valor é *theme_minimal*. Permite temas oficiais da *ggplot2*, incluindo *theme_gray*, *theme_bw*, *theme_minimal*, *theme_classic*, *theme_void*,etc.
+
+--
+- *title* : Título do gráfico.
+
+--
+- *show.legend* : Para exibir a legenda do gráfico.
+
+--
+- *legend.title* : Exibir o título da legenda.
+
+--
+- *show.diag* : argumento lógico, para exibir os coeficientes de correlação na diagonal principal.
+
+--
+- *colors* : um vetor de 3 cores para valores de correlação baixo, médio e alto.
+
+--
+- *outline.color* : a cor do contorno de um quadrado ou círculo. O valor padrão é cinza ("gray").
+
+--
+- **hc.order** : valor lógico. Se *TRUE*, a matriz de correlação será ordenada usando a função *hclust*.
+
+--
+- **hc.method** : o método de aglomeração a ser utilizado no *hclust*.
+
+--
+- **lab** : valor lógico. Se *TRUE*, adicione o coeficiente de correlação no gráfico.
+
+---
+
+&lt;div style="text-align: justify"&gt;
+
+--
+- *lab_col, lab_size* : tamanho e cor a serem usados para os rótulos do coeficiente de correlação. usado quando *lab* = *TRUE*.
+
+--
+- **p.mat** : matriz do p-valor. Se *NULL*, os argumentos *sig.level*, *insig*, *pch*, *pch.col* e *pch.cex* são inválidos.
+
+--
+- *sig.level* :  nível significativo, se o valor p em *p-mat* for maior que *sig.level*, então o coeficiente de correlação correspondente é considerado insignificante.
+
+--
+- *insig* :  coeficientes de correlação insignificantes especializados, "pch" (padrão), "em branco". Se estiver "em branco", limpe os glifos correspondentes; se "pch", adiciona caracteres nos glifos correspondentes.
+
+--
+- *pch* : adiciona caracteres nos glifos de coeficientes de correlação insignificantes (válido apenas quando insig é "pch"). O valor padrão é 4.
+
+--
+- *pch.col, pch.cex* : a cor e o cex (tamanho) de *pch* (válido apenas quando insig é "pch").
+
+--
+- *tl.cex, tl.col, tl.srt* : o tamanho, a cor e a rotação da *string* do rótulo de texto (nomes de variáveis). Decide o número de casas decimais a serem exibidas, por padrão esse valor é 2.
+
+
+Ao final a função irá retornar um gráfico *ggplot2*.
+
+---
+
+**cor_pmat()**: Calcula matriz de correlação de p-valores. Essa função aplica todas as variáveis do *dataframe* o teste de correlação de *Pearson*.
+
+**Composição da função**:
+&lt;center&gt;
+![Rstudio](fig5.png)
+&lt;center/&gt;
+
+&lt;div style="text-align: justify"&gt;
+**Parâmetros da função cor_pmat()**
+
+--
+- **x** : matriz numérica ou um *dataframe*.
+
+--
+- **...** : outros argumentos a serem passados na função *cor.test*, que é a função usada para calcular a correlação. É possível definir o método de cálculo de correlação (*method* - *pearson* (padrão), *kendall* ou *spearman*), alterar a hipótese do teste (*alternative* - "*two.sided*", "*greater*" ou "*less*"), nível de confiança do teste de correlação (*conf.level*) e se o p-valor deve ser ou não calculado (*exact*).
+
+---
+class: inverse, middle, center
+
+# Usando o pacote GGCORRPLOT
+---
+&lt;div style="text-align: justify"&gt;
+
+Para essa apresentação usaremos o *dataset* *iris*, que é conjunto de dados nativo do *R* e o *quakes*. Segue abaixo as cinco primeiras observações de cada *dataset*:
+
+--
+
+```r
+head(iris[1:4],5)
+```
+
+```
+##   Sepal.Length Sepal.Width Petal.Length Petal.Width
+## 1          5.1         3.5          1.4         0.2
+## 2          4.9         3.0          1.4         0.2
+## 3          4.7         3.2          1.3         0.2
+## 4          4.6         3.1          1.5         0.2
+## 5          5.0         3.6          1.4         0.2
+```
+--
+
+```r
+head(quakes,5)
+```
+
+```
+##      lat   long depth mag stations
+## 1 -20.42 181.62   562 4.8       41
+## 2 -20.62 181.03   650 4.2       15
+## 3 -26.00 184.10    42 5.4       43
+## 4 -17.97 181.66   626 4.1       19
+## 5 -20.42 181.96   649 4.0       11
+```
+---
+&lt;div style="text-align: justify"&gt;
+
+Antes de gerar os gráficos de correlação, será abordada a função *cor_pmat()* que, como dito anteriormente, gera uma matriz de correlação com p-valores. Esses p-valores são gerados da função *cor.test()*. No exemplo abaixo usaremos essa função com um exemplo, usando as colunas *Sepal.Length* e *Sepal.Width*
+
+
+```r
+cor.test(iris$Sepal.Length,iris$Sepal.Width)
+```
+
+```
+## 
+## 	Pearson's product-moment correlation
+## 
+## data:  iris$Sepal.Length and iris$Sepal.Width
+## t = -1.4403, df = 148, p-value = 0.1519
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.27269325  0.04351158
+## sample estimates:
+##        cor 
+## -0.1175698
+```
+
+Nesse exemplo o p-valor igual a **0.1519**. Por padrão usa-se o método de *Pearson*, mas é possível usar o método de *Kendall* e de *Spearman*.
+---
+&lt;div style="text-align: justify"&gt;
+Usando o método de *Kendall* e extraindo o p-valor.
+
+
+```r
+cor.test(iris$Sepal.Length,iris$Sepal.Width, method = "kendall")[3]
+```
+
+```
+## $p.value
+## [1] 0.182921
+```
+
+Usando o método de *Spearman* e extraindo o p-valor.
+
+
+```r
+cor.test(iris$Sepal.Length,iris$Sepal.Width, method = "spearman")[3]
+```
+
+```
+## $p.value
+## [1] 0.04136799
+```
+
+Todos os valores são diferentes. Alterar o método de cálculo de correlação também pode ser aplicado para a função *cor_pmat()*, conforme veremos a seguir.
+
+---
+
+Abaixo temos a matriz com os p-valores, com o método padrão.
+
+
+```r
+cor_pmat(iris[1:4])
+```
+
+```
+##              Sepal.Length  Sepal.Width Petal.Length  Petal.Width
+## Sepal.Length 0.000000e+00 1.518983e-01 1.038667e-47 2.325498e-37
+## Sepal.Width  1.518983e-01 0.000000e+00 4.513314e-08 4.073229e-06
+## Petal.Length 1.038667e-47 4.513314e-08 0.000000e+00 4.675004e-86
+## Petal.Width  2.325498e-37 4.073229e-06 4.675004e-86 0.000000e+00
+```
+
+Por *Kendall*.
+
+```r
+cor_pmat(iris[1:4], method="kendall")
+```
+
+```
+##              Sepal.Length Sepal.Width Petal.Length  Petal.Width
+## Sepal.Length 0.000000e+00 0.182921015 1.169126e-36 8.801486e-30
+## Sepal.Width  1.829210e-01 0.000000000 1.283268e-03 7.518013e-03
+## Petal.Length 1.169126e-36 0.001283268 0.000000e+00 2.443446e-44
+## Petal.Width  8.801486e-30 0.007518013 2.443446e-44 0.000000e+00
+```
+---
+&lt;div style="text-align: justify"&gt;
+
+Por *Spearman*.
+
+```r
+cor_pmat(iris[1:4], method="spearman", exact=FALSE)
+```
+
+```
+##              Sepal.Length  Sepal.Width Petal.Length  Petal.Width
+## Sepal.Length 0.000000e+00 0.0413679942 3.443087e-50 4.189447e-40
+## Sepal.Width  4.136799e-02 0.0000000000 1.153938e-04 3.342981e-04
+## Petal.Length 3.443087e-50 0.0001153938 0.000000e+00 8.156597e-70
+## Petal.Width  4.189447e-40 0.0003342981 8.156597e-70 0.000000e+00
+```
+
+--
+A função *cor_pmat()* é importante, pois serve de argumento para a função *ggcorrplort()*, que será aplicada mais a frente. Para mais informações sobre a função *cor.test()* deve-se consultar sua [documentação](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/cor.test).
+
+---
+&lt;div style="text-align: justify"&gt;
+
+**Calculando a correlação**
+
+Antes de gerar os gráficos é necessário criar a matriz de correlação com a função `cor()`:
+
+
+```r
+corr &lt;- round(cor(quakes),2)
+corr
+```
+
+```
+##            lat  long depth   mag stations
+## lat       1.00 -0.36  0.03 -0.05     0.00
+## long     -0.36  1.00  0.14 -0.17    -0.05
+## depth     0.03  0.14  1.00 -0.23    -0.07
+## mag      -0.05 -0.17 -0.23  1.00     0.85
+## stations  0.00 -0.05 -0.07  0.85     1.00
+```
+
+---
+&lt;div style="text-align: justify"&gt;
+O objeto gerado é inserido dentro da função `ggcorrplot()`. Abaixo é gerado uma plotagem simples, sem nenhuma informação, a não ser a barra lateral do gráfico que mostra que cores mais "quentes"" indicam correlação positiva e cores "frias" correlação negativa.
+
+
+
+```r
+ggcorrplot(corr)
+```
+
+&lt;img src="Atividade-5_files/figure-html/unnamed-chunk-13-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+&lt;div style="text-align: justify"&gt;
+Alterando o formato de apresentação das correlações do formato padrão para círculos.
+
+
+
+```r
+ggcorrplot(corr, method = "circle")
+```
+
+&lt;img src="Atividade-5_files/figure-html/unnamed-chunk-15-1.png" style="display: block; margin: auto;" /&gt;
+---
+
+&lt;div style="text-align: justify"&gt;
+Reordenando a matriz de correlação.
+
+
+
+```r
+ggcorrplot(corr, hc.order = T, outline.color = "white")
+```
+
+&lt;img src="Atividade-5_files/figure-html/unnamed-chunk-17-1.png" style="display: block; margin: auto;" /&gt;
+---
+
+&lt;div style="text-align: justify"&gt;
+
+#### Alterando o *layout*
+
+Alterando o *layout* para *lower triangle*.
+
+
+
+```r
+ggcorrplot(corr, hc.order = T, type = "lower",
+           outline.color = "white")
+```
+
+&lt;img src="Atividade-5_files/figure-html/unnamed-chunk-19-1.png" style="display: block; margin: auto;" /&gt;
+---
+
+Alterando o *layout* para *upper triangle*.
+
+
+
+```r
+ggcorrplot(corr, hc.order = T, type = "upper",
+           outline.color = "white")
+```
+
+&lt;img src="Atividade-5_files/figure-html/unnamed-chunk-21-1.png" style="display: block; margin: auto;" /&gt;
+---
+
+Alterando as cores e o tema.
+
+
+
+```r
+ggcorrplot(corr, hc.order = T, type = "lower", outline.color = "white",
+           ggtheme = ggplot2::theme_gray, colors = c("#6D9EC1","white", "#E46726"))
+```
+
+&lt;img src="Atividade-5_files/figure-html/unnamed-chunk-23-1.png" style="display: block; margin: auto;" /&gt;
+---
+
+Adicionando coeficientes de correlação e mudando o tema.
+
+
+
+```r
+ggcorrplot(corr, hc.order = T, type = "lower",
+           lab = T,ggtheme = ggplot2::theme_dark())
+```
+
+&lt;img src="Atividade-5_files/figure-html/unnamed-chunk-25-1.png" style="display: block; margin: auto;" /&gt;
+---
+
+Adicionando o nível de confiança da correlação. Aplicamos para a função o argumento `p.mat` e os coeficientes não significativos são excluídos.
+
+
+
+```r
+p.mat &lt;- cor_pmat(quakes)
+ggcorrplot(corr,hc.order = T, type = "lower", p.mat = p.mat)
+```
+
+&lt;img src="Atividade-5_files/figure-html/unnamed-chunk-27-1.png" style="display: block; margin: auto;" /&gt;
+---
+
+Deixando espaço vazio para coeficientes não significantes. Utilizando *insig* = "*blank*".
+
+
+
+```r
+ggcorrplot(corr, p.mat = p.mat, hc.order = T,type = "lower", insig = "blank")
+```
+
+&lt;img src="Atividade-5_files/figure-html/unnamed-chunk-29-1.png" style="display: block; margin: auto;" /&gt;
+---
+Inserindo título e tirando a legenda.
+
+
+
+```r
+ggcorrplot(corr,hc.order = T, type = "lower", title='Gráfico de correlação',
+           show.legend = F, show.diag = T)
+```
+
+&lt;img src="Atividade-5_files/figure-html/unnamed-chunk-31-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+Matriz de correlação com e sem a **diagonal principal**.
+
+
+
+
+```r
+p1 &lt;- ggcorrplot(corr,hc.order = T, type = "lower", title='Gráfico de correlação',
+                 show.legend = F, show.diag = T)
+p2&lt;- ggcorrplot(corr,hc.order = T, type = "lower", title='Gráfico de correlação',
+                show.legend = F, show.diag = F)
+grid.arrange(p1, p2, ncol = 2)
+```
+
+![](Atividade-5_files/figure-html/unnamed-chunk-33-1.png)&lt;!-- --&gt;
+---
+
+Trabalhando com a legenda (cor e tamanho).
+
+
+
+```r
+ggcorrplot(corr, type = "lower", lab=T, lab_col = 'black', lab_size = 6)
+```
+
+&lt;img src="Atividade-5_files/figure-html/unnamed-chunk-35-1.png" style="display: block; margin: auto;" /&gt;
+---
+
+Agrupando a matriz de correlação. Abaixo usamos apenas três métodos de agrupamento, mas além desses existem "*ward.D*", "*ward.D2*", "*single*", "*average*" e "*centroid*".
+
+
+
+
+```r
+p1 &lt;- ggcorrplot(corr,hc.order = T, hc.method = "complete")
+p2 &lt;- ggcorrplot(corr,hc.order = T, hc.method = "median")
+grid.arrange(p1, p2, ncol = 2, nrow = 1)
+```
+
+&lt;img src="Atividade-5_files/figure-html/unnamed-chunk-37-1.png" style="display: block; margin: auto;" /&gt;
+---
+class: inverse, middle, center
+
+# GGCORRPLOT vs GGPLOT2
+---
+
+
+Criando um gráfico de correlação com *ggplot2*.
+
+```r
+gplot &lt;- ggplot(data = melt(round(cor(iris[c(2,1,3,4)]),2), na.rm = TRUE), aes(Var2, Var1, fill = value))+  geom_tile(color = "white")+ scale_fill_gradient2(low = "blue", high = "red",mid="white", midpoint = 0, limit = c(-1,1), space = "Lab", name="Pearson\nCorrelation") + theme_minimal()+ theme(axis.text.x = element_text(angle = 45, vjust = 1, size = 12, hjust = 1))+ coord_fixed()
+gplot
+```
+
+&lt;img src="Atividade-5_files/figure-html/unnamed-chunk-39-1.png" style="display: block; margin: auto;" /&gt;
+---
+Criando um gráfico de correlação com *ggcorrplot*.
+
+```r
+gcor &lt;- ggcorrplot(cor(iris[c(2,1,3,4)]),hc.order = T, legend.title = "Pearson\nCorrelation")
+gcor
+```
+
+&lt;img src="Atividade-5_files/figure-html/unnamed-chunk-40-1.png" style="display: block; margin: auto;" /&gt;
+---
+**Comparação**
+&lt;div style="text-align: justify"&gt;
+
+--
+- No primeiro gráfico gerado foi necessário instalar os pacotes **ggplot2** e **reshape2**, mas no segundo gráfico apenas o pacote **ggcorrplot**. 
+
+--
+- No segundo gráfico a quantidade de código e argumentos necessário para obter o mesmo resultado do primeiro foi bem menor, temos um código mais simples e mais compreensível.
+
+--
+- A princípio o desempenho de ambos os cógidos são iguais, então, replicamos uma quantidade de vezes muito grande e o resultado pode ser visto abaixo:
+
+--
+
+```r
+system.time(replicate(10000000,gplot))
+```
+
+```
+##    user  system elapsed 
+##   33.68    0.60   39.00
+```
+
+```r
+system.time(replicate(10000000,gcor))
+```
+
+```
+##    user  system elapsed 
+##   29.92    0.42   33.25
+```
+
+Então vemos que o segundo código tem um desempenho melhor que o primeiro.
+
+---
+class: inverse, middle, center
+
+# Outros pacotes para plotagem de correlogramas
+---
+
+
+#### Correlograma com o pacote *CORRGRAM*.
+
+```r
+corrgram(iris, lorder = TRUE, lower.panel = panel.shade, upper.panel = panel.pie, 
+    text.panel = panel.txt)
+```
+
+&lt;img src="Atividade-5_files/figure-html/unnamed-chunk-43-1.png" style="display: block; margin: auto;" /&gt;
+---
+#### Correlograma com o pacote *ELLIPSE*.
+
+
+
+
+```r
+plotcorr(cor(iris[,1:4]), col = colorRampPalette(c("firebrick3", "white", "navy"))(10))
+```
+
+&lt;img src="Atividade-5_files/figure-html/unnamed-chunk-45-1.png" style="display: block; margin: auto;" /&gt;
+---
+#### Correlograma com o pacote *GGCORRPLOT2*.
+
+
+```r
+ggcorrplot(corr, method = "square")
+```
+
+&lt;img src="Atividade-5_files/figure-html/unnamed-chunk-47-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+#### Correlograma com o pacote *GGALLY*.
+
+
+```r
+ggcorr(mtcars)
+```
+
+&lt;img src="Atividade-5_files/figure-html/unnamed-chunk-49-1.png" style="display: block; margin: auto;" /&gt;
+---
+#### Correlograma com o pacote *CORRELATION* e *DPLYR*.
+
+
+```r
+correlation(iris) %&gt;% summary(redundant = TRUE) %&gt;% plot()
+```
+
+&lt;img src="Atividade-5_files/figure-html/unnamed-chunk-51-1.png" style="display: block; margin: auto;" /&gt;
+---
+#### Documentação consultada
+
+Segue abaixo a documentação de cada um dos pacotes desse trabalho:
+
+--
+- [GGCORRPLOT](https://cran.r-project.org/web/packages/ggcorrplot/index.html);
+
+--
+- [GGCORRPLOT2](https://github.com/caijun/ggcorrplot2) (Não encontra-se no *CRAN*);
+
+--
+- [CORRGRAM](https://cran.r-project.org/web/packages/corrgram/index.html);
+
+--
+- [ELLIPSE](https://cran.r-project.org/web/packages/ellipse/index.html);
+
+--
+- [GGALLY](https://cran.r-project.org/web/packages/GGally/index.html);
+
+--
+- [CORRELATION](https://cran.r-project.org/web/packages/correlation/index.html);
+
+---
+class: inverse, middle, center
+
+# Obrigado!
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
