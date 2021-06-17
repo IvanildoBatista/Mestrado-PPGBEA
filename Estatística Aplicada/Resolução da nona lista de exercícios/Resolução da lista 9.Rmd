@@ -52,25 +52,55 @@ c(lim_inf,lim_sup)
 ## QUESTÃO 3
 
 ```{r}
-# dados da primeira fábrica
+
 nobs_x = 100
 x_media = 12
 desvio_x = 2
-# dados da segunda fábrica
+
 nobs_y = 50
 y_media = 11
 desvio_y = 3
 ```
 
 ```{r}
-w = x_media-y_media
-Sw = sqrt((desvio_x^2)/nobs_x+(desvio_y^2)/nobs_y)
-w+c(-1,1)*Sw
+w = desvio_y^2/desvio_x^2
+w
+```
+
+Teste de hipóteses
+
+A estatística não se encontra dentro do intervalo
+```{r}
+c(qf(p=0.025, df1=49, df2=99, lower.tail=T),
+  qf(p=0.025, df1=49, df2=99, lower.tail=F))
+```
+
+
+
+
+```{r}
+A = desvio_x^2/nobs_x
+B = desvio_y^2/nobs_y
+```
+
+```{r}
+v=round((A+B)^2/(((A^2)/(nobs_x-1))+((B^2)/(nobs_y-1))),0)
+v
+```
+
+
+```{r}
+round((x_media-y_media)+c(-1,1)*qt(0.975,v)*sqrt(A+B),3)
+```
+
+
+```{r}
+#w = x_media-y_media
+#w = sqrt(((desvio_x^2)/nobs_x)+((desvio_y^2)/nobs_y))
+#w+c(-1,1)*Sw
 ```
 
 ## QUESTÃO 4
-
-
 
 
 
@@ -80,5 +110,7 @@ w+c(-1,1)*Sw
 ```{r}
 prop.test(x = c(60, 40), n = c(400,225))
 ```
+
+
 
 
