@@ -1,0 +1,65 @@
+---
+title: "Lista 8"
+author: "Ivanildo Batista da Silva Júnior"
+date: "10 de junho de 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## QUESTÃO 1
+
+```{r}
+#média da distribuição
+media_dist = 25
+
+#média da amostra
+media_amostral = 20.5
+
+#desvio padrão
+desvio = sqrt(100/16)
+
+#Valor z
+z = (media_amostral-media_dist)/desvio
+
+#valor de alpha
+round(pnorm(z),4)
+```
+
+## QUESTÃO 2
+```{r}
+qt(p=0.05, df=15, lower.tail=T)
+```
+
+```{r}
+#Calculando o valor de t0
+
+#defininfo as variáveis
+media_antes = 100
+media_depois = 85
+dp = 12
+
+#criando uma função para calcular t0
+t0 = function(media_antes, media_depois, dp){
+  (media_depois-media_antes)/(dp/4)
+}
+
+#Calculando t0
+
+t0(media_antes, media_depois, dp)
+```
+
+## QUESTÃO 3
+
+```{r}
+qt(p=0.95, df=24, lower.tail=T)
+```
+
+
+
+
+
+
+

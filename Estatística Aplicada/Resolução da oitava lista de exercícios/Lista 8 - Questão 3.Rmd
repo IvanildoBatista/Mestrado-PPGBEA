@@ -1,0 +1,98 @@
+---
+title: "Lista 8"
+author: "Ivanildo Batista da Silva Júnior"
+date: "15 de junho de 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## QUESTÃO 3
+
+```{r}
+c(qchisq(p=.025, df=24, lower.tail=T),
+  qchisq(p=.025, df=24, lower.tail=F))
+```
+
+```{r}
+stat_cs = function(n,S,sigma){
+  (n-1)*(S^2/sigma^2)
+}
+```
+
+```{r}
+stat_cs(25,50,80)
+```
+
+teste de média
+
+```{r}
+qt(p=0.05, df=24,lower.tail=F)
+```
+
+```{r}
+to = function(M1,M2,sigma,n){
+  (M2-M1)/(sigma/sqrt(n))
+}
+```
+
+```{r}
+to(250,280,50,25)
+```
+
+
+## Questão 5
+
+```{r}
+round(qchisq(p=.05, df=7, lower.tail=T),3)
+```
+
+
+```{r}
+var(c(23.6,22.8,25.7, 24.8, 26.4, 24.3, 23.9, 25))
+```
+
+```{r}
+chi_obs = function(obs,S2,sigma2){
+  (sigma2/S2^2)*(obs-1)
+}
+```
+
+```{r}
+chi_obs(8,5,1.35125)
+```
+
+teste para média
+
+```{r}
+qt(p=0.025, df=7,lower.tail=F)
+```
+
+```{r}
+to = function(M1,M2,sigma,n){
+  (M2-M1)/(sigma/sqrt(n))
+}
+```
+
+
+```{r}
+mean(c(23.6,22.8,25.7, 24.8, 26.4, 24.3, 23.9, 25))
+```
+
+```{r}
+sd(c(23.6,22.8,25.7, 24.8, 26.4, 24.3, 23.9, 25))
+```
+
+
+
+```{r}
+to(24,24.5625,1.162433,8)
+```
+
+
+
+
+
+
