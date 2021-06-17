@@ -1,0 +1,52 @@
+---
+title: "Questão 4-Lista 8"
+author: "Jaine de Moura Carvalho"
+date: "16/06/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=TRUE}
+dados <- c(8, 10, 9, 11, 8, 12, 16, 9, 12, 13)
+n <- length(dados)
+print(n)
+sd <- sd(dados)
+print(sd)
+media <- mean(dados)
+print(media)
+alpha <- 0.05
+print(alpha)
+```
+Queremos testar:
+
+$H_{0}: \mu = 7$
+
+$H_{1}: \mu > 7$
+
+Como $\sigma$ é desconhecido, então $\bar{X}\sim{t}$.
+
+Para calcular o valor crítico $t_{c}$, com $\alpha =0.05$, utilizamos a função `qt`.
+
+```{r, echo=TRUE}
+t_c=qt(p=1-0.05,df=n-1)
+round(t_c,3)
+```
+Logo, RC = {t: t > 1.833}.
+
+Calculando $t_{o}$, temos:
+```{r, echo=TRUE}
+t_o=(media-7)*sqrt(n)/sd
+round(t_o,3)
+```
+Como $t_{o}$ pertence à RC, rejeita-se $H_{0}$. Logo, há evidências de  melhorias.
+
+Calculando IC para a nova média:
+```{r, echo=TRUE}
+lim_inf=media + qt(alpha/2, df=n-1)*(sd/sqrt(n))
+lim_sup=media + qt(1-alpha/2, df=n-1)*(sd/sqrt(n))
+print(paste("IC(mu;", 1-alpha,")=[", round(lim_inf,2), ";", round(lim_sup,2),"]"))
+```
+
