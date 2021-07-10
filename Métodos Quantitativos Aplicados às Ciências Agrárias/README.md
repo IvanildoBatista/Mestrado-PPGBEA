@@ -1,3 +1,10 @@
-### Trabalho em que foram aplicados os seguintes métodos:
+## Métodos Quantitativos Aplicados às Ciências Agrárias
 
-Teste *Mann-Kendall* para análise de séries temporais de precipitação de chuvas em Recife.
+No assunto aprendido nessa cadeira foi desenvolvido um artigo em que foi aplicado o Índice de Precipitação Padronizado (SPI) para dados de chuva na cidade de Recife e aplicado o teste de tendência *Mann-Kendall*. Esse artigo foi publicado na revista *Research, Society and Development* em Julho de 2021. Abaixo pode-se ler o resumo do artigo que, também, encontra-se em anexo.
+
+**Resumo**
+
+O ciclo hidrológico, afetado por mudanças climáticas ocasionadas pelo processo de desenvolvimento e industrialização, tem recebido grande atenção da comunidade científica em todo o mundo, e com isso, muitos estudos foram realizados para mostrar que as mudanças na precipitação estão tornando-se evidentes em escala global. Além disso, os eventos extremos como estiagens prolongadas, inundações e deslizamentos têm causado impactos socioambientais nas grandes áreas urbanas, sendo os alagamentos em superfícies de alta impermeabilização os mais frequentes, devido a deficiência de infraestrutura nos sistemas de drenagem. Por conseguinte, neste trabalho objetivou-se analisar a tendência em séries temporais de Índice de Precipitação Padronizado (SPI) para as escalas de tempo de 1, 3, 6, 12, 24 e 48 meses, utilizando o teste de *Mann-Kendall* ao nível de significância de 5%. Para tanto, foram utilizados dados de precipitação mensal da estação meteorológica convencional Recife (Curado), localizada no estado de Pernambuco, Brasil, entre o período de 1962 a 2019. Os resultados apontaram que para as escalas de tempo de 1 e 3 meses não há tendência temporal significativa, enquanto tendências negativas significativas foram obtidas para as demais escalas, o que indicou aumento da severidade de seca. Em relação às frequências de ocorrências, é observado um aumento na ocorrência de períodos secos para condições de longo prazo (SPI-12, SPI-24 e SPI-48) e para os períodos úmidos foi observado aumento apenas na categoria moderadamente úmido.
+
+**Palavras-chave: Mann-Kendall; Análise de Tendências; Índice de Precipitação Padronizado.**
+
