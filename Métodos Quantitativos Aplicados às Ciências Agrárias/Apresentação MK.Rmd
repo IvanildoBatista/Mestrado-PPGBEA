@@ -1,0 +1,222 @@
+---
+title: "SPI e MK teste"
+author: "Ivanildo Batista da Silva Júnior"
+date: "7 de julho de 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#### Índice de Precipitação Padronizado (SPI)
+
+<div style="text-align: justify">
+
+O Índice de Precipitação Padronizado (SPI) foi desenvolvido por *McKee*, *Doesken*, e *Kleist* (1993) para quantificar o déficit de precipitação em múltiplas escalas de tempo (1, 3, 6, 12, 24 e 48 meses) e é recomendado pela Organização Meteorológica Mundial (OMM) para caracterizar a severidade da seca (Hayes et al., 2011). Para o cálculo do SPI, primeiro é necessário ajustar a função densidade de probabilidade (fdp) para o conjunto de dados de precipitaçãoo. Dentre as várias distribuições propostas na literatura (*Stagge et al.*, 2005; *Svensson*, *Hannaford* & *Prosdocimi*, 2017), neste trabalho, foi adotada a distribuição gama, que é amplamente utilizada para ajustar séries temporais de precipitação (McKee, Doesken & Kleist, 1993). A fdp da gama é dada por
+
+$$
+f(x) = \dfrac{1}{\beta^{\alpha} \Gamma(\alpha)} x^{\alpha-1}e^{-\frac{x}{\beta}}, x>0
+$$
+onde $\alpha > 0$  é um parâmetro de forma, $\beta > 0$ é um parâmetro de escala, $x$  é a quantidade de precipitação e $\Gamma(\alpha)$ é a função gama  $\Gamma(\alpha) = \int_0^{\alpha} y_{\alpha-1}e^{-y}dy$. Os parâmetros $\alpha$ e $\beta$ são estimados usando o método de máxima verossimilhança, que produz estimativas
+
+
+$$
+\hat{\alpha} = \dfrac{1}{4A}\bigg(1+\sqrt{1 + \dfrac{4A}{3}}\bigg),  \mbox{   } \hat{\beta} = \dfrac{\overline{x}}{\hat{\alpha}}
+$$
+
+onde $\overline{x}$ é o valor médio da quantidade de precipitação,$ A \equiv ln(\overline{x}) - \dfrac{\sum lnx}{n}$ é usado para fornecer uma representação de fórmula mais compacta, e $n$  é o número de observações. Em seguida, $f(x)$ é integrada em relação a $x$, para obter a probabilidade acumulada
+
+$$
+F(x) = \int_0^{x} f(x)dx = \dfrac{1}{\hat{\beta}^{\hat{\alpha}} \Gamma(\hat{\alpha})} \int_0^{x} x^{\hat{\alpha} - 1}e^{-x/\beta}dx
+$$
+A função gama é indefinida para $x=0$ , e como os dados de precipitação naturalmente contêm zeros, a probabilidade acumulada é considerada da seguinte forma
+
+$$
+H(x) = q + (1-q)F(x)
+$$
+onde $q$ é a probabilidade de precipitação zero, que é calculada como $q = frac{m}{n}$ , onde $m$  representa o número de zeros em uma série de precipitação e $n$ é o número de observações. Por fim, o SPI é gerado pela padronização dos valores obtidos em $H(x)$  (Lloyd‐Hughes & Saunders, 2002)
+
+$$
+SPI = \left \{ \begin{matrix} -\bigg(t -\dfrac{c_0 + c_1t + c_2t^2}{1 + d_1t + d_2t^2 + d_3t^3}\bigg), & 0 < H(x) < 0.5 \\ +\bigg(t -\dfrac{c_0 + c_1t + c_2t^2}{1 + d_1t + d_2t^2 + d_3t^3}\bigg), & 0.5 < H(x) \leq 1.0 \end{matrix} \right.
+$$
+com $c_0 = 2.515517$; $c_1 = 0.802853$; $c_2 = 0.010328$; $d_1 = 1.432788$; $d_2 = 0.189269$; $d_3 = 0.001308$  e $t$ é dado por,
+
+$$
+SPI = \left \{ \begin{matrix} \sqrt{ln \bigg[ \dfrac{1}{(H(x))^2}\bigg]}, & 0 < H(x) < 0.5 \\  \sqrt{ln \bigg[ \dfrac{1}{1 - (H(x))^2} \bigg]} , & 0.5 < H(x) \leq 1.0 \end{matrix} \right.
+$$
+*McKee*, *Doesken*, e *Kleist* (1993) categorizam o SPI em classes moderadas, severas e extremas para condições secas e úmidas, conforme mostrado na Tabela 1.
+
+| Categoria | Valores  |
+|:-:|:-:|
+| Extremamente seco  |SPI < -2 |
+| Severamente seco  |-2 <= SPI < -1.5 |
+| Moderadamente seco  | -1.5 <= SPI < -1  |
+| Quase normal  | -1 < SPI < 1 |
+| Moderadamente úmido  | 1<= SPI < 1.5  |
+| Severamente úmido  | 1.5 <= SPI < 2  |
+| Extremamente úmido  |SPI > 2|
+
+
+#### Importando os pacotes
+
+```{r warning=F}
+library(SPEI)
+library(trend)
+library(Kendall)
+```
+
+#### Importando os dados
+```{r}
+chuva = read.csv('chuva.csv')
+```
+
+Gerando o gráfico da série temporal de precipitação.
+
+```{r}
+plot(chuva$prec, type = "l")
+```
+
+Calculando os SPI's para as escalas 1, 3, 6, 12, 24 e 48.
+
+```{r}
+#escala 1
+spi1 <- spi(na.omit(chuva$prec), 1)
+#escala 3
+spi3 <- spi(na.omit(chuva$prec), 3)
+#escala 6
+spi6 <- spi(na.omit(chuva$prec), 6)
+#escala 12
+spi12 <- spi(na.omit(chuva$prec), 12)
+#escala 24
+spi24 <- spi(na.omit(chuva$prec), 24)
+#escala 48
+spi48 <- spi(na.omit(chuva$prec), 48)
+```
+
+Gráfico das séries dos SPI's.
+
+```{r}
+par(mfrow=c(2,3))
+plot(spi1, 'SPI-1')
+plot(spi3, 'SPI-3')
+plot(spi6, 'SPI-6')
+plot(spi12, 'SPI-12')
+plot(spi24, 'SPI-24')
+plot(spi48, 'SPI-48')
+```
+
+Histograma das séries dos SPI's.
+
+```{r}
+par(mfrow=c(2,3))
+hist(spi1$fitted, main="Histograma do SPI 1",xlab=" ", ylab="Frequência", breaks=30)
+hist(spi3$fitted, main="Histograma do SPI 3",xlab=" ", ylab="Frequência", breaks=30)
+hist(spi6$fitted, main="Histograma do SPI 6",xlab=" ", ylab="Frequência", breaks=30)
+hist(spi12$fitted, main="Histograma do SPI 12",xlab=" ", ylab="Frequência", breaks=30)
+hist(spi24$fitted, main="Histograma do SPI 24",xlab=" ", ylab="Frequência", breaks=30)
+hist(spi48$fitted, main="Histograma do SPI 48",xlab=" ", ylab="Frequência", breaks=30)
+```
+
+#### Teste *Mann Kendall*
+
+<div style="text-align: justify">
+
+O teste de Mann-Kendall (Mann, 1945; Kendall, 1975) é um método estatístico não paramétrico (não requer que os dados sigam nenhuma distribuição específica) usado para determinar se uma série temporal tem uma tendência monotônica de crescimento ou decrescimento. É um procedimento baseado em classificação, especialmente adequado para dados que não seguem distribuição normal, dados contendo outliers e tendências não lineares (Birsan et al., 2014). Este teste é baseado na correlação entre os valores das séries temporais e sua ordem temporal, sendo a hipótese nula de que as observações são independentes e distribuídas de forma idêntica (sem tendência), e a hipótese alternativa de que existe uma tendência monotônica (crescente ou decrescente). Para a série temporal $x_1, x_2, \dots, x_n$ o teste de Mann-Kendall usa a estatística
+
+$$
+\sum_{i=1}^{n-1}\sum_{j=i+1}^{n} sgn(x_j - x_i)
+$$
+
+onde $x_j$  e $x_i$  são os valores de dados sequenciais, $n$ é o comprimento do conjunto de dados e $sgn(.)$ é representado como segue
+
+$$
+sgn(x_j - x_i) = \left \{ \begin{matrix} 1, x_j > x_i \\ 0, x_j = x_i \\ -1, x_j < x_i \end{matrix} \right.
+$$
+
+Partindo do pressuposto de que os dados são independentes e distribuídos de forma idêntica (hipótese nula), a estatística S tem média zero, $E(S) = 0$, e variância dada por
+
+$$
+Var(S) = \dfrac{1}{18}\bigg[ n(n-1)(2n+5) - \sum_{p=1}^{q} t_p(t_p-1)(2t_p+5)  \bigg]
+$$
+
+em que q é o número de grupos vinculados e $t_p$ é o número de observações no p-ésimo grupo. A estatística de teste Z, que tem uma distribuição normal, é calculada com base nos valores $S$ e $Var(S)$
+
+$$
+Z = \left \{ \begin{matrix} \dfrac{S-1}{\sqrt{Var(S)}}, S > 0\\
+0, S = 0 \\ \dfrac{S+1}{\sqrt{Var(S)}}, S < 0 \end{matrix} \right.
+$$
+
+Os valores positivos de $Z$ indicam tendências ascendentes, enquanto os valores negativos de $Z$ mostram tendências descendentes. Finalmente, para fins de teste, o valor $p(pv)$ é calculado como
+
+$$
+pv = 2min(\phi(Z),1-\phi(Z))
+$$
+
+onde $min(\dots)$ representa o mínimo dos dois argumentos e $\phi(.)$ é a função de distribuição cumulativa da distribuição normal padrão − a hipótese nula é rejeitada quando o valor p da estatística padronizada de teste Z é menor que o nível de significância escolhido. Portanto, diz-se que a tendência é decrescente se $Z$  for negativo e crescente se $Z$  for positivo, e o $pv$ for menor que $\alpha$. Neste artigo, foi utilizado o nível de significância. O teste não paramétrico de *Mann Kendall* tem sido amplamente usado para quantificar as tendências em séries de tempo hidro meteorológicas (*Nashwan* & *Shahid*, 2019).
+
+Calculando o teste *Mann-Kendall* no *R*:
+
+**SPI 1**
+
+O *p-valor* ficou acima de do nível de significância padrão (5%), então aceitamos a hipótese nula e a série do SPI 1 não possui tendência.
+```{r}
+print(MannKendall(na.omit(spi1$fitted)))
+print(mk.test(na.omit(spi1$fitted)))
+```
+
+**SPI 3**
+
+O *p-valor* ficou acima de do nível de significância padrão (5%), então aceitamos a hipótese nula e a série do SPI 3 não possui tendência.
+```{r}
+print(MannKendall(na.omit(spi3$fitted)))
+print(mk.test(na.omit(spi3$fitted)))
+```
+
+
+**SPI 6**
+
+O *p-valor* ficou abaixo de do nível de significância padrão (5%), então aceitamos a hipótese alternativa e a série do SPI 6 possui tendência. A estatística *Z* é um valor negativo, logo a tendência da série é decrescente.
+
+```{r}
+print(MannKendall(na.omit(spi6$fitted)))
+print(mk.test(na.omit(spi6$fitted)))
+```
+
+**SPI 12**
+
+O *p-valor* ficou abaixo de do nível de significância padrão (5%), então aceitamos a hipótese alternativa e a série do SPI 12 possui tendência. A estatística *Z* é um valor negativo, logo a tendência da série é decrescente.
+```{r}
+print(MannKendall(na.omit(spi12$fitted)))
+print(mk.test(na.omit(spi12$fitted)))
+```
+
+**SPI 24**
+
+O *p-valor* ficou abaixo de do nível de significância padrão (5%), então aceitamos a hipótese alternativa e a série do SPI 24 possui tendência. A estatística *Z* é um valor negativo, logo a tendência da série é decrescente.
+```{r}
+print(MannKendall(na.omit(spi24$fitted)))
+print(mk.test(na.omit(spi24$fitted)))
+```
+
+**SPI 48**
+
+O *p-valor* ficou abaixo de do nível de significância padrão (5%), então aceitamos a hipótese alternativa e a série do SPI 48 possui tendência. A estatística *Z* é um valor negativo, logo a tendência da série é decrescente.
+```{r}
+print(MannKendall(na.omit(spi48$fitted)))
+print(mk.test(na.omit(spi48$fitted)))
+```
+
+#### Resumo dos resultados
+
+Observa-se que a cidade de Recife experimentou uma tendência de redução da precipitação durante o período de 57 anos deste estudo e se esta tendência continuar, então ela poderia ter repercussões na sustentabilidade dos recursos hídricos superficiais e na recarga das águas subterrâneas.
+
+|    SPI  |  Z  |   *p-valor*   |    Resultado    |
+|:--------:|:-----------:|:------------:|:---------------:|
+|    1   | -0,7934  |  0,4275 |  Sem tendência   |
+|   3   |-1,7287      |  0,0839  |  Sem tendência      |
+|   6   | -2,2913  | 0,0219     |   Tendência Negativa       |
+|   12   | -2,7301  | 0,0063  | Tendência Negativa |
+|    24   | -3,7974  |  0,0001  |  Tendência Negativa  |
+|   48   | -5,6584 |  0,0000  |  Tendência Negativa |
