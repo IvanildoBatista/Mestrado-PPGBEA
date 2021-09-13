@@ -1,0 +1,74 @@
+\documentclass[a4paper,notitlepage]{article}
+\usepackage[lmargin=2cm,tmargin=2cm,rmargin=2cm,bmargin=2cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage[brazilian]{babel}
+\usepackage{xcolor}
+\usepackage{setspace} 
+\usepackage[inline]{enumitem}
+\usepackage{ulem}
+\usepackage{pifont}
+
+\begin{document}
+
+\title{Uso de Editores de Textos na Elaboração de Documentos Científicos}
+\author{Ivanildo Batista da Silva Júnior}
+\date{13 de setembro de 2021}
+
+\maketitle
+
+\doublespacing
+
+\begin{center}
+\begin{minipage}{0.75\linewidth}
+\textbf{\textcolor{blue}{Instruções gerais}} para elaboração deste documento estão apresentadas aqui: foi utilizado um documento do tipo artigo com \underline{uma coluna}, papel a4, margem de 2cm (esquerda, direita, superior e inferior); comandos para inserção de \textit{título}, \textbf{autor} e \textsc{data} foram utilizados, \textcolor{red}{faça pesquisa de quais são esses comandos e utilize-os!!!}; o \underline{espaçamento} entre linhas é duplo. Este texto está em uma caixa de texto centralizada com largura igual a 75\% da largura do texto. O nome do discente deve ser substituído em “Seu nome”. \textcolor{red}{\ding{110}}
+\end{minipage}
+\end{center}
+
+Para garantir a formatação os seguintes \colorbox{gray!80}{pacotes} foram utilizados:
+
+\begin{enumerate*}[label =(\roman*)., itemjoin =\hfill]
+\item \textcolor{blue}{babel} 
+\item \textcolor{blue}{geometry} 
+\item \textcolor{blue}{xcolor} 
+\item \textcolor{blue}{setspace} 
+\item \textcolor{blue}{enumitem} 
+\item \textcolor{blue}{ulem} 
+\item \textcolor{blue}{pifont}
+\end{enumerate*}
+
+%
+\fcolorbox{red}{gray}{\textcolor{green}{
+\begin{minipage}{0.95\linewidth} 
+!!!Nenhum pacote — além dos descritos acima — devem ser utilizados na elaboração deste documento!!!
+\end{minipage}
+}}
+
+\vspace{1cm}
+
+\fbox{\begin{minipage}[b]{4.5cm}
+Este parágrafo está contido em uma caixa com 4.5 centímetros de largura. Você acreditaria que o texto que
+está acima e abaixo desta caixa dista um centímetro da caixa?
+\end{minipage}} \qquad \fbox{\begin{minipage}[b]{4.5cm}
+Este parágrafo está contido em uma caixa com 4.5 centímetros de largura. Você acreditaria que o texto que
+está acima e abaixo desta caixa dista um centímetro da caixa?
+\end{minipage}} \qquad \fbox{\begin{minipage}[b]{4.5cm}
+Este parágrafo está contido em uma caixa com 4.5 centímetros de largura. Você acreditaria que o texto que
+está acima e abaixo desta caixa dista um centímetro da caixa?
+\end{minipage}}
+
+\vspace{1cm}
+
+A forma como o \textcolor{blue}{\LaTeX} trata o espaçamento entre \sout{palavras} é realmente curioso! \hspace{2cm} Este espaço em branco mede dois centímetros.
+
+\vspace{0.5cm}
+\begin{center}
+\fcolorbox{red}{green!10}{\begin{minipage}[b]{7.62cm}
+Este parágrafo está contido em uma caixa com três polegadas de largura. 10\% de verde foi utilizado para preencher o fundo e a cor vermelha para contornar a caixa. A caixa está centralizada e a distância entre ela e o texto acima é de 0.5 centímetro.
+\end{minipage}}
+\end{center} 
+
+\makebox[1\textwidth][s]{O fim do documento.} 
+
+\textcolor{red}{\ding{168}} \textcolor{blue}{\hrulefill} \textcolor{red}{\ding{168}}
+\end{document}
