@@ -1,0 +1,36 @@
+\documentclass[a4paper,notitlepage]{book}
+\usepackage[lmargin=2cm,tmargin=2cm,rmargin=2cm,bmargin=2cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage[brazilian]{babel}
+\usepackage{xcolor}
+\usepackage{setspace}
+\usepackage[inline]{enumitem}
+\usepackage{ulem}
+\usepackage{pifont}
+
+\begin{document}
+
+\noindent \textit{\textbf{Exemplo 1.2: Leis de Morgan}}
+
+\hfill Um conjunto de relações entre união e intersecção de conjuntos, conhecidos como Leis de Morgan, auxilia na demonstração de vários resultados.
+
+\noindent Elas são dadas por:
+
+$$ (i) \Big(\bigcup_{i=1}^{n} A_{i} \Big)^c  = \bigcap_{i=1}^{n} A_{i}^c \qquad e \qquad (ii) \Big(\bigcap_{i=1}^{n} A_{i} \Big)^c  = \bigcup_{i=1}^{n} A_{i}^c$$
+
+Vamos verificar a relação \textit{(i)} e deixamos ao leitor a demonstração da outra parte, que é análoga. O caminho usual, para demonstrar igualdades entre conjuntos, é provar que cada um deles está contido no outro. Dessa forma, temos duas partes a serem verificadas:
+
+$$ \Big(\bigcup_{i=1}^{n} A_{i} \Big)^c  \subset \bigcap_{i=1}^{n} A_{i}^c \qquad (parte 1)\qquad e \qquad \Big(\bigcap_{i=1}^{n} A_{i} \Big)^c \supset \bigcup_{i=1}^{n} A_{i}^c \qquad (parte 2).$$
+
+\noindent \textit{Prova da Parte 1:}
+
+Suponha que \textit{w} $\in \Big(\bigcup_{i=1}^{n} A_{i} \Big)^c$. Então \textit{w} $\notin \bigcup_{i=1}^{n} A_{i}$ e, ainda, $w \notin A_i$ para todo
+
+\begin{itemize}
+\item[i.] Dessa forma \textit{w} $\in A_{i}^c$ para todo \textit{i} e, consequentemente, \textit{w} $\in \bigcap_{i=1}^{n} A_{i}^c$ 
+ 
+\end{itemize}
+
+\end{document}
+
