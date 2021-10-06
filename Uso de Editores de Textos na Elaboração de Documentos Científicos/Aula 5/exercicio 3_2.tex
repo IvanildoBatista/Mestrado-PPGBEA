@@ -1,0 +1,160 @@
+\documentclass[a4paper]{article}
+\usepackage[lmargin=2cm,tmargin=2cm,rmargin=2cm,bmargin=2cm]{geometry}
+\usepackage{multirow}
+\usepackage{float}
+%\usepackage{amsmath}
+\usepackage[brazilian]{babel}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{longtable}
+%\usepackage{pifont}
+\usepackage[table]{xcolor}
+\usepackage{lscape}
+\usepackage{rotating}
+
+%\title{Atividade 3}
+%\author{Ivanildo Batista}
+
+\begin{document}
+
+\begin{table}[H]
+\centering
+\resizebox{0.7\textwidth}{!}{%
+\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|l|l|}
+\hline
+\cellcolor{blue} 1 & 2 & 3 & \multicolumn{1}{c|}{4} & 5 & \multicolumn{1}{c|}{6} & 7 & 8 & 9 & 10 & 11 & 12 & \cellcolor{red} 13 \\
+1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 &  13 \\ \cline{1-5}
+1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 \\ \cline{10-12}
+\cellcolor{green} 1 & \multicolumn{1}{c|}{2} & 3 & \multicolumn{1}{c|}{4} & 5 & \multicolumn{1}{c|}{6} & 7 & 8 & 9 & 10 & 11 & 12 & \cellcolor{purple}  13 \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[H]
+\centering
+\resizebox{0.7\textwidth}{!}{%
+\begin{tabular}{|c|c|c|c|}
+\hline
+Superior esquerdo & \multicolumn{2}{c|}{} & Superior direito \\ \hline
+\multirow{2}{*}{Esquerdo} &  & Centro & \multirow{2}{*}{Direito} \\ \cline{2-3}
+ & Centro &  &  \\ \hline
+Inferior esquerdo & \multicolumn{2}{c|}{} & Inferior direito \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[H]
+\centering
+\resizebox{0.7\textwidth}{!}{%
+\begin{tabular}{cccc}
+\hline
+\multirow{2}{*}{\textbf{Curso}} & \multicolumn{2}{c}{\textbf{Sexo}} & \multirow{2}{*}{\textbf{Total}} \\ \cline{2-3}
+ & \textbf{Masculino} & \textbf{Feminino} &  \\ \hline
+\textbf{Matemática} & 70 & 40 & 110 \\
+\textbf{Estatística} & 15 & 15 & 30 \\
+\textbf{Física I} & 10 & 20 & 30 \\
+\textbf{Física II} & 20 & 10 & 30 \\ \hline
+\textbf{Total} & 115 & 85 & 200 \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{cclr|}
+\hline
+\multicolumn{1}{l}{\cellcolor{blue!70} \textbf{Marca}} & \multicolumn{1}{l}{\cellcolor{blue!70} \textbf{Montadora}} & \cellcolor{blue!70} \textbf{Carros vendidos (Março de 2016)} & \multicolumn{1}{l|}{ \cellcolor{blue!70} \textbf{Carros vendidos (Março de 2017)}} \\
+Onix & GM & 12.192 & 14.745 \\
+\cellcolor{gray!70} HB20 & \cellcolor{gray!70} Hyundai & \cellcolor{gray!70} 10.475 & \cellcolor{gray!70} 10.638 \\
+Ford & Ka & 7.224 & 8.021 \\
+\cellcolor{gray!70} Sandero & \cellcolor{gray!70} Renault & \cellcolor{gray!70} 4.254 & \cellcolor{gray!70} 6.516 \\
+Gol & VW & 5.296 & 6.311 \\
+\cellcolor{gray!70} Prisma & \cellcolor{gray!70} GM & \cellcolor{gray!70} 5.411 & \cellcolor{gray!70} 5.706 \\
+Corolla & Toyota & 5.984 & 5.455 \\
+\cellcolor{gray!70} Voyage & \cellcolor{gray!70} VW & \cellcolor{gray!70} 2.293 & \cellcolor{gray!70} 4.446 \\
+Hr-V & Honda & 6.059 & 4.317 \\
+\cellcolor{gray!70} Etios HB & \cellcolor{gray!70} Toyota & \cellcolor{gray!70} 3.58 & \cellcolor{gray!70} 4.055 \\
+\rowcolor{blue!70} \multicolumn{2}{c}{\textbf{Total}} & 62.768 & 70.21 \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+
+
+\begin{table}[H]
+\centering
+\caption{Estatísticas Descritivas das  séries de velocidade do vento (m/s) registradas em Petrolina de Janeiro a Dezembro de 2010.}
+\resizebox{0.85\textwidth}{!}{%
+\begin{tabular}{ccllllllllr}
+\hline
+\multirow{3}{*}{Meses} & \multicolumn{2}{c}{\multirow{2}{*}{\textbf{\begin{tabular}[c]{@{}c@{}}Velocidade\\ mínima\end{tabular}}}} & \multicolumn{2}{c}{\multirow{2}{*}{\textbf{\begin{tabular}[c]{@{}c@{}}Velocidade\\ máxima\end{tabular}}}} & \multicolumn{2}{c}{\multirow{2}{*}{\textbf{Média}}} & \multicolumn{2}{c}{\multirow{2}{*}{\textbf{\begin{tabular}[c]{@{}c@{}}Desvio\\ padrão\end{tabular}}}} & \multicolumn{2}{c}{\multirow{2}{*}{\textbf{\begin{tabular}[c]{@{}c@{}}Variância\\ amostral\end{tabular}}}} \\
+ & \multicolumn{2}{c}{} & \multicolumn{2}{c}{} & \multicolumn{2}{c}{} & \multicolumn{2}{c}{} & \multicolumn{2}{c}{} \\
+ & 25m & \multicolumn{1}{c}{50m} & \multicolumn{1}{c}{25m} & \multicolumn{1}{c}{50m} & \multicolumn{1}{c}{25m} & \multicolumn{1}{c}{50m} & \multicolumn{1}{c}{25m} & \multicolumn{1}{c}{50m} & \multicolumn{1}{c}{25m} & \multicolumn{1}{c}{50m} \\ \cline{2-11} 
+Janeiro & 0,00 & 0,00 & 9,85 & 11,40 & 3,24 & 4,26 & 1,31 & 1,56 & 1,71 & 2,45 \\
+Fevereiro & 0,12 & 0,00 & 10,71 & 13,13 & 3,76 & 4,88 & 1,41 & 1,65 & 1,99 & 2,72 \\
+Março & 0,00 & 0,00 & 8,83 & 10,77 & 2,86 & 3,82 & 1,33 & 1,67 & 1,77 & 2,79 \\
+Abril & 0,00 & 0,09 & 8,87 & 11,73 & 3,20 & 4,38 & 1,14 & 1,37 & 1,29 & 1,89 \\
+Maio & 0,00 & 0,01 & 8,45 & 10,76 & 3,32 & 4,55 & 1,09 & 1,36 & 1,19 & 1,85 \\
+\multicolumn{1}{l}{Junho} & \multicolumn{1}{l}{0,07} & 0,00 & 8,54 & 10,82 & 4,00 & 5,35 & 1,53 & 1,73 & 2,34 & \multicolumn{1}{l}{3,00} \\
+\multicolumn{1}{l}{Julho} & \multicolumn{1}{l}{0,00} & 0,67 & 8,74 & 10,65 & 4,22 & 5,64 & 1,42 & 1,50 & 2,01 & \multicolumn{1}{l}{2,26} \\
+Agosto & 0,13 & 0,01 & 9,03 & 11,38 & 4,53 & 5,96 & 1,38 & 1,51 & 1,92 & 2,27 \\
+Setembro & 0,99 & 0,78 & 9,27 & 12,04 & 4,87 & 6,27 & 1,33 & 1,52 & 1,77 & 2,32 \\
+Outubro & 0,44 & 0,00 & 10,40 & 11,91 & 3,83 & 4,96 & 1,42 & 1,74 & 2,03 & 30,3 \\
+\multicolumn{1}{l}{Novembro} & \multicolumn{1}{l}{0,00} & 0,00 & 8,49 & 11,15 & 3,81 & 4,94 & 1,23 & 1,44 & 1,51 & \multicolumn{1}{l}{2,07} \\
+Dezembro & \multicolumn{1}{l}{0,00} & 0,00 & 12,11 & 14,30 & 2,79 & 3,62 & 1,34 & 1,64 & 1,80 & \multicolumn{1}{l}{2,69} \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+\newpage 
+
+\begin{table}[H]
+\centering
+\caption{Sample Entropy (\textit{m} = 1, . . . , 6; \textit{r} = 0, 20) da velocidade do vento em Petrolina de maio a agosto de 2010, nas alturas 25m e 50m.}
+\resizebox{0.8\textwidth}{!}{%
+\begin{tabular}{cccccccccccc}
+\hline
+\multirow{3}{*}{\textit{m}} & \multicolumn{11}{c}{Meses} \\ \cline{2-12} 
+ & \multicolumn{2}{c}{Maio} &  & \multicolumn{2}{c}{Junho} &  & \multicolumn{2}{c}{Julho} &  & \multicolumn{2}{c}{Agosto} \\ \cline{2-3} \cline{5-6} \cline{8-9} \cline{11-12} 
+ & 25m & 50m &  & 25m & 50m &  & 25m & 50m &  & 25m & 50m \\ \cline{2-3} \cline{5-6} \cline{8-9} \cline{11-12} 
+1 & 1,33 & 1,29 &  & 1,18 & 1,20 &  & 1,23 & 1,31 &  & 1,35 & 1,37 \\
+2 & 1,24 & 1,22 &  & 1,08 & 1,11 &  & 1,12 & 1,20 &  & 1,25 & 1,28 \\
+3 & 1,16 & 1,18 &  & 1,00 & 1,03 &  & 1,04 & 1,13 &  & 1,17 & 1,21 \\
+4 & 1,11 & 1,14 &  & 0,95 & 0,98 &  & 0,97 & 1,05 &  & 1,12 & 1,15 \\
+5 & 1,04 & 1,10 &  & 0,89 & 0,91 &  & 0,91 & 1,00 &  & 1,07 & 1,11 \\
+6 & 1,02 & 1,04 &  & 0,86 & 0,87 &  & 0,87 & 0,97 &  & 1,03 & 1,08 \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+
+\begin{table}[H]
+\centering
+\caption{Sample Entropy (\textit{m} = 2, \textit{r} = 0,10 a 0,30) da velocidade do vento em Petrolina de janeiro a dezembro de 2010 na altura de 50m.}
+\vspace{0.125cm}
+\resizebox{0.8\textwidth}{!}{%
+\begin{tabular}{lcccccccccc}
+\hline
+\multirow{2}{*}{Meses} & \multicolumn{10}{c}{\textit{r}} \\ \cline{2-10}
+ & 0,10 &  & 0,15 &  & 0,20 &  & 0,25 &  & 0,30 &  \\ \cline{2-2} \cline{4-4} \cline{6-6} \cline{8-8} \cline{10-10}
+Janeiro & 1,81 &  & 1,42 &  & 1,16 &  & 0,97 &  & 0,83 &  \\
+Fevereiro & 1,84 &  & 1,46 &  & 1,20 &  & 1,01 &  & 0,86 &  \\
+Março & 1,80 &  & 1,43 &  & 1,17 &  & 0,98 &  & 0,84 &  \\
+Abril & \multicolumn{1}{l}{1,81} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{1,43} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{1,18} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{0,99} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{0,84} & \multicolumn{1}{l}{} \\
+Maio & \multicolumn{1}{l}{1,88} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{1,48} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{1,22} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{1,03} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{0,88} & \multicolumn{1}{l}{} \\
+Junho & \multicolumn{1}{l}{1,74} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{1,37} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{1,11} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{0,93} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{0,80} & \multicolumn{1}{l}{} \\
+Julho & \multicolumn{1}{l}{1,82} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{1,45} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{1,20} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{1,02} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{0,88} & \multicolumn{1}{l}{} \\
+Agosto & \multicolumn{1}{l}{1,92} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{1,54} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{1,28} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{1,08} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{0,93} & \multicolumn{1}{l}{} \\
+Setembro & 1,98 &  & 1,60 &  & 1,34 &  & 1,14 &  & 0,98 &  \\
+Outubro & 1,80 &  & 1,41 &  & 1,15 &  & 0,96 &  & 0,82 &  \\
+Novembro & 1,96 &  & 1,56 &  & 1,29 &  & 1,09 &  & 0,94 &  \\
+\multicolumn{1}{c}{Dezembro} & 1,76 &  & 1,38 &  & 1,13 &  & 0,95 &  & 0,80 &  \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+
+
+\end{document}
