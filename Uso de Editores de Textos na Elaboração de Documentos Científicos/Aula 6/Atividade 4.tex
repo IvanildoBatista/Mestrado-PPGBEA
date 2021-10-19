@@ -1,0 +1,148 @@
+\documentclass[12pt,a3paper,notitlepage]{article}
+\usepackage[lmargin=1cm,tmargin=1cm,rmargin=1cm,bmargin=1cm, landscape]{geometry}
+\usepackage{lscape}
+\usepackage[utf8]{inputenc}
+\usepackage[fleqn]{amsmath}
+\usepackage{rotating}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
+\usepackage{geometry}
+\usepackage[brazilian]{babel}
+\usepackage{xcolor}
+\usepackage{setspace}
+\usepackage[inline]{enumitem}
+\usepackage{ulem}
+\usepackage{pifont}
+\usepackage{indentfirst}
+%\usepackage{xcolor}
+%\usepackage{setspace}
+%\usepackage{enumitem}
+%usepackage{ulem}
+%\usepackage{pifont}
+
+\title{Atividade 2}
+\author{Ivanildo Batista}
+\date{\today}
+
+\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=5cm, minimum height=1.5cm,text centered, draw=black, fill=orange!90]
+\tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!15]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\tikzstyle{process1} = [rectangle, minimum width=3cm, minimum height=1.5cm, text centered, draw=black, fill=blue!70]
+
+\tikzstyle{process2} = [rectangle, minimum width=3cm, minimum height=1.5cm, text centered, draw=black, fill=violet!70]
+
+\tikzstyle{process11} = [rectangle, minimum width=3cm, minimum height=1.5cm, text centered, draw=black, fill=blue!15]
+
+\tikzstyle{process21} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=violet!15]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\tikzstyle{decision} = [diamond, text width=6.5em, text badly centered,minimum height=1.5cm, node distance=4cm, inner sep=0pt, draw=black, fill=orange!15]
+
+\tikzstyle{decision1} = [diamond, text width=6.5em, text badly centered,minimum height=1.5cm, node distance=4cm, inner sep=0pt, draw=black, fill=blue!15]
+
+\tikzstyle{decision2} = [diamond, text width=6.5em, text badly centered,minimum height=1.5cm, node distance=4cm, inner sep=0pt, draw=black, fill=violet!15]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\tikzstyle{block1} = [rectangle, draw, text width=5em, text centered, rounded corners, minimum height=4em, , fill=blue!15]
+
+\tikzstyle{block2} = [rectangle, draw, text width=5em, text centered, rounded corners, minimum height=4em, , fill=violet!15]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\tikzstyle{arrow} = [very thick,->,>=stealth]
+
+\begin{document}
+ \centering
+\begin{tikzpicture}[node distance=2.5cm]
+\node (start) [startstop] {\textbf{Hypothesis Test}};
+\node (dec1) [decision, below of=start] {Does you Data Follow a \textbf{normal distribuition} ?};
+\node (pro2a) [process1, right of=dec1, node distance = 13.5cm] {\textcolor{white}{Non-Parametric Test}};
+\node (pro2b) [process2, left of=dec1, node distance = 13.5cm] {\textcolor{white}{Parametric Test}};
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\node (dec11) [decision1, below of=pro2a] {How many \textbf{samples} ?};
+\node (dec12) [decision2, below of=pro2b] {How many \textbf{samples} ?};
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\node (dec121) [decision2, below of=dec12,xshift=-75] {Do you know \textbf{variance} ?};
+\node (dec122) [decision2, right of=dec121,xshift=50, node distance = 8cm] {Type analysis};
+
+
+%%AQUIIIII
+\node (test21) [process11, below of=dec11, xshift=-250, node distance = 1.5cm] {One Sample Wilcoxon Test};
+\node (test22) [process11, below of=test21] {Runs Test};
+\node (test23) [process11, below of=test22] {Kolmogorov-Smirnov Test};
+\node (test24) [process11, below of=test23] {Chi Square Test};
+\node (test25) [process11, below of=test24] {Mann-Whitney Test};
+
+\node (dec111) [decision1, below of=dec11, xshift=70, node distance = 2.5cm] {Type analysis};
+
+\node (proc3) [process11, below of=dec111, xshift=90,node distance = 4cm, rotate=90] {\textbf{Spearman Rank Correlation}};
+
+\node (dec1114) [decision1, below of=dec111, xshift=-90,node distance = 5cm] {Are your samples paired ?};
+
+\node (proc4) [process11, below of=proc3,node distance = 6cm] {Wilcoxon Test};
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%node (in1) [io, below of=start] {Input};
+%\node (pro1) [process, below of=in1] {Process 1};
+\node (test1) [process21, below of=dec121, node distance = 5cm] {\textbf{T Test}};
+
+\node (dec1221) [decision2, below of=dec122, node distance = 5cm] {Are you \textbf{samples} paired ?};
+
+\node (test2) [process21, below of=dec1221, node distance = 7cm] {Two-Group T Test};
+
+\node (test4) [process21, right of=test1, node distance = 5cm] {Z Test};
+
+\node (test3) [process21, right of=dec1221, yshift=-120] {\textbf{Paired Test}};
+
+\node (dec1222) [process21, right of=dec122, node distance = 4.5cm, rotate=90] {\textbf{Pearson Correlation Coefficient}};
+
+%%%%%%%%%SETAS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\draw [arrow] (start) -- (dec1);
+\draw [arrow] (dec1) -- node[anchor=south] {no}(pro2a);
+\draw [arrow] (dec1) -- node[anchor=south] {yes}(pro2b);
+\draw [arrow] (pro2b) -- (dec12);
+\draw [arrow] (pro2a) -- (dec11);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\draw [arrow] (dec122) -- node[anchor=east] {Difference}(dec1221);
+\draw [arrow] (dec122) -- node[anchor=south] {Correlation}(dec1222);
+
+\draw [arrow] (dec12) -| node[anchor=south] {1}(dec121);
+\draw [arrow] (dec12) -| node[anchor=south] {$>$1}(dec122);
+\draw [arrow] (dec11) -| node[anchor=west] {$>$1}(dec111);
+%\draw [arrow] (dec11) -- node[anchor=south] {$>$1}(dec112);
+\draw [arrow] (dec121) -- node[anchor=west] {no}(test1);
+
+%\draw [arrow] (pro1) -- (dec1);
+%\draw [arrow] (dec1221) -- node[anchor=north] {yes}(test1);
+\draw [arrow] (dec1221) -- node[anchor=east] {no}(test2);
+\draw [arrow] (dec1221)   -- node[anchor=north] {no}(test4);
+
+\draw [arrow] (dec121) +(1.75,0) |- node[anchor=west] {yes}(test4);
+
+
+
+\draw [arrow] (dec1221) -| node[anchor=south] {yes}(test3);
+
+
+\draw [arrow=] (dec11) -- +(-12,0) |- node[anchor=east] {1}(test21);
+\draw [arrow] (dec11) +(-12,0) |- (test22);
+\draw [arrow] (dec11) +(-12,0) |- (test23);
+\draw [arrow] (dec11) +(-12,0) |- (test24);
+
+
+\draw [arrow] (dec111) -| node[anchor=east] {Difference}(dec1114);
+\draw [arrow] (dec111) -| node[anchor=west] {Correlation}(proc3);
+
+\draw [arrow] (dec1114) |-  node[anchor=west] {No}(test25);
+
+\draw [arrow] (dec1114) -- +(-3,0) |- node[anchor=west] {yes}(test24);
+
+\draw [arrow] (dec1114) -- +(-3,0) |- node[anchor=west] {no}(test23);
+
+\draw [arrow] (dec1114) -| +(3,0) |- node[anchor=east] {Yes}(proc4);
+
+\end{tikzpicture}
+
+\end{document}
