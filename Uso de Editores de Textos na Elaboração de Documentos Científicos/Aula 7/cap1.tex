@@ -1,0 +1,55 @@
+\chapter{Introdução}
+\label{ch:introducao}
+
+Os pesquisadores estão na maioria das vezes interessados em encontrar relações entre uma variável e outras variáveis. Uma forma de encontrar essa relação é por meio da \textbf{análise de correlação} que é usada para quantificar ou medir a força ou grau de associação linear entre duas variáveis. A forma gráfica de verificar essa relação é por meio do \textbf{gráfico de dispersão}, que permite visualizar como uma variável se comporta em relação a outra. A medida mais comumente usada na análise de correlação é o coeficente de correlação (de \textit{Pearson}, de \textit{Spearman} ou de \textit{Kendall}). Entretanto outra forma de realizar dessa identificação é por meio da \textbf{análise de regressão}. 
+
+O termo regressão foi usado pela primeira vez por Francis Galton em seu artigo \textit{Family likeness in stature}, onde ele observou que, embora pais altos tivesse filhos altos e pais baixos tivesse filhos baixos, a estatura média das crianças tendia a ``regredir" (daí dar o nome de regressão) para a média populacional. A análise de Galton visava saber se havia estabilidade na distribuição das alturas, entretanto a preocupação da análise moderna é descobrir como a altura média dos filhos varia, dada a altura dos pais. 
+
+A análise de regressão trata do estudo de uma variável  que é dependente de outra ou outras variáveis (explanatórias ou independentes). O objetivo é prever/estimar o valor médio da variável dependente em termos dos valores das variáveis independentes, conforme \citeonline{gujarati2011econometria}. A regressão é o modelo matemático que relaciona a variável dependente com as variáveis independentes. Para \citeonline{angrist2008mostly} a regressão é um dispositivo computacional para estimar diferenças entre um grupo de controle e de tratamento em um experimento. \citeonline{andrade2019econometria} afirma que o modelo de regressão é o mais popular para estudar a relação entre variáveis e isso deve-se pela sua fácil aplicação, baixo custo computacional, interpretação simples, apresenta propriedades que são desejáveis e a maioria dos pacotes estatísticos incluem rotinas prontas para a estimação desse modelo.
+
+A regressão pode ser usada em diversas áreas como \textbf{economia} (relação entre despesas de consumo pessoal e renda pessoal, descobrir a resposta da demanda por um produto frente a variação dos preços, relação entre salário e desemprego, etc), \textbf{saúde} (relação entre pressão ocular e idade, mortalidade e consumo de drogras lícitas ou ilícitas), \textbf{agronomia} (dependência do rendimento de uma plantação em relação à temperatura, à quantidade de chuva e de sol e à aplicação de fertilizantes), entre outras.
+
+\citeonline{yan2009linear} explica que existem três tipos de regressão. A primeira é a \textbf{regressão linear simples}, que será o objeto de dsicussão nesse trabalho mais a frente. O segundo tipo de modelo de regressão é a \textbf{regressão linear múltipla}, que serve para para modelar a relação entre uma variável dependente $y$ com mais de uma variável independente ($x_1, x_2, \dots, x_p$). O modelo de regressão pode ser escrito conforme abaixo
+
+\begin{equation}
+    y = \beta_0 + \beta_1 x_1 + \dots + \beta_p x_p + \varepsilon
+\end{equation}
+
+o $y$ é a variável dependente, os coeficientes $\beta_0, \beta_1, \beta_2, \dots, \beta_p$ são os regressores, $x_1, x_2, \dots, x_p$ são as variáveis dependentes e $\varepsilon$ é o termo de erro, que assim como no modelo anterior, é normalmente distribuído com $E(\varepsilon) = 0$ e a variância é constante $Var(\varepsilon) = \sigma^2$. Notar que a regressão linear simples é um caso particular da regressão linear múltipla, quando $x_2 = x_3 = \dots = x_p = 0$.
+
+\noindent O terceiro tipo de regressão é a \textbf{regressão não linear} a qual assume que a relação entre a variável dependente a as variáveis independentes é não linear nos parâmetros (diferentes das anteriores que se assume a linearidade dos parâmetros). Um exemplo desse tipo de regressão pode ser visto abaixo
+
+\begin{equation}
+    y = \dfrac{\alpha}{1 + e^{\beta t}} + \varepsilon
+\end{equation}
+
+\noindent Onde $y$ é o crescimento de um determinado organismo em função do tempo $t$, $\alpha$ e $\beta$ são os parâmetros do modelo e o $\varepsilon$ é o erro. Em termos de estimação dos parâmetros, seleção do modelo, diagnóstico, seleção de variáveis, detecção de \textit{outliers} e de observações influentes, os modelos não lineares são mais complicados. 
+
+\noindent \citeonline{yan2009linear} ainda explica que o modelo de regressão possui três objetivos:
+
+\begin{itemize}
+    \item[1-] Estabelecer uma relação causal entre a variável dependente $y$ e os seus regressores $x_1, x_2, \dots, x_p$. 
+    
+    \item[2-] Prever o valor de $y$ com base no conjunto de valores de  $x_1, x_2, \dots, x_p$. É preciso definir se o modelo pode ser escrito conforme abaixo
+    
+    $$
+    \text{Variável resposta} = \text{função do regressores} + \text{erro}
+    $$
+    
+    ou apenas no formato matemático
+    
+    $$
+    y = f(x_1,x_2,\dots,x_p) + \varepsilon
+    $$
+    \item[3-] Realizar uma seleção criteriosa dos regressores  $x_1, x_2, \dots, x_p$ para identificar quais as variáveis são mais importantes do que outras para explicar o comportamento da variável dependente $y$, para que a relação causal possa ser determinada de forma mais precisa e eficiente.
+    
+\end{itemize}
+
+\noindent Nesse trabalho iremos abordar os conceitos por trás na regressão linear simples no \autoref{ch:modelo_regressao} , seus pressupostos no \autoref{ch:pressupostos}, formas de estimação dos parâmetros do modelo no \autoref{ch:estimacao}, avaliação do modelo no \autoref{ch:avaliacao_do_modelo}, inferência dos parâmetros no \autoref{ch:inferencia_dos_parametros} e, por fim, serão realizados exemplos no \autoref{ch:exemplos} com a linguagem \textit{R}.
+
+
+
+
+
+
+
