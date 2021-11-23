@@ -1,0 +1,225 @@
+---
+title: "Regressão linear simples"
+author: "Ivanildo Batista da Silva Júnior"
+date: "17 de novembro de 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(lmtest)
+library(tseries)
+library(nortest)
+library(olsrr)
+library(qpcR)
+```
+
+```{r}
+head(mtcars)
+tail(mtcars)
+```
+
+```{r}
+summary(data.frame(mtcars$mpg,mtcars$hp))
+```
+
+```{r}
+summary(mtcars)
+```
+
+```{r}
+cor(data.frame(mtcars$mpg,mtcars$hp))
+```
+
+```{r}
+cor.test(mtcars$mpg,mtcars$hp)
+```
+
+
+
+
+
+```{r}
+cor(mtcars)
+```
+
+
+```{r}
+modelo = lm(mpg~hp, data=mtcars)
+
+modelo
+
+summary(modelo)
+```
+
+```{r}
+lm(mpg~-1+hp, data=mtcars)
+
+summary(lm(formula=mpg~-1+hp, data=mtcars))
+```
+
+```{r}
+anova(modelo)
+```
+
+```{r}
+plot(mtcars$mpg~mtcars$hp, main='Milhas/Galão vs Potência',xlab = "Potência", ylab = "Milhas/Galão")
+abline(lm(mpg~hp, data=mtcars), col="red")
+```
+
+```{r}
+confint(modelo, level = 0.90)
+confint(modelo)
+confint(modelo, level = 0.99)
+```
+
+```{r}
+modelo$residuals
+```
+
+```{r}
+modelo$fitted.values
+```
+
+
+
+```{r}
+plot(mtcars$mpg, modelo$fitted.values, main="Valores reais vs Valores treinados",
+     xlab = "Valores treinados",ylab = "Valores reais")
+abline(lm(mtcars$mpg~modelo$fitted.values),col="red")
+```
+
+```{r}
+residuos2 <- residuals(modelo)^2
+```
+
+```{r}
+plot(residuos2,mtcars$hp, main="Valores treinados vs resíduos",
+     xlab = "Valores treinados",ylab = "resíduos")
+abline(lm(residuos2~mtcars$hp), col="blue")
+```
+
+```{r}
+plot(lm(residuos2~mtcars$hp))
+```
+
+```{r}
+plot(mtcars$mpg,residuals(modelo), main="Observado_vs_residuos",
+     xlab = "Valores_observados",ylab = "Residuos")
+abline(h=0, col="red", lwd=3)
+abline(lm(residuals(modelo)~mtcars$mpg), col="green",lwd=3,lty=2)
+```
+
+```{r}
+plot(mtcars$hp,residuals(modelo), main="Observado_vs_residuos",
+     xlab = "Valores_observados",ylab = "Residuos")
+abline(h=0, col="red", lwd=3)
+abline(lm(residuals(modelo)~mtcars$hp), col="green",lwd=3,lty=2)
+```
+
+
+```{r}
+qqnorm(residuals(modelo), ylab="Resíduos",xlab="Quantis teóricos",main="")
+qqline(residuals(modelo))
+```
+
+```{r}
+par(mfrow=c(2,2))
+plot(modelo)
+```
+
+```{r}
+par(mfrow=c(1,3))
+hist(rstudent(modelo)); boxplot(rstudent(modelo)); qqnorm(rstudent(modelo)); qqline(rstudent(modelo)) 
+```
+
+```{r}
+par(mfrow=c(1,3))
+hist(residuals(modelo), 
+     main="Histograma dos residuos", 
+     xlab = "Residuos", ylab = ""); 
+boxplot(residuals(modelo), 
+        main="Boxplot dos residuos"); 
+qqnorm(residuals(modelo), 
+       main="QQplot dos residuos", xlab = "Quantis teoricos"); 
+qqline(residuals(modelo)) 
+```
+
+```{r}
+shapiro.test(residuals(modelo))
+```
+
+```{r}
+shapiro.test(rstudent(modelo))
+```
+
+```{r}
+jarque.bera.test(residuals(modelo))
+```
+
+```{r}
+ad.test(residuals(modelo))
+```
+
+```{r}
+gqtest(modelo, fraction=1/2, order.by = ~hp, data=mtcars)
+```
+
+```{r}
+bptest(modelo, varformula = ~hp, data=mtcars, studentize = F)
+```
+
+```{r}
+hmctest(modelo$model)
+```
+
+
+```{r}
+residuos2 <- residuals(modelo)^2
+summary(lm(residuos2~mtcars$hp))
+```
+
+```{r}
+dwtest(modelo$model)
+```
+
+```{r}
+coeftest(modelo)
+```
+
+```{r}
+resettest(modelo$model, power=2, type="regressor")
+resettest(modelo$model, power=3, type="regressor")
+resettest(modelo$model, power=4, type="regressor")
+```
+
+```{r}
+hist(modelo$residuals, ylab = "",xlab = "Residuos", main = "Histograma_dos_residuos")
+
+boxplot(modelo$residuals,main='Boxplot-Residuos',ylab='valores_residuais')
+```
+
+```{r}
+AIC(modelo) #Akaike
+BIC(modelo) #Schwarz
+```
+
+```{r}
+mean(residuos2)
+```
+
+
+```{r}
+PRESS(modelo)
+```
+
+
+
+
+
+
+
+
