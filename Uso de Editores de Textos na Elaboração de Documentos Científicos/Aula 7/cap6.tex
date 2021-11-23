@@ -1,0 +1,324 @@
+\chapter{Inferência dos parâmetros}
+\label{ch:inferencia_dos_parametros}
+
+\noindent Nesse capítulo vamos realizar a inferência dos parâmetros. Como saber a distribuição dos parâmetros, como criar intervalos de confiança para os parâmetros e quais os principais testes de hipóteses.
+
+\section{Distribuição}
+
+\noindent Considere a \autoref{eq:somaerro}, onde para encontrar os parâmetros $\beta_0$ e $\beta_1$ é preciso minimizar os erros, logo os parâmetros estão em função dos erros $\varepsilon_i$, por isso a distribuição de probabilidade de $\beta_0$ e $\beta_1$ dependerá da hipótese adotada sobre a distribuição de probabilidade de $\varepsilon_i$. Em princípio o método de mínimos quadrados ordinários não faz qualquer tipo de suposição sobre a natureza de probabilidade dos erros $\varepsilon_i$, por esse motivo o mais comum é suposição de normalidade. Considerando a hipótese de normalidade da explicitada na \autoref{eq:erro} ($\varepsilon_i$ é normal e identicamente distribuído) os estimadores de mínimos quadrados ordinários seguem uma distribuição normal e são identicamentes distribuídos.
+
+\noindent Dado que $\hat{\beta}_0$ e $\hat{\beta}_1$ estão em função de $\varepsilon_i$, então eles seguem uma distribuição normal com
+
+\begin{itemize}
+\centering
+    \item $ \text{Média de } \hat{\beta}_0 = \beta_0 \text{ e } \text{Variância de } \hat{\beta}_0 = \sigma_{\hat{\beta}_0}^2 \therefore \boxed{\hat{\beta}_0 \sim N(\beta_0, \sigma_{\hat{\beta}_0}^2)}$
+    
+    \item $ \text{Média de } \hat{\beta}_1 = \beta_1 \text{ e } \text{Variância de } \hat{\beta}_1 = \sigma_{\hat{\beta}_1}^2 \therefore \boxed{\hat{\beta}_1 \sim N(\beta_1, \sigma_{\hat{\beta}_1}^2)}$
+\end{itemize}
+
+\noindent Pelas propriedades da distribuição normal, a variável $W$ que é definida como $W = \dfrac{\hat{\beta}_0 - \beta_0}{\sigma_{\hat{\beta}_0}}$, segue uam distribuição normal padrão com média zero e variância igual a um ($=1$), ou $W \sim N(0,1)$. O mesmo raciocínio se aplica a $\hat{\beta}_1$, com $W = \dfrac{\hat{\beta}_1 - \beta_1}{\sigma_{\hat{\beta}_1}}$ e $W \sim N(0,1)$. Sendo $\sigma_{\hat{\beta}_0}$ e $\sigma_{\hat{\beta}_1}$ os erros padrões de, respectivamente, $\hat{\beta}_0$ e $\hat{\beta}_1$.\\
+
+\noindent \textbf{Em resumo} : Assumindo normalidade dos resíduos, então a distribuição dos parâmetros estimados do modelo de regressão linear simples será um distribuição normal.
+
+\section{Intervalo de confiança}
+
+\subsection{Para os estimadores}
+
+\noindent Como visto anteriormente $W$ é uma variável normal padronizada. Podemos empregar a distribuição normal para afirmações probabilísticas sobre $\beta_1$ contando que a verdadeira variância da população, $\sigma^2$, seja conhecida. Se $\sigma^2$ for conhecida, uma propriedade importante de uma variável normalmente distribuída com média $\mu$  e variância $\sigma^2$ é que a área sob a curva normal entre $\mu \pm \sigma$ corresponde a cerca de 68\%, aquela entre os limites $\mu \pm 2\sigma$ é de cerca de 95\% e a que está entre $\mu \pm 3\sigma$ é de cerca de 99.7\%. Mas raramente é conhecida e, na prática, é determinada pelo estimador não viesado $\hat{\sigma}^2$. Se substituirmos $\sigma$ por $\hat{\sigma}$ podemos escrever a equação
+$W = \dfrac{\hat{\beta_1} - \beta_1}{\sigma_{\hat{\beta}_1}}$ como 
+
+\begin{equation}
+\label{eq:vart}
+    t = \dfrac{\hat{\beta_1} - \beta_1}{\text{ep}(\hat{\beta}_1)} = \dfrac{\text{Estimador - Parâmetro}}{\text{Erro padrão estimado do estimador}}
+\end{equation}
+
+\noindent onde $\text{ep}(\hat{\beta}_1) = \hat{\sigma}_{\hat{\beta}_1}$.\\
+
+\noindent Entretanto a variável $t$ não possui uma distribuição normal, mas uma distribuição $t$ com $n-2$ graus de liberdade. Portanto, ao invés de usarmos a distribuição normal, vamos usar a distribuição \textit{t} de \textit{student} para estabelecer um intervalo de confiança para $\beta_1$ como a seguir:
+
+\begin{equation}
+\label{eq:interv}
+    Pr(-t_{\alpha/2} \leq t \leq t_{\alpha/2}) = 1 - \alpha
+\end{equation}
+
+\noindent em que o valor \textit{t} entre as duas desigualdades é o valor \textit{t} dado pela equação \autoref{eq:vart} e $t_{\alpha/2}$ é o valor da variável \textit{t} obtido da distribuição \textit{t} de \textit{student} para um nível de significância $\alpha/2$ e $n-2$ graus de liberdade; muitas vezes é chamado de valor crítico de \textit{t} em um nível de significância de $\alpha/2$. Substituindo \autoref{eq:vart} na \autoref{eq:interv}, obtemos
+
+\begin{equation}
+\label{eq:interv2}
+    Pr\bigg[-t_{\alpha/2} \leq \dfrac{\hat{\beta_1} - \beta_1}{\text{ep}(\hat{\beta}_1)} \leq t_{\alpha/2}\bigg] = 1 - \alpha
+\end{equation}
+
+\noindent Reorganizando a equação \autoref{eq:interv2}, temos
+
+\begin{equation}
+\label{eq:interv3}
+    Pr[\hat{\beta}_1 - t_{\alpha/2}\text{ep}(\hat{\beta}_1) \leq \beta_1 \leq \hat{\beta}_1 + t_{\alpha/2}\text{ep}(\hat{\beta}_1)] = 1-\alpha
+\end{equation}
+
+\noindent A \autoref{eq:interv3} oferece um intervalo de confiança de $100(1-\alpha)\%$ para $\beta_1$ e que pode ser reescrito de forma simplificada como
+
+\begin{equation}
+\label{eq:interv4}
+    \hat{\beta}_1 \pm t_{\alpha/2}\text{ep}(\hat{\beta}_1)
+\end{equation}
+
+\noindent Por analogia, pode-se obter o intervalo de confiança para $\beta_0$, conforme abaixo
+
+\begin{equation}
+\label{eq:interv5}
+    \hat{\beta}_0 \pm t_{\alpha/2}\text{ep}(\hat{\beta}_0)
+\end{equation}
+
+\noindent A característica importante dos intervalos de confiança dados na \autoref{eq:interv4} e na \autoref{eq:interv5}: nos dois casos a \textit{amplitide do intervalo de confiança é proporcional ao erro padrão do estimador}. Quanto maior o erro padrão, maior a amplitude do intervalo de confiança. Em outras palavras, quanto maior o erro do estimador, maior a incerteza da estimação do verdadeiro valor do parâmetro desconhecido. O erro padrão é descrito muitas vezes como uma medida de precisão do estimador (da exatidão com que o estimador mede o verdadeiro valor da população).
+
+\subsection{Para a variância}
+
+\noindent A \autoref{eq:eq49}, sob a hipótese de normalidade, segue uma distribuição $\chi^2$ com $(n-2)$ graus de liberdade, onde
+
+\begin{equation}
+    \label{eq:eq61}
+    \chi^2 = (n-2)\dfrac{\hat{\sigma}^2}{\sigma^2}
+\end{equation}
+
+
+\noindent portanto podemos usar a distribuição $\chi^2$ para estabelecer um intervalo de confiança para $\sigma^2$:
+
+\begin{equation}
+    \label{eq:eq62}
+    Pr(\chi^2_{1-\alpha/2} \leq \chi^2 \leq \chi^2_{\alpha/2}) = 1 - \alpha
+\end{equation}
+
+\noindent onde o valor da distribuição $chi^2$ na desigualdade é dado pela \autoref{eq:eq61} e os valores críticos $\chi^2_{1-\alpha/2}$ e $\chi^2_{\alpha/2}$ são obtidos da tabela de qui-quadrado para $n-$ graus de liberdade.
+
+\noindent Substituindo \autoref{eq:eq61} na \autoref{eq:eq62} e reorganizando, temos
+
+\begin{equation}
+    \label{eq:eq63}
+    Pr\bigg[(n-2)\dfrac{\hat{\sigma}^2}{\chi^2_{\alpha/2}} \leq \sigma^2 \leq   (n-2)\dfrac{\hat{\sigma}^2}{\chi^2_{1-\alpha/2}} \bigg]
+\end{equation}
+
+o dá o intervalo de confiança $100(1-\alpha)\%$. Na \autoref{fig:chiquadrado} vemos as áreas caudais da distribuição qui-quadrado.
+
+
+\begin{figure}[H]
+\centering
+\caption{Áreas caudais da distribuição $\chi^2$}
+\includegraphics[scale=.8]{imagens/imagens_cap6/chiquadrado.PNG}
+\label{fig:chiquadrado}
+\end{figure}
+
+\section{Teste de hipóteses}
+
+\noindent Uma hipótese é uma declaração sobre um parâmetro da população. As duas hipóteses complementares em um problema envolvendo um teste de hipóteses
+são chamadas \textit{hipótese nula} e \textit{hipótese alternativa}, denotadas por $H_0$ e $H_1$, respectivamente.\\
+
+Dado um parâmetro populacional $\theta$, o formato geral da hipótese nula e da hipótese alternativa é $H_0$ : $\theta \in \Theta$ e $H_1$ $\theta \in \Theta^{C}$, onde $\Theta$ é um algum subconjunto
+do espaço de parâmetros e $\Theta^{C}$ é seu complemento. Por exemplo, suponha que a hipótese nula seja que o verdadeiro valor de $\theta$ é $\theta_0$. Assim,
+
+$$ H_0 : \theta = \theta_0$$
+
+\noindent A hipótese alternativa, considerada aceitável caso $H_0$ seja rejeitada, pode pode ter formas como
+
+$$ H_0 : \theta \neq \theta_0$$
+$$ H_0 : \theta > \theta_0$$
+$$ H_0 : \theta < \theta_0$$
+
+\noindent a depender das informações do problema. 
+
+\noindent Um procedimento para testar uma hipótese, ou um teste de hipótese, é uma regra que especifica: (a) para quais valores amostrais a decisão aceita $H_0$ como verdadeira; e (b) para quais valores amostrais $H_0$ é rejeitada e $H_1$ é aceita como verdadeira. O subconjunto do espaço amostral para o qual $H_0$ será rejeitada é chamado de \textit{região de rejeição}, ou \textit{região crítica}. O complemento da \textit{região de rejeição} é chamado de \textit{região de aceitação}.\\
+
+\noindent Se a hipótese alternativa 
+\begin{itemize}
+    \item testar desigualdade, o teste será bicaudal (a distribuição terá dois valores críticos);
+    
+    \item testar se o parâmetro é maior que um valor, o teste será unicaudal na direita (um valor crítico à direita);
+    
+    \item estar se o parâmetro é menor que um valor, o teste será unicaudal na esquerda (um valor crítico à esquerda).
+\end{itemize}
+
+\subsection{\textit{p}-valor}
+
+Depois que um teste de hipóteses é realizado, as conclusões devem ser relatadas de algum modo estatisticamente significativo. Um método para relatar os resultados de um teste é expor o nível de significância $\alpha$ utilizado e a decisão
+de rejeitar ou aceitar $H_0$. Se $\alpha$ for pequeno, a decisão de rejeitar $H_0$ é bastante convincente, mas se $\alpha$ for grande, a decisão de rejeitar $H_0$ não é muito convincente porque o teste tem uma grande probabilidade de levar, incorretamente, a esta decisão.
+
+Outro meio de relatar os resultados de um teste é expor o chamado \textit{p}-valor do teste. O \textit{p}-valor $p(X)$ é uma estatística que satisfaz $0 < p(x) < 1$ para cada ponto amostral $x$, e corresponde à probabilidade de ocorrer valores da estatística de teste $W(X)$ mais extremos do que o observado para x, sob a hipótese de $H_0$ ser verdadeira. Ou seja,
+
+$$ p(x) = P(W(X) \leq W(x)| \theta \in \Theta)  $$
+
+\noindent Rejeitaremos $H_0$ para aqueles níveis de significância $\alpha$ maiores do que o p-valor
+encontrado.
+
+\section{Testes estatísticos para o modelo de regressão linear simples}
+
+\subsection{Teste para significância dos parâmetros}
+\label{ch:teste1}
+\noindent Esse teste serve para saber se os parâmetros do modelo de regressão linear simples são estatisticamente diferentes de zero. Como observado na \autoref{eq:vart} 
+
+$$t = \dfrac{\hat{\beta}_1 - \beta_1}{\text{ep}(\hat{\beta}_1)}$$
+
+\noindent \textit{t} segue uma distribuição \textit{t} de \textit{student} com $n-2$ graus de liberdade. As nossas hipóteses (nulas e alternativa) para $\beta_1$ (também vale para $\beta_0$) é que ele é estatisticamente igual a zero.
+
+$$H_0: \beta_1 = 0 \qquad H_1: \beta_1 \neq 0$$
+
+\noindent Observação: nesse caso o nosso teste será bicaudal, pois $H_1$ não é uma igualdade.\\
+
+\noindent Sob $H_0$ ($\beta_1 = 0$) temos que
+
+$$t = \dfrac{\hat{\beta}_1 - 0}{\text{ep}(\hat{\beta}_1)} =  \dfrac{\hat{\beta}_1 }{\text{ep}(\hat{\beta}_1)}$$
+
+\noindent \textbf{Regra de rejeição}: Rejeita-se $H_0$, para um nível de significância $\alpha$, se $|t| > t_{\alpha/2, (n-2)}$. Caso queira verificar a tabela \textit{t} de \textit{student} basta clicar \href{https://sites.icmc.usp.br/francisco/SME0123/listas/Tabela_Dist_t.pdf}{aqui}.
+
+\subsection{Teste de significância da variância}
+
+\noindent Testar a significância estatística do valor estimado da variância dos erros $\hat{\sigma}^2$. Queremos testar a hipótese nula $H_0: \hat{\sigma}^2 = \sigma^2$ contra a hipótese alternativa $H_1: \hat{\sigma}^2 \neq \sigma^2$. Conforme a \autoref{eq:eq61}
+
+\begin{equation}
+    \chi^2 = (n-2)\dfrac{\hat{\sigma}^2}{\sigma^2}
+\end{equation}
+
+\noindent Se, para um determinado nível de significância $\alpha$, $\chi^2 > \chi^2_{\alpha/2;(n-2)}$ ou  $\chi^2 < \chi^2_{(1-\alpha)/2;(n-2)}$, então rejeitamos a hipótese nula e aceitamos a hipótese alternativa.
+
+\subsection{Teste para significância $SQ_{Reg}$ - Análise de Variância (\textit{ANOVA})}
+
+\noindent Conforme a \autoref{eq:eq53} no \autoref{ch:avaliacao_do_modelo}, a soma dos quadrados totais $SQ_{Totais}$ é decomposta em outros dois componentes: soma dos quadrados explicados ou da regressão $SQ_{Reg}$ e a soma dos quadrados dos resíduos $SQ_{Res}$. Um estudo desses elementos da $SQ_{Totais}$ é conhecido como \textbf{análise de variância} (\textit{ANOVA}) do ponto de vista da regressão.
+
+\noindent Associados a esses componentes estão seus graus de liberdade, número de observações menos o número de parâmetros. A $SQ_{Totais}$ tem $n-1$ graus de liberdade, porque perde-se $1$ grau de liberdade ao calcular $\overline{y}$. A $SQ_{Res}$ tem $n-2$ graus de liberdade (para o modelo de regressão simples, que possui dois parâmetros - $\beta_0$ e $\beta_1$). A $SQ_{Reg}$ tem $1$ grau de liberdade. 
+
+\begin{table}[H]
+\centering
+\caption{Componentes e seus graus de liberdade}
+\begin{tabular}{lllll}
+\hline
+ $SQ_{Totais}$ & =  & $SQ_{Reg}$  & +   &  $SQ_{Res}$\\
+ $(n-1)$ & =   & $1$ & + & $(n-2)$  \\ \hline
+\end{tabular}%
+\label{Tab: tabela4}
+\end{table}
+
+\noindent \textbf{Nota}: $SQ_{Reg} = \beta_1^2 \sum_{i=1}^{n} (x_i - \overline{x})^2$. Logo se $\beta_1$ for estatisticamente não significativo, então $SQ_{Reg}$ será estatisticamente não significativo. Isso implica que $x$ não tem nenhum influência linear sobre $y$.\\
+
+\noindent Para testar a significância de $SQ_{Reg}$ usamos
+
+\begin{equation}
+    \label{eq:eq64}
+    F = \dfrac{SQ_{Reg}/(p-1)}{SQ_{Res}/(n-p)}
+\end{equation}
+
+\noindent Como o modelo de regressão linear simples tem dois parâmetros
+
+\begin{equation}
+    \label{eq:eq65}
+    F = \dfrac{SQ_{Reg}/(2-1)}{SQ_{Res}/(n-2)} = \dfrac{SQ_{Reg}}{SQ_{Res}/(n-2)}
+\end{equation}
+
+\begin{equation}
+    \label{eq:eq66}
+    F = \dfrac{SQ_{Reg}}{SQ_{Res}/(n-2)} \sim F_{1,n-2}
+\end{equation}
+
+\noindent \textbf{Regra de rejeição}: Rejeita-se $H_0: \beta_1 = \beta_2 = \dots = \beta_n = 0$ ($H_1 : \beta_n \neq 0$) para um nível de significância $\alpha$ se $F > F_{\alpha;1,(n-2)}$.
+
+\newpage
+
+\noindent Na \autoref{Tab:tabela5} abaixo temos uma típica análise de variância (\textit{ANOVA}).
+
+\begin{table}[H]
+\caption{ANOVA}
+\centering
+\begin{tabular}{cccccc}
+\hline
+\begin{tabular}[c]{@{}c@{}}\textbf{Partição} \\ \textbf{da variância}\end{tabular} & \textbf{SQ} & \textbf{gl} & \textbf{Média SQ} & \textbf{F} \\ \hline
+\\
+$SQ_{Reg}$ & $\sum_{i=1}^{n} (\hat{y}_i)^2 = \hat{\beta}_1^2 \sum_{i=1}^{n} (x_i)^2 $ & $1$ & $\hat{\beta}_1^2 \sum_{i=1}^{n} (x_i)^2$ & $F = \dfrac{SQ_{Reg}}{SQ_{Res}/(n-2)}$\\
+\\
+$SQ_{Res}$ & $\sum_{i=1}^{n} \hat{\varepsilon}_i^2$ & $(n-2)$ & $\dfrac{\sum_{i=1}^{n} \varepsilon_i^2}{n-2} = \hat{\sigma}^2$ &  \\
+\\
+$SQ_{Totais}$ & $\sum_{i=1}^{n} y_i^2$ & $(n-1)$ &  & \\ \hline
+\end{tabular}%
+\label{Tab:tabela5}
+\end{table}
+
+\subsection{Teste para hipótese de normalidade}
+\label{ch:testnorm}
+
+\noindent Como citado no \autoref{ch:pressupostos}, existem diversos testes estatísticos para testar a hipótese de normalidade dos resíduos, um dos mais conhecidos é o Teste de Normalidade \textit{Jarque-Bera} \cite{jarque1987test}. O teste \textit{Jarque-Bera} testa se a distribuição dos dados segue uma distribuição normal ($H_{0}$) em comparação com uma hipótese alternativa ($H_{1}$) em que os dados seguem alguma outra distribuição. A estatística do teste é baseada em dois momentos dos dados, a assimetria e a curtose, e possui uma $\chi^{2}_{2;1-\alpha}$ distribuição assintótica.\\
+
+\noindent A estatística do teste \textit{Jarque-Bera} é dada pela equação abaixo:
+
+\begin{equation}
+    \label{eq:eq67}
+    S_{JB} = T\bigg[\frac{\alpha_{1}^{2}}{6} + \frac{\big(\alpha_{2} - 3\big)^{2}}{24} \bigg]
+\end{equation}
+
+\noindent onde $\alpha_{1}$ é a medida padrão de assimetria de uma distribuição ou o \textbf{coeficiente de assimetria} e $\alpha_{2}$ o coeficiente de curtose. Ambos podem ser estimados por
+
+$$ \hat{\alpha_1} = \dfrac{\sum_{i=1}^n \varepsilon_i^3}{n(\hat{\sigma}^2)^{3/2}} = \dfrac{\hat{\mu}^3}{n(\hat{\sigma}^2)^{3/2}} \qquad \hat{\alpha_2} = \dfrac{\sum_{i=1}^n \varepsilon_i^4}{n(\hat{\sigma}^2)^2} = \dfrac{\hat{\mu}^3}{n(\hat{\sigma}^2)^2}
+$$
+
+\noindent $\dfrac{\sum_{i=1}^n \varepsilon_i^3}{n}$ e $\dfrac{\sum_{i=1}^n \varepsilon_i^4}{n}$ são os estimadores consistentes para, respectivamente, os terceiro e quarto momentos amostrais. Assim podemos reescrever a \autoref{eq:eq67} como
+
+\begin{equation}
+    \label{eq:eq68}
+    S_{JB} = T\bigg[\frac{\hat{\alpha}_{1}^{2}}{6} + \frac{\big(\hat{\alpha}_{2} - 3\big)^{2}}{24} \bigg]
+\end{equation}
+
+\noindent \textbf{Regra de rejeição} : Se $S_{JB} > \chi^{2}_{2;1-\alpha}$, devemos rejeitar $H_{0}$. Uma vantagem desse teste é que ele pode ser desmembrado em outros dois testes: Um para assimetria e outro para curtose com distribuição $\chi^{2}_{1;1-\alpha}$ para cada um.\\
+
+O teste \textit{Jarque-Bera} é bastante conhecido, porém outros também podem ser aplicados para testar normalidade como o \textit{Shapiro-Wilk} \cite{shapiro1965analysis} e o \textit{Anderson-Darling} \cite{anderson1954test}, que possuem a mesma hipótese nula do \textit{Jarque-Bera} e utilizados nesse trabalho
+
+\subsection{Teste para autocorrelação}
+\label{ch:testedw}
+\noindent Para detectar autocorrelação ou a hipótese de dependência entre os resíduos, o teste mais comumente usado é o \textit{Durbin-Watson} \cite{durbin1992testing}. As hipóteses do teste são $H_0: \rho = 0$ (não há autocorrelação nos resíduos) contra a $H_1: \rho \neq 0$ (há autocorrelação residual).\\
+
+\noindent A estatística do teste é dada por
+
+\begin{equation}
+    \label{eq:eq69}
+    d = \dfrac{\sum_{i=2}^n (\hat{\varepsilon}_i - \hat{\varepsilon}_{i-1})^2}{\sum_{i=2}^n \hat{\varepsilon}_i^2}
+\end{equation}
+
+\noindent a estatística $d$ varia entre 0 e 4 e interpretamos o seus resultados como:
+
+\begin{itemize}
+    \item se o valor do teste estiver próximo de 4 ($d \approx 4$), então há evidência para autocorrelação negativa;
+    
+    \item se estiver próximo de 2 ($d \approx 2$), evidência para ausência de autocorrelação;
+    
+    \item e se estiver perto de 0 ($d \approx 0$), há evidência para autocorrelação positiva.
+\end{itemize}
+
+\noindent Existem outros testes para identificação de autocorrelação como, o teste de \textit{Wallis} \cite{wallis1972testing}, teste de \textit{Breush-Godfrey} \cite{godfrey1978testing}, \textit{Ljung-Box} \cite{ljung1978measure}, etc.
+
+
+\subsection{Teste para identificar heterocedasticidade}
+
+\noindent Principais formas de identificar heterocedasticidade:
+
+\begin{itemize}
+    \item \textbf{Forma gráfica}: gerando uma gráfico de dispersão com os resíduos elevados ao quadrado e a variável explicativa $x$.
+    
+    \item \textbf{Testes estatísticos}: Testes \textit{Goldfeld-Quandt}, \textit{Breusch-Pagan} ou de \textit{White}.
+\end{itemize}
+
+\noindent Nesse trabalho usaremos os testes \textit{Breusch-Pagan} e \textit{Goldfeld-Quandt}, cuja a hipótese nula é que os resíduos são homocedásticos (variância constante). Se o $p$-valor do teste for maior que o nível de significância (por padrão é 5\%), então aceitamos a hipótese nula, caso contrário os resíduos são heterocedásticos.
+
+\subsubsection{Teste \textit{Breusch-Pagan}}
+
+\noindent Falando um pouco sobre o teste \textit{Breusch-Pagan} a ideia desse teste é gerar uma regressão liner entre os resíduos quadrados ($\varepsilon^2$) do modelo e a variável explicativa ($x$), para testar se os resíduos tem relação com o regressor. Temos então
+
+$$ \hat{\varepsilon}^2_i = \delta_0 + \delta_1 x_i + u_i$$
+
+\noindent onde $u_i$ são os resíduos desse modelo. É verificado se $\delta_1$ é estatisticamente significativo (se $\delta_1 \neq 0$). Se $\delta_1 \neq 0$, então a variância dos resíduos dependem da variável explicativa; mas se $\delta_1 = 0$, então teremos do modelo apenas $\delta_0$ e $u_i$ ($E(u_i) = 0$), então a variância é contante, pois $\delta_0$ é constante.
+
+
+
+
+
+
+
+
+
+
+
+
+

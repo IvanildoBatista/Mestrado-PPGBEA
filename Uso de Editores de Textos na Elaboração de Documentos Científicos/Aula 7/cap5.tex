@@ -1,0 +1,199 @@
+\chapter{Avaliação do modelo}
+\label{ch:avaliacao_do_modelo}
+
+\noindent No processo de seleção de covariáveis, diferentes critérios podem ser
+usados para comparar os modelos produzidos. Alguns deles são
+descritos na sequência.
+
+\section{Coeficiente de Determinação - \textit{$R^2$}}
+\label{ch:r2}
+
+\noindent Queremos saber o quão bem ajustado o nosso modelo de regressão linear simples está ou o quão bem a linha reta de regressão está ajustada aos dados. Não existe um ajuste perfeito dos dados, raramente isso acontece; mas queremos que pelo menos os resíduos em torno da média sejam os menores possíveis. Para sabe a ``qualidade" desse ajuste usamos o coeficiente de determinação $R^2$ que é uma medida que resume o quão ajustados os dados estão em relação a linha de regressão.\\
+
+\noindent Para calcular o $R^2$ para o modelo de regressão linear simples partimos de que
+
+\begin{equation}
+    y_i = \hat{y}_i + \hat{\varepsilon}_i
+\end{equation}
+
+\noindent Subtraindo ambos os lados por $\overline{y}$ temos
+
+\begin{equation}
+    y_i - \overline{y} = \hat{y}_i - \overline{y} + \hat{\varepsilon}_i
+\end{equation}
+
+\noindent Definindo $(y_i - \overline{y}) = \text{y}$ e $(\hat{y}_i - \overline{y}) = \hat{\text{y}}$, então
+
+\begin{equation}
+    \label{eq:eq51}
+    \text{y} = \hat{\text{y}} + \hat{\varepsilon}_i
+\end{equation}
+
+
+\noindent Elevando ambos os lados da \autoref{eq:eq51} e somando na amostra temos
+
+\begin{equation}
+    \sum_{i=1}^{n} \text{y}^2 = \sum_{i=1}^{n} \hat{\text{y}}^2 + \sum_{i=1}^{n} \hat{\varepsilon}_i^2 + 2 \sum_{i=1}^{n} \hat{\text{y}} \hat{\varepsilon}_i
+\end{equation}
+
+\noindent Como $\sum_{i=1}^{n} \hat{\text{y}} \hat{\varepsilon}_i = 0$
+
+\begin{equation}
+    \sum_{i=1}^{n} \text{y}^2 = \sum_{i=1}^{n} \hat{\text{y}}^2 + \sum_{i=1}^{n} \hat{\varepsilon}_i^2
+\end{equation}
+
+\noindent Então,
+
+\begin{equation}
+\label{eq:eq52}
+    \sum_{i=1}^{n} (y_i - \overline{y})^2 = \sum_{i=1}^{n} (\hat{y}_i - \overline{y})^2 + \sum_{i=1}^{n} \hat{\varepsilon}_i^2
+\end{equation}
+
+\noindent O componente $\sum_{i=1}^{n} (y_i - \overline{y})^2$, também representado por $SQ_{Total}$ (soma do quadrados totais) é a variabilidade total dos dados (corrigida pela média). O componente $\sum_{i=1}^{n} (\hat{y}_i - \overline{y})^2$ ou $SQ_{Reg}$ (soma dos quadrados da regressão) é variabilidade dos dados explicada pela regressão; e o componente $\sum_{i=1}^{n} \hat{\varepsilon}_i^2$ ou $SQ_{Res}$ é a soma do quadrado dos resíduos, variabilidade que o modelo de regressão não consegue explicar. Então a \autoref{eq:eq52} pode ser escrita como
+
+\begin{equation}
+\label{eq:eq53}
+    SQ_{Total} = SQ_{Reg} + SQ_{Res}
+\end{equation}
+
+\noindent Como dito anteriormente o coeficiente de determinação $R^2$ corresponde à proporção da variação dos dados explicada pela regressão:
+
+$$R^2=\frac{SQ_{Reg}}{SQ_{Total}}= 1 - \frac{SQ_{Res}}{SQ_{Total}}$$
+
+\noindent Características do coeficiente de determinação $R^2$
+
+\begin{itemize}
+
+\item Notar que $SQ_{Total} > 0$ e que o $SQ_{Reg} \geq 0$. Isso implica que o $R^2 \geq 0$. Note também que $SQ_{Reg} \geq SQ_{Total}$, implicando que $R^2 \geq 1$. Ou seja, $\boxed{0 \geq R^2 \geq 1}$.
+
+\item O $R^2$ é o coeficiente de correlação linear entre $y_i$ e $\hat{y}_i$.
+
+\item Quanto maior o $R^2$, maior o poder explicativo do modelo.
+
+\item é uma proporção. Ele mede a proporção da variação da resposta em torno de sua média amostral que pode ser explicada usando o modelo de regressão ao invés do modelo simples $y_i = \beta_0 + \varepsilon$.
+
+\item O que garante que o $R^2$ varie entre 0 e 1 é a presença do intercepto no modelo, caso o modelo não possua intercepto deve usar o $R^2$ não centrado ($\tilde{R^2}$).
+
+\item $R^2$ é não decrescente, ou seja, a inserção de variáveis no modelo nunca o fará decresce (limitação).
+
+\item O coeficiente de determinação não é apropriado para comparar modelos com diferentes números de parâmetros, uma vez que $R^2$ sempre aumenta com a inclusão de novas covariáveis.
+\end{itemize}
+
+\section{Coeficiente de Determinação Ajustado - $R^2_{Aj}$}
+\label{ch:r2a}
+
+\noindent Como dito anteriomente, o coeficiente de determinação possui a limitação de ser não decrescente. Entretanto o \textbf{coeficiente de determinação ajustado},$R^2_{\text{ajustado}}$, não sofre dessa limitação. O $R^2_{\text{ajustado}}$ é definido por:
+
+\begin{equation}
+    \label{eq:eq53}
+    1 - \dfrac{SQ_{Reg}/(n-p)}{SQ_{Total}/(n-1)}
+\end{equation}
+
+\noindent Estabelecendo uma relação entre $R^2_{\text{ajustado}}$ e o $R^2$
+
+$$R^2_{Aj}= 1 -\left ( \dfrac{n-1}{n-p} \right ) \bigg(\dfrac{SQ_{Reg}}{SQ_{Total}}\bigg)$$
+
+$$R^2_{Aj}= 1 -\bigg( \frac{n-1}{n-p} \bigg) \left(1-R^2\right)$$
+
+\noindent em que $n$ e $p$ são o número de observações e o número de parâmetros do modelo.
+
+\begin{itemize}
+\item Diferentemente do que ocorre para $R^2$, o valor de $R^2_{Aj}$ pode não
+aumentar mediante inclusão de novas variáveis ao modelo. Deve-se optar por modelos com maiores valores de $R^2_{Aj}$.
+
+\item $R^2_{\text{ajustado}} \leq R^2$.
+
+\item O $R^2_{\text{ajustado}}$ pode ser menor que zero (negativo).
+\end{itemize}
+
+\section{Quadrado Médio de Resíduos}
+
+\noindent Definido por:
+
+$$QM_{Res}= \frac{SQ_{Res}}{n-p}=\frac{\sum_{i=1}^{n}(y_i-\widehat{y}_i)^2}{n-p}$$
+
+\noindent também pode ser usado para comparação e seleção de modelos de regressão
+\begin{itemize}
+\item Deve-se optar por modelos com menores valores para $QM_{Res}$;
+\item Pode-se mostrar que minimizar $QM_{Res}$ é equivalente a maximizar $R^2_{Aj}$, de forma que os dois critérios conduzem à seleção do mesmo conjunto
+de covariáveis.
+\end{itemize}
+
+\section{$C_p$ de \textit{Mallows}}
+
+\noindent O coeficiente $C_p$ de \textit{Mallows} \cite{mallows2000some} é definido por:
+
+$$\frac{1}{\sigma^2}\sum_{i=1}^{n}E[\widehat{y}_i-E(y_i)]^2$$
+
+\noindent podendo ser estimado por:
+
+$$C_p=\frac{SQ_{Res}}{\sigma^2}+2p-n$$
+
+\noindent em que $\sigma^2$ é dado pelo quadrado médio de resídus do modelo que inclui todas as covariáveis.
+
+\begin{itemize}
+\item Para o modelo completo, com $p$ parâmetros, $C_p = p$.
+\item Para submodelos, definidos por subconjunto das covariáveis, menores
+valores para $C_p$ são preferíveis.
+\item Uma estratégia para selecionar modelos com base nos valores de $C_p$ é
+plotar $C_p$ versus $p$ e adicionar ao gráfico a reta $C_p = p$.
+\item Modelos com viés reduzido terão pontos próximos a reta.
+\item Dentre os modelos com pontos próximos à reta, deve-se optar por
+aquele com menor $C_p$ (e $p$, consequentemente).
+
+\end{itemize}
+
+\section{Estatística \textit{PRESS}}
+
+\noindent A Estatística \textit{PRESS} \cite{allen1971prediction} permite  avaliar a qualidade preditiva dos modelos de regressão, sendo definida por:
+
+$$PRESS=\sum_{i=1}^{n}[y_i-\widehat{y}_i]^2=\sum_{i=1}^{n}\left ( \frac{r_i}{1-h_{ii}} \right )^2$$
+
+em que $\widehat{y}_i$ é obtido com base no modelo ajustado apenas com as demais
+$n-1$ observações $(i = 1, 2, ..., n)$.
+
+\begin{itemize}
+\item Menores valores da estatística PRESS indicam modelos com maior poder preditivo.
+\end{itemize}
+
+\section{Critérios de informação}
+
+\noindent \textbf{Critério de informação} são métricas que mensuram a qualidade de um modelo estatístico visando também a sua simplicidade. Fornece, portanto, uma métrica para comparação e seleção de modelos, em que menores valores do critério escolhido representa uma maior qualidade e simplicidade.
+
+\subsection{Critério de Informação de Akaike - AIC}
+
+\noindent O critério de informação de Akaike ou \textit{Akaike Information Criterion} \cite{akaike1974new}, ou
+simplesmente \textit{AIC}, é definido por:
+
+$$AIC=-2 log(\widehat{\theta})+2p$$
+
+\noindent em que $log(\widehat{\theta}$ é a log-verossimilhança maximizada do modelo (calculada com base nos emv’s dos parâmetros) e $p$ o número de parâmetros.
+
+\begin{itemize}
+\item O AIC pode ser usado para qualquer modelo ajustado por máxima verossimilhança. No caso de um modelo de regressão linear temos:
+\end{itemize}
+
+$$AIC=-n log(SQ_{Res}/n)+2p$$
+
+\begin{itemize}
+\item O componente $2p$, na expressão do $AIC$, atua como termo de penalização atribuído à complexidade (número de parâmetros) do modelo.
+\end{itemize}
+
+\subsection{Critério de Informação Bayesiano - BIC}
+
+\noindent Um critério alternativo ao AIC é o Critério de Informação Bayesiano ou BIC \cite{schwarz1978estimating}, definido, para um modelo de regressão linear, por:
+
+$$BIC=-n log(SQ_{Res}/n)+log(n)p$$
+
+\begin{itemize}
+\item O \textit{BIC} penaliza mais fortemente a complexidade do modelo que o \textit{AIC}
+ao substituir \textit{p} por $log(n)$ como fator de penalização.
+\item Devemos selecionar modelos com menores valores de \textit{AIC} (ou \textit{BIC}).
+\end{itemize}
+
+\noindent Esse dois critérios são os mais conhecidos, mas existem outros como: \textit{Deviance Information Criterion} \cite{spiegelhalter2002bayesian}, \textit{Focused Information Criterion} \cite{claeskens2003focused}, \textit{Watanabe–Akaike information criterion} \cite{watanabe2013widely} e o \textit{Hannan–Quinn information criterion} \cite{hannan1979determination}.
+
+
+
+
+

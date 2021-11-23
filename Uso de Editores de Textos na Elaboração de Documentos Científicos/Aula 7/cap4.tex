@@ -1,0 +1,249 @@
+\chapter{Estimação dos parâmetros}
+\label{ch:estimacao}
+
+\noindent O primeiro passo, na análise de regressão, é obter as estimativas $\hat{\beta}_0$ e $\hat{\beta}_1$ dos
+parâmetros $\beta_0$ e $\beta_1$ da regressão. Os valores dessas estimativas serão obtidos a partir de uma amostra de $n$ pares de valores $x_i$, $y_i$ (com $i = 1, 2, ..., n$), que correspondem a $n$ pontos num gráfico.\\
+
+\noindent Obtemos, então:
+
+$$\hat{y}_i = \hat{\beta}_0 + \hat{\beta}_1 x_i$$
+
+\noindent onde $\hat{y}_i$, $\hat{\beta}_0$ e $\hat{\beta}_1$ são, respectivamente estimativas de $E(y_i) =\beta_0 + \beta_1 x_i$, $\beta_0$ e $\beta_1$. Para cada par de valores $x_i$, $y_i$ podemos estabelecer o desvio $$\varepsilon_i = y_i-\hat{y_i} = y_i-(\beta_0 + \beta_1 x_i)$$
+
+\section{Estimação pelo método de mínimos quadrados ordinários}
+
+\noindent O método dos mínimos quadrados para o modelo de regressão linear simples consiste em adotar como estimativas dos parâmetros $\beta_0$ e $\beta_1$ os valores que minimizam a soma dos quadrados dos desvios.
+A partir da resposta real $y_i$ e da resposta prevista $\hat{y}_i = \beta_0 + \beta_1 xi$ atinge-se o mínimo entre todas as escolhas possíveis de coeficientes de regressão $\beta_0$ e $\beta_1$, ou seja, temos a função $Z$
+
+$$Z = \sum_{i=1}^{n}\varepsilon_i^2 = \sum_{i=1}^{n}[y_i -(\beta_0 + \beta_1 x_i)]^2$$
+
+\noindent Então queremos minimizar essa função
+
+$$(\beta_0, \beta_1) = \text{min}_{\beta_0, \beta_1} \sum_{i=1}^{n} Z$$
+
+\noindent ou
+
+\begin{equation}
+\label{eq:somaerro}
+    (\beta_0, \beta_1) = \text{min}_{\beta_0, \beta_1} \sum_{i=1}^{n} [y_i -(\beta_0 + \beta_1 x_i)]^2
+\end{equation}
+
+\noindent Para realizar a estimação, vamos expandir a função $Z$
+
+$$ Z = \sum_{i=1}^{n} (y_i - \beta_0 - \beta_1 x_i)(y_i - \beta_0 - \beta_1 x_i)$$
+
+$$Z = \sum_{i=1}^{n} (y^2_i - 2\beta_0 y_i - 2\beta_1 y_i x_1 + 2\beta_0 \beta_1 x_i + \beta_0^{2} + \beta_1^{2} x_i^{2})$$
+
+$$Z = \sum_{i=1}^{n} y^2_i - 2 \beta_0 \sum_{i=1}^{n}  y_i - 2 \beta_1 \sum_{i=1}^{n}  y_i x_1 + 2 \beta_0 \beta_1 \sum_{i=1}^{n}  x_i +  \sum_{i=1}^{n} \beta_0^{2} + \beta_1^{2} \sum_{i=1}^{n}  x_i^{2}$$
+
+$$Z = \sum_{i=1}^{n} y^2_i - 2 \beta_0 \sum_{i=1}^{n}  y_i - 2 \beta_1 \sum_{i=1}^{n}  y_i x_i + 2 \beta_0 \beta_1 \sum_{i=1}^{n}  x_i +  n \beta_0^{2} + \beta_1^{2} \sum_{i=1}^{n}  x_i^{2}$$
+
+$$Z = \sum_{i=1}^{n} y^2_i + 2 \beta_0 \beta_1 \sum_{i=1}^{n}  x_i +  n \beta_0^{2} + \beta_1^{2} \sum_{i=1}^{n}  x_i^{2} - 2 \beta_0 \sum_{i=1}^{n}  y_i - 2 \beta_1 \sum_{i=1}^{n}  y_i x_i$$
+
+\noindent A função $Z$ terá mínimo solucionando as suas derivadas parciais em relação a $\beta_0$ e $\beta_1$ forem nulas. Assim temos que
+
+
+\begin{equation}
+\label{eq:za}
+\frac{\partial Z}{\partial \beta_0} = 2n \beta_0 + 2 \beta_1 \sum_{i=1}^{n}  x_i  - 2 \sum_{i=1}^{n}  y_i = 0
+\end{equation}
+
+\begin{equation}
+\label{eq:zb}
+\frac{\partial Z}{\partial \beta_1} = 2 \beta_0 \sum_{i=1}^{n}  x_i + 2 \beta_1 \sum_{i=1}^{n}  x_i^{2} - 2 \sum_{i=1}^{n}  y_i x_i = 0
+\end{equation}
+
+\noindent Por se tratar de uma soma de quadrados de desvios, o ponto extremo será necessariamente um ponto de mínimo da função. Formalmente, pode-se verificar que as condições de segunda ordem para mínimo são satisfeitas. Simplificando \autoref{eq:za} e \autoref{eq:zb}, obtemos as equações normais das condições de primeira ordem: Para a \autoref{eq:za}
+
+$$ 2n \beta_0 + 2 \beta_1 \sum_{i=1}^{n}  x_i  - 2 \sum_{i=1}^{n}  y_i = 0 $$
+
+$$ 2n \beta_0 + 2 \beta_1 \sum_{i=1}^{n}  x_i  = 2 \sum_{i=1}^{n}  y_i$$
+
+$$ 2 \sum_{i=1}^{n}  y_i = 2n \beta_0 + 2 \beta_1 \sum_{i=1}^{n}  x_i$$
+
+$$ \boxed{\sum_{i=1}^{n}  y_i = n \beta_0 + \beta_1 \sum_{i=1}^{n}  x_i}$$
+
+\noindent  Para a \autoref{eq:zb}
+
+$$ 2 \beta_0 \sum_{i=1}^{n}  x_i + 2 \beta_1 \sum_{i=1}^{n}  x_i^{2} - 2 \sum_{i=1}^{n}  y_i x_i = 0 $$
+
+$$ 2 \beta_0 \sum_{i=1}^{n}  x_i + 2 \beta_1 \sum_{i=1}^{n}  x_i^{2} = 2 \sum_{i=1}^{n}  y_i x_i$$
+
+$$ \boxed{\beta_0 \sum_{i=1}^{n}  x_i + \beta_1 \sum_{i=1}^{n}  x_i^{2} = \sum_{i=1}^{n}  y_i x_i}$$
+
+
+\noindent Chegamos ao sistema de equações normais
+
+\begin{equation}
+    \begin{cases}
+      \sum_{i=1}^{n}  y_i = n \beta_0 + \beta_1 \sum_{i=1}^{n}  x_i\\
+      \beta_0\sum_{i=1}^{n}  x_i + \beta_1 \sum_{i=1}^{n}  x_i^{2} = \sum_{i=1}^{n}  y_i x_i
+    \end{cases}\,.
+\end{equation}
+
+
+\noindent Resolvendo o sistema, obtemos: 
+
+\begin{equation}
+\label{eq:eq43}
+\beta_0 = \dfrac{\sum_{i=1}^{n}  y_i - \beta_1 \sum_{i=1}^{n}  x_i}{n}\\ \textbf{ ou }\\ \beta_0 = \dfrac{\sum_{i=1}^{n}  y_i}{n} - \beta_1 \dfrac{\sum_{i=1}^{n}  x_i}{n}
+\end{equation}
+
+\noindent Substituindo em
+
+$$\beta_0\sum_{i=1}^{n}  x_i + \beta_1 \sum_{i=1}^{n}  x_i^{2} = \sum_{i=1}^{n}  y_i x_i $$
+
+\noindent Temos
+
+$$\bigg(\dfrac{\sum_{i=1}^{n}  y_i - \beta_1 \sum_{i=1}^{n}  x_i}{n}\bigg)\sum_{i=1}^{n}  x_i + \beta_1 \sum_{i=1}^{n}  x_i^{2} = \sum_{i=1}^{n}  y_i x_i $$
+
+$$ \bigg(\dfrac{\sum_{i=1}^{n}  y_i \sum_{i=1}^{n}  x_i - \beta_1 (\sum_{i=1}^{n}  x_i)^2}{n}\bigg) +  \beta_1 \sum_{i=1}^{n}  x_i^{2} = \sum_{i=1}^{n}  y_i x_i$$
+
+$$\beta_1  \sum_{i=1}^{n}  x_i^{2} - \dfrac{\beta_1}{n} \bigg(\sum_{i=1}^{n}  x_i \bigg)^2  = \sum_{i=1}^{n}  y_i x_i - \bigg( \dfrac{\sum_{i=1}^{n}  y_i \sum_{i=1}^{n}  x_i}{n}\bigg)$$
+
+\noindent Multiplicando ambos os lados por $n$
+
+$$n\beta_1  \sum_{i=1}^{n}  x_i^{2} - \beta_1 \bigg(\sum_{i=1}^{n}  x_i\bigg)^2  = n\sum_{i=1}^{n}  y_i x_i - \sum_{i=1}^{n}  y_i \sum_{i=1}^{n}  x_i$$
+
+\noindent Isolando o $\beta_1$
+
+$$\beta_1  \bigg[n\sum_{i=1}^{n}  x_i^{2} - \bigg(\sum_{i=1}^{n}  x_i\bigg)^2 \bigg]   = n\sum_{i=1}^{n}  y_i x_i - \sum_{i=1}^{n}  y_i \sum_{i=1}^{n}  x_i$$
+
+\begin{equation}
+\label{eq:eq41}
+\beta_1   = \dfrac{n\sum_{i=1}^{n}  y_i x_i - \sum_{i=1}^{n}  y_i \sum_{i=1}^{n}  x_i}{n\sum_{i=1}^{n}  x_i^{2} - \bigg(\sum_{i=1}^{n}  x_i\bigg)^2}
+\end{equation}
+
+\noindent Notar que 
+
+$$ n\sum_{i=1}^{n}  y_i x_i - \sum_{i=1}^{n}  y_i \sum_{i=1}^{n}  x_i = n \bigg( \sum_{i=1}^{n} (y_i - \overline{y})(x_i - \overline{x}) \bigg)  $$
+
+\noindent e que 
+
+$$ n\sum_{i=1}^{n}  x_i^{2} - \bigg(\sum_{i=1}^{n}  x_i\bigg)^2 = n \bigg(  \sum_{i=1}^{n} (x_i - \overline{x})^2 \bigg)$$
+
+\noindent Portanto
+
+\begin{equation}
+\beta_1 = \dfrac{n \bigg( \sum_{i=1}^{n} (y_i - \overline{y})(x_i - \overline{x}) \bigg)}{n \bigg(  \sum_{i=1}^{n} (x_i - \overline{x})^2 \bigg)} = 
+\dfrac{\sum_{i=1}^{n} (y_i - \overline{y})(x_i - \overline{x}) }{\sum_{i=1}^{n} (x_i - \overline{x})^2}
+\end{equation}
+
+\noindent Dado que encontramos o $\beta_1$, podemos encontrar o $\beta_0$ . Anteriormente encontramos que 
+\begin{equation}
+\label{eq:eq45}
+    \beta_0 = \dfrac{\sum_{i=1}^{n}  y_i - \beta_1 \sum_{i=1}^{n}  x_i}{n}
+\end{equation}
+
+\noindent Substituindo o $\beta_1$ da \autoref{eq:eq41} na \autoref{eq:eq43}, temos
+
+$$ \beta_0 = \dfrac{\sum_{i=1}^{n}  y_i}{n} - \beta_1 \dfrac{\sum_{i=1}^{n}  x_i}{n} $$
+
+$$ \beta_0 = \dfrac{\sum_{i=1}^{n}  y_i}{n} - \Bigg[ \dfrac{n\sum_{i=1}^{n}  y_i x_i - \sum_{i=1}^{n}  y_i \sum_{i=1}^{n}  x_i}{n\sum_{i=1}^{n}  x_i^{2} - \bigg(\sum_{i=1}^{n}  x_i\bigg)^2} \Bigg] \dfrac{\sum_{i=1}^{n}  x_i}{n} $$
+
+$$ n\beta_0 = \sum_{i=1}^{n}  y_i - \Bigg[ \dfrac{n\sum_{i=1}^{n}  y_i x_i - \sum_{i=1}^{n}  y_i \sum_{i=1}^{n}  x_i}{n\sum_{i=1}^{n}  x_i^{2} - \bigg(\sum_{i=1}^{n}  x_i\bigg)^2} \sum_{i=1}^{n}\Bigg]  x_i $$
+
+$$ n\beta_0 = \dfrac{n \sum_{i=1}^{n} y_i \sum_{i=1}^{n} x_i^{2} -  \cancel{\sum_{i=1}^{n} y_i (\sum_{i=1}^{n} x_i)^2} - n \sum_{i=1}^{n} y_i x_i \sum_{i=1}^{n} x_i + \cancel{\sum_{i=1}^{n} y_i (\sum_{i=1}^{n} x_i)^2}}{n \sum_{i=1}^{n} x_i^{2} - (\sum_{i=1}^{n} x_i)^2} $$
+
+$$ \cancel{n}\beta_0 = \dfrac{\cancel{n} \sum_{i=1}^{n} y_i \sum_{i=1}^{n} x_i^{2} - \cancel{n} \sum_{i=1}^{n} y_i x_i \sum_{i=1}^{n} x_i }{n \sum_{i=1}^{n} x_i^{2} - (\sum_{i=1}^{n} x_i)^2} $$
+
+\begin{equation}
+\label{eq:eq42}
+\boxed{\beta_0 = \dfrac{ \sum_{i=1}^{n} y_i \sum_{i=1}^{n} x_i^{2} - \sum_{i=1}^{n} y_i x_i \sum_{i=1}^{n} x_i }{n \sum_{i=1}^{n} x_i^{2} - (\sum_{i=1}^{n} x_i)^2}}
+\end{equation}
+
+\noindent Pode-se notar também que da \autoref{eq:eq45}, $\dfrac{\sum_{i=1}^{n}  y_i}{n}$ é  média de $y$ ($\overline{y}$) e $\dfrac{\sum_{i=1}^{n}  x_i}{n}$ é a média de $x$ ($\overline{x}$), então $\beta_0$ pode escrito como
+
+\begin{equation}
+\label{eq:eq46}
+\boxed{\beta_0 = \overline{y} - \beta_1 \overline{x}}
+\end{equation}
+
+As variâncias dos estimadores $\beta_0$ e $\beta_1$ são dadas, respectivamente, por
+
+$$ Var(\hat{\beta}_0) = \sigma^2 \bigg[ \dfrac{\sum_{i=1}^{n} x_i^2}{n \sum_{i=1}^{n} (x_i - \overline{x})^2} \bigg]$$
+
+$$ Var(\hat{\beta}_1) =  \dfrac{\sigma^2}{n \sum_{i=1}^{n} (x_i - \overline{x})^2}$$
+
+A covariância entre os parâmetros é dada por
+
+$$ Cov(\hat{\beta}_0,\hat{\beta}_1) = -\sigma^2 \bigg[ \dfrac{\overline{x}}{n \sum_{i=1}^{n} (x_i - \overline{x})^2} \bigg]$$
+
+\section{Estimador para a variância}
+
+\noindent Após encontrar os estimadores para $\beta_0$ e $\beta-1$ é preciso encontrar um estimador para a variância dos erros do modelo. A variância $\sigma^2 = Var(\varepsilon_i) = E(\varepsilon_i^2)$. Podemos usar a variância amostral dos resíduos como um estimador para a variância populacional dos erros.
+
+\noindent Ao fazer isso, incorporaremos uma correção de graus de liberdade (número de observações menos o número de parâmetros). Temos, assim, o seguinte estimador da variância dos erros:
+
+\begin{equation}
+    \label{eq:eq47}
+        \hat{\sigma}^2 = \dfrac{1}{n - p} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
+\end{equation}
+
+\noindent Como o modelo de regressão linear simples tem dois parâmetros, então
+
+\begin{equation}
+    \label{eq:eq48}
+        \boxed{\hat{\sigma}^2 = \dfrac{1}{n - 2} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2}
+\end{equation}
+
+\noindent Uma relação bastante importante, para futuramente realizar inferência sobre a variância estimada, é 
+
+\begin{equation}
+    \label{eq:eq49}
+    (n-2)\dfrac{\hat{\sigma}^2}{\sigma^2}
+\end{equation}
+
+\noindent Podemos ver que é a relação entre a variância estimada e uma variância dada, multiplicada pelos graus de liberdade. Vamos citá-la, mas iremos usá-la mais a frente.
+
+\section{Propriedades dos estimadores}
+
+\noindent Agora vamos ver algumas propriedades estatísticas do modelo de mínimos quadrados ordinários considerando a suposição que $E(\varepsilon_i) = 0$, $Var(\varepsilon) = \sigma^2$ e os erros $\varepsilon_i's$ para $i=1,2,\dots$ são independentes. Abaixo seguem os principais teoremas
+
+\begin{teorema}
+O estimador de mínimos quadrados $\hat{\beta}_0$ é não viesado para $\beta_0$.
+\end{teorema}
+
+\begin{teorema}
+O estimador de mínimos quadrados $\hat{\beta}_1$ é não viesado para $\beta_1$.
+\end{teorema}
+
+\begin{teorema}
+$Var(\hat{\beta}_1) = \dfrac{\sigma^2}{nSQ_{Total}}$
+\end{teorema}
+
+\begin{teorema}
+Os estimadores de mínimos quadrados $\hat{\beta}_1$ e $\overline{y}$ não estão correlacionados. Sob a suposição de normalidade de $y_i$ para $i = 1, 2,\dots, n$, $\hat{\beta}_1$ e $\overline{y}$ são normalmente distribuídos e independentes.
+\end{teorema}
+
+\begin{teorema}
+$Var(\hat{\beta}_0) = \bigg( \dfrac{1}{n} + \dfrac{\overline{x}^2}{nSQ_{Total}} \bigg) $
+\end{teorema}
+
+\section{Exemplo de estimação dos parâmetros}
+
+\noindent Utilizando o exemplo da \autoref{Tab: tabela} do \autoref{ch:modelo_regressao} podemos calcular os componentes da fórmula \autoref{eq:eq41} e \autoref{eq:eq42}, que seguem abaixo já calculados.
+
+$$ \sum_{i=1}^{n} x_i = 2572 \qquad \sum_{i=1}^{n} y_i = 2725$$
+
+$$ \sum_{i=1}^{n} x_i^2 = 271706 \qquad \sum_{i=1}^{n} y_i x_i = 288068$$
+
+$$n=25$$
+
+\noindent Substituindo os valores na \autoref{eq:eq41}
+
+$$\beta_0 =  \dfrac{(271706 \cdot 2725) - (2572 \cdot 288068)}{25 \cdot 271706 - (2572)^2} = \dfrac{740398850 - 740910896}{6792650 - 6615184}  = -\dfrac{512046}{177466}$$
+
+$$\beta_0 = -2.88531 \text{ ou } \boxed{\beta_0 \approx -2.89}$$
+
+\noindent Temos que o $a$ (ou $\beta_0$) é o mesmo encontrado no exemplo do \autoref{ch:modelo_regressao}. Agora para o valor de $b$, conforme a \autoref{eq:eq42}.
+
+$$\beta_1 = \dfrac{25 \cdot 288068 - (2572 \cdot 2725)}{25 \cdot 271706 - (2572)^2} = \dfrac{7201700 - 7008700}{6792650 - 6615184} = \dfrac{193000}{177466}$$
+
+$$\beta_1 = 1.0875 \text{ ou } \boxed{\beta_1 \approx 1.09}$$
+
+\noindent Estimando os parâmetros manualmente chega-se no mesmo resultado do exemplo, \autoref{eq:eq22} $y = -2.89 + 1.09x$. No \autoref{ch:exemplos} iremos realizar esse procedimento no \textit{software R}. 
+
+
+
+

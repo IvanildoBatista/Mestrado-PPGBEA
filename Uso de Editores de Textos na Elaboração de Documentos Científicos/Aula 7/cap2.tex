@@ -1,0 +1,105 @@
+\chapter{Modelo de regressão linear simples}
+\label{ch:modelo_regressao}
+
+\noindent A regressão linear simples (também chamada de regressão de primeiro grau) serve para modelar a relação linear entre duas variáveis. Uma deles é a variável dependente e outra é a variável independente.
+
+Ela possui o nome de \textit{linear}, pois o valor da variável dependente é uma função linear da variável independente. Dessas variáveis são gerados os parâmetros da função de regressão, são esses parâmetros ($\beta's$) que definem a linearidade da função, pois eles são elevados a primeira potência. Sendo assim a regressão linear  simples tem como notação genérica a fórmula abaixo
+
+\begin{equation}\label{eq:eq21}
+    y = \beta_0 + \beta_1 x + \varepsilon
+\end{equation}
+
+\noindent A função acima possui cinco componentes, que são:
+
+\begin{itemize}
+    \item A variável dependente $y$ é variável que deseja-se saber seu comportamento, também é chamada de \textbf{variável alvo} ou \textbf{variável resposta}.
+    \item A variável $x$ é a variável independente e será usada para explicar o comportamento da variável resposta, também é chamada de \textbf{preditor} ou \textbf{variável exploratória}. 
+    \item Para a regressão linear simples, o $\beta_0$ é o intercepto do modelo ou o valor $y$, quando o valor de $x$ é igual a zero (variação média de $y$ quando $x$ não varia). Também é conhecido coomo \textbf{constante da regressão}.
+    \item Para a regressão linear simples, o $\beta_1$ é a inclinação da reta de regressão. Ele é o \textbf{coeficiente de regressão} e representa a variação de $y$ em função da variação de uma unidade da variável $x$.
+    \item $\varepsilon$ é o erro ou \textbf{resíduo}, diferença entre o valor observado de $y$ e o correspondente ponto da reta de regressão. Assume-se que tem valor esperado igual a zero, $E(\varepsilon) = 0$ e que a sua variância é constante, $Var(\varepsilon) = \sigma^2$. Pode ser interpretado como aquilo que o modelo não consegue explicar.
+\end{itemize}
+
+\noindent A \autoref{eq:eq21} também pode ser chamada de função de regressão populacional (FRP), entretanto as informações sobre uma população muitas vezes são desconhecidas, por conta disso usa-se amostras populacionais para estimar os parâmetros. Por conta disso os parâmetros são estimativas, então essa função deve ser representada como abaixo
+
+\begin{equation}\label{eq:eq22}
+    \hat{y} = \hat{\beta}_0 + \hat{\beta}_1 x + \hat{\varepsilon}
+\end{equation}
+
+\noindent Onde $\hat{y}$ é o estimador de $y$, $\hat{\beta}_0$ é o estimador de $\beta_0$, $\hat{\beta}_1$ é o estimador de $\beta_1$ e $\hat{\varepsilon}$ o erro estimado. Para essa função damos o nome de função de regressão amostral (FRA).
+
+\section{Exemplo de regressão linear simples}
+
+\noindent Na \autoref{fig:reta} temos um exemplo de uma reta de regressão com a função de regressão em sua legenda. Os dados usados são de consumo de cigarros e taxa de mortalidade, sendo obtidos do exemplo da introdução do livro \textit{Linear Regression Analysis} do \citeonline{yan2009linear}. Esses mesmos dados estão na \autoref{Tab: tabela}.
+
+\begin{figure}[H]
+\centering
+\caption{Exemplo de reta de regressão}
+\includegraphics[scale=.95]{imagens/imagens_cap2/regressao.PNG}
+\label{fig:reta}
+\end{figure}
+
+\noindent Na figura vemos a reta de regressão na cor vermelha e as observações como pontos na cor preta. A reta de regressão é a reta que tem a menor distância para todas as observações. Na legenda da \autoref{fig:reta} há a equação da regressão
+
+\begin{equation}\label{eq:eq22}
+    y(x) = -2.89 + 1.09x
+\end{equation}
+
+\noindent Observa-se \autoref{fig:reta} que a correlação entre as variáveis é positiva: a medida que o valor do número de fumantes aumenta, o valor da taxa de mortaludade também aumenta. A vantagem da análise de regressão é trazer informações adicionais sobre essa relação : o $\hat{\beta}_0$ dessa equação é o valor de $-2.89$ e o $\hat{\beta}_1$ o valor de $1.09$. A interpretação dada a esse modelo é que a variação média de uma unidade de número de fumantes leva a um aumento (o valor da inclinação é positivo) médio de 1.09 unidade na taxa de mortalidade. \\
+
+\noindent Essa função de regressão estimada permite saber para qual número de fumante a taxa de mortalidade média será igual a zero, $y(x) = 0$
+
+\begin{align}
+    & 0 = -2.89 + 1.09x \\
+   & 2.89 = 1.09x \\
+   & x = \dfrac{2.89}{1.09} = 2.65 \approx 3
+\end{align}
+
+\noindent Isolando o valor de $x$ temos que quando o número de fumantes for aproximadamente (arredondando de 2.65 para 3, já que não existem 2.65 pessoas), então a taxa de mortalidade média será aproximadamente zero.
+
+\begin{table}[H]
+\centering
+\caption{Número de fumantes x Taxa de mortalidade}
+\begin{tabular}{cllllllllll}
+\hline
+Número de fumantes & \multicolumn{1}{c}{77} & \multicolumn{1}{c}{112} & \multicolumn{1}{c}{137} & 113 & 117 & 110 & 94 & 125 & 116 & \multicolumn{1}{c}{\textbf{133}} \\
+Mortalidade & \multicolumn{1}{c}{84} & \multicolumn{1}{c}{96} & \multicolumn{1}{c}{116} & 144 & 123 & 139 & 128 & 113 & 155 & \multicolumn{1}{c}{146} \\ \hline
+Número de fumantes & 102 & 115 & 111 & 105 & 93 & 87 & 88 & 91 & 102 & 100 \\
+Mortalidade & 101 & 128 & 118 & 115 & 113 & 79 & 104 & 85 & 88 & 120 \\ \hline
+Número de fumantes & 91 & 76 & 104 & 66 & 107 &  &  &  &  &  \\
+Mortalidade & 104 & 60 & 128 & 51 & 86 &  &  &  &  &  \\ \hline
+\end{tabular}%
+\label{Tab: tabela}
+\end{table}
+
+\noindent Podemos usar a \autoref{eq:eq22} para estimar os valores da taxa de mortalidade média para cada número de fumantes observado. Na \autoref{Tab: tabela2} temos os valores reais e os valores estimados da taxa de mortalidade.
+
+
+\begin{table}[H]
+\caption{Mortalidade observada x Mortalidade estimada}
+\begin{tabular}{ccccccccccc}
+\hline
+Observada & 84 & 96 & 116 & 144 & 123 & 139 & 128 & 113 & 155 & 146 \\
+Estimada & 81,04 & 119,2 & 146,44 & 120,3 & 124,6 & 117,01 & 99,6 & 133,4 & 123,6 & 142,1 \\ \hline
+Observada & 101 & 128 & 118 & 115 & 113 & 79 & 104 & 85 & 88 & 120 \\
+Estimada & 108,3 & 122,5 & 118,1 & 111,6 & 98,5 & 91,94 & 93,0 & 96,3 & 108,3 & 106,11 \\ \hline
+Observada & 104 & 60 & 128 & 51 & 86 & \textbf{} & \textbf{} & \textbf{} & \textbf{} & \textbf{} \\
+Estimada & 96,3 & 79,95 & 110,5 & 69,1 & 113,74 & \textbf{} & \textbf{} & \textbf{} & \textbf{} & \textbf{} \\ \hline
+\end{tabular}%
+\label{Tab: tabela2}
+\end{table}
+
+\noindent Por ser um modelo simples é normal que os valores não sejam exatos, mas pode-se observar valores estimados bem próximos dos reais, como por exemplo $ (84 - 81.04), (123 - 120.3), (146 -142.1), (118 - 118.1) $. E a diferença entre esses valores reais e os estimados (ou observados) será o nosso erro $\varepsilon$ ou \textbf{resíduo}.\\
+
+\noindent Abaixo temos a \autoref{Tab:Tabela3} com os resíduos do nosso modelo que, no \autoref{ch:avaliacao_do_modelo}, serão fruto de análise.
+
+\begin{table}[H]
+\centering
+\caption{Resíduos}
+\begin{tabular}{llllllllll}
+\hline
+2,96 & -23,19 & -30,44 & 23,72 & -1,64 & 21,99 & 28,43 & -20,36 & 31,45 & 3,92 \\ \hline
+-7,29 & 5,54 & -0,1 & 3,44 & 14,52 & -12,94 & 10,97 & -11,3 & -20,29 & 13,89 \\ \hline
+7,7 & -19,95 & 17,53 & -18,05 & -27,74 & \textbf{} & \textbf{} & \textbf{} & \textbf{} & \textbf{} \\ \hline
+\end{tabular}
+\label{Tab:Tabela3}
+\end{table}

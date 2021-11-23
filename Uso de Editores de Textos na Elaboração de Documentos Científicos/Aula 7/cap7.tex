@@ -1,0 +1,489 @@
+\chapter{Exemplos}
+\label{ch:exemplos}
+
+\noindent Nesse capítulo serão realizados as etapas dos capítulos anteriores para gerar um modelo de regressão linear simples na linguagem \textit{R}. Iremos seguir todas as etapas dos capítulos anteriores, desde a estimação do modelo até a realização dos testes estatísticos para avaliar o modelo.
+
+\section{Base de dados}
+
+\noindent A base de dados que usaremos será a \textit{mtcars}. Os dados foram extraídos da revista \textit{Motor Trend US} de 1974 e abrangem o consumo de combustível e 10 aspectos do \textit{design} e desempenho de automóveis para 32 automóveis (modelos de 1973-74).\\
+
+\noindent Na \autoref{Tab: tabela6} temos o nome das variáveis na base de dados e as suas respectivas descrições.
+
+\begin{table}[H]
+\caption{Variáveis do \textit{dataset mtcars}}
+\centering
+\begin{tabular}{cl}
+\textbf{Nome da coluna} & \textbf{Descrição da variável} \\ \hline
+\textit{mpg} & Milhas/galão (EUA)\\
+\textit{cyl} & Número de cilindros\\
+\textit{disp} & Deslocamento (\textit{cu.in.}) \\
+\textit{hp} & Potência bruta \\
+\textit{drat} & Relação do eixo traseiro \\
+\textit{wt} & Peso (1000 libras) \\
+\textit{qsec} & Tempo de $1/4$ de milha \\
+\textit{vs} &  Motor (0 = em forma de V, 1 = reto) \\
+\textit{am} & Transmissão (0 = automática, 1 = manual)\\
+\textit{gear} & Número de marchas para frente\\ \hline
+\end{tabular}
+\label{Tab: tabela6}
+\end{table}
+
+\noindent Para gerar o modelo vamos usar como variável dependente ou alvo a coluna \textit{mpg} (milha por galão), que é uma medida de consumo de combustível do veículo, e como variável explicativa usaremos a variável \textit{hp} (\textit{horse power} ou cavalos de força), uma medida de potência do veículo.\\
+
+\noindent O objetivo é analisar a variação média do consumo do veículo a medida que a potência do mesmo varia.
+\newpage
+
+\section{Comandos \textit{R}}
+
+\noindent Realizando a instalação dos pacotes que serão usados nesse capítulo. No pacote \textit{lmtest} encontram-se os teste para avaliarmos o modelo. No pacote \textit{tseries} o teste \textit{Jarque-Bera} para analisar a hipótese de normalidade dos resíduos. E o pacote \textit{ggplot2} para gerar gráficos, se preciso. No \autoref{lst:code1} realizamos a instalação dos pacotes.
+
+
+\begin{lstlisting}[language=R, caption = {Instalação dos pacotes}, label={lst:code1}]
+#instalando os pacotes
+library(lmtest)
+library(tseries)
+library(nortest)
+library(olsrr)
+\end{lstlisting}
+
+\noindent Primeiras linhas da base de dados
+
+\begin{lstlisting}[language=R, caption = {Modelo de regressão},label={lst:code2}]
+#primeiras linhas da base de dados
+head(mtcars)
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\caption{Primeiras linhas da base de dados}
+\includegraphics[scale=1]{imagens/imagens_cap7/head.PNG}
+\label{fig:modelo2}
+\end{figure}
+
+\noindent Últimas linhas da base de dados
+
+\begin{lstlisting}[language=R, caption = {Modelo de regressão},label={lst:code3}]
+#linhas finais da base de dados
+tail(mtcars)
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\caption{Últimas linhas da base de dados}
+\includegraphics[scale=1]{imagens/imagens_cap7/tail.PNG}
+\label{fig:modelo3}
+\end{figure}
+
+\newpage
+
+\noindent No \autoref{lst:code6} temos o sumário das colunas que selecionamos.
+
+\begin{lstlisting}[language=R, caption = {Sumário das variáveis},label={lst:code6}]
+#linhas finais da base de dados
+summary(data.frame(mtcars$mpg,mtcars$hp))
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\caption{Sumário das colunas}
+\includegraphics[scale=1]{imagens/imagens_cap7/sumario1.PNG}
+\label{fig:modelo4}
+\end{figure}
+
+\noindent No \autoref{lst:code4} vemos a correlação entre as variáveis \textit{mpg} e \textit{hp}.
+
+\begin{lstlisting}[language=R, caption = {Tabela de correlação},label={lst:code4}]
+cor(data.frame(mtcars$mpg,mtcars$hp))
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\caption{Correlação}
+\includegraphics[scale=1]{imagens/imagens_cap7/correlacao.PNG}
+\label{fig:modelo4}
+\end{figure}
+
+\noindent No \autoref{lst:code5} temos o teste para saber se a correlação entre as variáveis é estatisticamente significativa.
+
+\begin{lstlisting}[language=R, caption = {Sumário das variáveis},label={lst:code5}]
+#linhas finais da base de dados
+summary(data.frame(mtcars$mpg,mtcars$hp))
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\caption{Teste de correlação}
+\includegraphics[scale=1]{imagens/imagens_cap7/corteste.PNG}
+\label{fig:modelo4}
+\end{figure}
+
+\noindent Para estimar um modelo de regressão linear simples no \textit{R} basta usar o \autoref{lst:code5}.
+
+\begin{lstlisting}[language=R, caption = {Modelo de regressão},label={lst:code7}]
+#gerando o modelo
+modelo = lm(mpg~hp, data=mtcars)
+modelo
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\caption{Modelo de regressão linear simples}
+\includegraphics[scale=1]{imagens/imagens_cap7/modelo2.PNG}
+\label{fig:modelo5}
+\end{figure}
+
+\noindent Temos os coeficientes $\beta_0$ e $\beta_1$ cujo os valores são, respectivamente, $30.09886$ e $-0.06823$. A interpretação do modelo é: \textbf{Variação de uma unidade de cavalo de potência do veículo diminui, em média, $0.06823$ unidade o consumo de combustível do veículo, em Milhas por galão.}\\
+
+\noindent Após gerar o modelo podemos gerar o sumário com as informações do mesmo. O comando \textit{summary( )} no \autoref{lst:code3} gera a saída na \autoref{fig:modelo6}.
+
+\begin{lstlisting}[language=R, caption = {Sumário do modelo},label={lst:code8}]
+#resumo do modelo
+summary(modelo)
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\caption{Sumário do modelo}
+\includegraphics[scale=.93]{imagens/imagens_cap7/sumario.PNG}
+\label{fig:modelo6}
+\end{figure}
+
+\subsection{Interpretanto o sumário do modelo}
+
+\noindent A primeira informação impressa pelo resumo de regressão linear após a fórmula é a estatística de resumo residual. As estatísticas de resumo residual fornecem informações sobre a simetria da distribuição residual. A mediana deve ser próxima a zero com a média esperada dos resíduos sendo zero, sendo a distribuição simétrica ambos serão iguais. O terceiro quartil ($3Q$) e o primeiro quartil ($1Q$) devem ser próximos um do outro em magnitude, assim como o máximo e o mínimo.
+
+
+\begin{figure}[H]
+\centering
+\caption{Estatísticas dos resíduos}
+\includegraphics[scale=1]{imagens/imagens_cap7/residuals2.PNG}
+\label{fig:modelo7}
+\end{figure}
+
+\noindent Na \autoref{fig:modelo7} mostra que a mediana está próxima de zero, mas os quartis e o máximo e o mínimo não estão próximos. Mais a frente serão realizados os teste de normalidade que verificarão a normalidade, entretanto os resíduos não aparentam seguir uma distribuição normal.\\
+
+\noindent Agora temos os coeficientes do modelo que já foram interpretados anteriomente. Nessa parte do sumário podemos ver se os parâmetros são ou não estatisticamente significativos (estatisticamente diferentes de zero). Como vista na \autoref{ch:teste1}, testa-se a hipótese deles serem iguais a zero, se o valor do $p$-valor for menor que o nível de significância $\alpha = 0.05 (5\%)$ (padrão), então rejeitamos a hipótese nula. 
+
+\begin{figure}[H]
+\centering
+\caption{Coeficientes do modelo}
+\includegraphics[scale=1]{imagens/imagens_cap7/coeficientes2.PNG}
+\label{fig:modelo8}
+\end{figure}
+
+\noindent A \autoref{fig:modelo8} mostra o valor dos coeficientes (\textit{Estimated}), o erro padrão (\textit{Std. Error}), o valor da estatística \textit{t} sob a hipótese nula (\textit{t value} - razão entre o valor do parâmetro e o erro padrão) e os $p$-valores ($\text{Pr}(>|t|)$). Todos os $p$-valores ficaram abaixo do nível de significância de $5\%$ ), então rejeitamos $H_0$ e os nossos coeficientes são estatisticamente significativos e diferentes de zero.
+
+\newpage
+
+\noindent \textbf{Erro padrão residual} : fornece o desvio padrão dos resíduos e nos informa sobre quão grande é o erro de predição na amostra ou nos dados de treinamento . Na \autoref{fig:modelo9} temos o valor dessa medida : $3.863$.
+
+\begin{figure}[H]
+\centering
+\caption{Erro padrão residual}
+\includegraphics[scale=1]{imagens/imagens_cap7/epr.PNG}
+\label{fig:modelo9}
+\end{figure}
+
+\noindent \textbf{Coeficiente de determinação - $R^2$ e $R^2_{\text{ajustado}}$}: Como já explicado na \autoref{ch:r2}  e na \autoref{ch:r2a}, o $R^2$ mede o quão bem ajustado está o nosso modelo e o $R^2_{\text{ajustado}}$ mede apenas a variação das variáveis que de fato são relevantes para o modelo. A \autoref{fig:modelo10} vemos que o valor do $R^2$ foi de $0.6024$ e do $R^2_{\text{ajustado}}$ foi um pouco menor, $0.5892$.
+
+\begin{figure}[H]
+\centering
+\caption{Coeficiente de determinação}
+\includegraphics[scale=1]{imagens/imagens_cap7/r22.PNG}
+\label{fig:modelo10}
+\end{figure}
+
+\noindent \textbf{Estatística $F$}: A estatística $F$ gerada pelo sumário é para testar se pelo menos um dos coeficientes é estatisticamente igual a zero. O $p$-valor na \autoref{fig:modelo11} ficou abaixo de $5\%$, logo rejeita-se $H_0$ de que todos os parâmetros são conjuntamente estatisticamente não significativos. (\textbf{Observação}: como estamos usando uma regressão linear simples era de se esperar o resultado encontrado, mas essa estatística é melhor aplicada quando utiliza-se uma regressão linear múltipla).
+
+\begin{figure}[H]
+\centering
+\caption{Estatística \textit{F}}
+\includegraphics[scale=1]{imagens/imagens_cap7/Fstats2.PNG}
+\label{fig:modelo11}
+\end{figure}
+
+\subsection{Análise da variância - \textit{ANOVA}}
+
+\noindent Tabela \textit{ANOVA} do modelo com a soma dos quadrados explicados da regressão ($SQ_{Reg}$).
+
+\begin{lstlisting}[language=R, caption = {ANOVA},label={lst:code9}]
+anova(modelo)
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\caption{Análise de variância - ANOVA}
+\includegraphics[scale=.93]{imagens/imagens_cap7/anova.PNG}
+\label{fig:modelo12}
+\end{figure}
+
+\newpage
+
+\noindent Na \autoref{fig:modelo13} temos o gráfico de consumo \textit{vs} potência com a reta de regressão do nosso modelo.
+
+\begin{lstlisting}[language=R, caption = {Consumo \textit{vs} Potência},label={lst:code10}]
+plot(mtcars$mpg~mtcars$hp, main='Milhas/Galao_vs_Potencia',
+xlab = "Potencia", ylab = "Milhas/Galao")
+abline(lm(mpg~hp, data=mtcars), col="red")
+\end{lstlisting}
+
+\begin{figure}[H]
+\label{fig:consumovspotencia}
+\caption{Gráfico - Consumo \textit{vs} Potência}
+\includegraphics[scale=.9]{imagens/imagens_cap7/consumovspotencia.PNG}
+\label{fig:modelo13}
+\end{figure}
+
+\noindent A linha reta vermelha do gráfico é dada pela função
+
+\begin{equation}
+\label{eq:eq71}
+    \text{Consumo (Milha/galão) = 30.09886 - 0.06823 \text{Potência (Cavalos de força)}}
+\end{equation}
+
+\newpage
+
+\noindent Informações do modelo podem ser extraídas, conforme o \autoref{lst:code11}.
+
+\begin{lstlisting}[language=R, caption = {Informações do modelo},label={lst:code11}]
+#coeficientes
+modelo$coefficients
+#residuos
+modelo$residuals
+#valores treinados do modelo
+modelo$fitted.values
+#graus de liberdade dos residuos
+modelo$df.residual
+#formula do modelo no R
+modelo$call
+\end{lstlisting}
+
+\noindent Os intervalos de confiança dos parâmetros, para diferentes valores de $\alpha$ (10\%, 5\% e 1\%), podem ser obtidos conforme códigos abaixo.
+
+\begin{lstlisting}[language=R, caption = {IC com $\alpha$ a 10\%},label={lst:code12}]
+confint(modelo, level = 0.90)
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\caption{Intervalo de confiança - $\alpha$ = 10\%}
+\includegraphics[scale=1]{imagens/imagens_cap7/ic10.PNG}
+\label{fig:ic10}
+\end{figure}
+
+\begin{lstlisting}[language=R, caption = {IC com $\alpha$ a 5\%},label={lst:code13}]
+confint(modelo)
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\caption{Intervalo de confiança - $\alpha$ = 5\%}
+\includegraphics[scale=1]{imagens/imagens_cap7/ic5.PNG}
+\label{fig:ic5}
+\end{figure}
+
+\begin{lstlisting}[language=R, caption = {IC com $\alpha$ a 1\%},label={lst:code14}]
+confint(modelo, level = 0.99)
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\caption{Intervalo de confiança - $\alpha$ = 1\%}
+\includegraphics[scale=1]{imagens/imagens_cap7/ic1.PNG}
+\label{fig:ic1}
+\end{figure}
+
+\noindent Na \autoref{fig:treinadoxreal} gerada pelo \autoref{lst:code15}, vemos o ajuste entre os dados reais e os valores gerados pelo modelo.
+
+\begin{lstlisting}[language=R, caption = {Valores reais vs valores treinados},label={lst:code15}]
+plot(mtcars$mpg, modelo$fitted.values, 
+main="Valores reais vs Valores treinados",
+     xlab = "Valores treinados",ylab = "Valores reais")
+abline(lm(mtcars$mpg~modelo$fitted.values),col="red")
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\caption{Valores reais vs Valores treinados}
+\includegraphics[scale=.9]{imagens/imagens_cap7/reaisxtreinados.PNG}
+\label{fig:treinadoxreal}
+\end{figure}
+
+
+\subsection{Análise dos resíduos}
+
+\noindent Aqui nessa subseção iremos avalisar o modelo por meio dos seus resíduos e aplicar testes para verificar as principais hipóteses e pressupostos do modelo de regressão linear simples.
+
+\noindent Primeiramente iremos
+
+\begin{itemize}
+    \item Criar gráficos sobre os resíduos como \textit{boxplot}, \textit{qqplot}, histograma, etc;
+    
+    \item Realizar testes estatísticos para  autocorrelação, heterocedasticidade e normalidade dos resíduos.
+\end{itemize}
+
+\newpage
+
+\noindent O \autoref{lst:code16} gera os três gráficos da \autoref{fig:histboxqqplot} onde há o histograma, o \textbf{boxplot} e o \textit{qqplot} dos resíduos.
+
+\begin{lstlisting}[language=R, caption = {Histograma, \textit{Boxplot}, \textit{QQplot}},label={lst:code16}]
+par(mfrow=c(1,3))
+hist(residuals(modelo), 
+     main="Histograma dos residuos", 
+     xlab = "Residuos", ylab = ""); 
+boxplot(residuals(modelo), 
+        main="Boxplot dos residuos"); 
+qqnorm(residuals(modelo), 
+       main="QQplot dos residuos", xlab = "Quantis teoricos"); 
+qqline(residuals(modelo))
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\caption{Histograma, \textit{Boxplot}, \textit{QQplot} dos resíduos}
+\includegraphics[scale=.9]{imagens/imagens_cap7/histboxqqplot.PNG}
+\label{fig:histboxqqplot}
+\end{figure}
+
+\noindent O histograma mostra a distribuição dos resíduos, que deveria ter um formato de sino, típico de uma distribuição normal; mas não é o que o gráfico mostra. O \textit{boxplor} deveria ter a linha preta (que representa a mediana) centrada no valor zero, mas está deslocado um pouco abaixo e o limite superior do gráfico indica presenta de \textit{outliers} nos resíduos. Por fim, o \textit{qqplot} deveria mostrar todos os quantis teóricos bem próximos da linha reta do gráfico para indicar normalidade dos resíduos, mas há muitos pontos distantes da reta. Esse resultados, a princípio, indicam que os resíduos não seguem uma distribuição normal.
+
+\subsubsection{Testes de normalidade}
+
+\noindent Iremos testar a hipótese de normalidade com os testes mencionados na \autoref{ch:testnorm}. O primeiro, que foi explicado, é o \textit{Jarque-Bera} e o resultado para os resíduos do nosso modelo pode ser vista a seguir.
+
+\begin{lstlisting}[language=R, caption = {Teste \textit{Jarque-Bera}},label={lst:code17}]
+jarque.bera.test(residuals(modelo))
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\caption{Resultado do teste \textit{Jarque-Bera}}
+\includegraphics[scale=1]{imagens/imagens_cap7/jb.PNG}
+\label{fig:jb}
+\end{figure}
+
+\noindent O teste \textit{Jarque-Bera} apresentou um $p$-valor maior que 5\% indicando que há normalidade nos resíduos, mas esse teste funciona melhor quando o número de observações é grande, o que não é o nosso caso. Por esse motivo iremos utilizar os testes \textit{Shapiro-Wilk} e o \textit{Anderson-Darling}. O \autoref{lst:code18} e gera os resultado da \autoref{fig:swad}.
+
+
+\begin{lstlisting}[language=R, caption = {Testes \textit{Shapiro-Wilk} e \textit{Anderson-Darling}},label={lst:code18}]
+shapiro.test(residuals(modelo))
+ad.test(residuals(modelo))
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\caption{Resultados dos testes \textit{Shapiro-Wilk} e \textit{Anderson-Darling}}
+\includegraphics[scale=1]{imagens/imagens_cap7/swad.PNG}
+\label{fig:swad}
+\end{figure}
+
+\noindent Os $p$-valores desses dois testes ficaram abaixo do nível de significância de 5\% ($0.02568$ e $0.03447$), logo rejeitamos a hipótese nula de normalidade nos resíduos. 
+
+\newpage
+
+\subsubsection{Testes de heterocedasticidade}
+
+\noindent Vamos testar se os resíduos possuem ou não variância normal. O \autoref{lst:code19} gera os resultados da \autoref{fig:testhetero}.\\
+
+\noindent O teste \textit{Goldfeld-Quandt} separa os resíduos em duas partes (por padrão a proporção entre essas duas parte é igual - \textit{fraction} = 1/2), em seguida cria duas regressões entre os resíduos quadrados e variável explicativa e testa se a variância dessas regressões são iguais. Se forem, homocedasticidade, caso contrário, heterocedasticidade.
+
+\begin{lstlisting}[language=R, caption = {Testes \textit{Goldfeld-Quandt} e \textit{Breusch-Pagan}},label={lst:code19}]
+#teste Goldfeld-Quandt
+gqtest(modelo, fraction=1/2, order.by = ~hp, data=mtcars)
+#teste Breusch-Pagan
+bptest(modelo, varformula = ~hp, data=mtcars, studentize = F)
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\caption{Resultados dos testes \textit{Goldfeld-Quandt} e \textit{Breusch-Pagan}}
+\includegraphics[scale=1]{imagens/imagens_cap7/testehetero.PNG}
+\label{fig:testhetero}
+\end{figure}
+
+\noindent Para ambos os $p$-valores ficaram bem acima de 5\%, logo aceitamos a hipótese nula de homocedasticidade dos resíduos. Seguindo a ideia do teste \textit{Breusch-Pagan} poderíamos observar a significância estatística do coeficiente da regressão dos resíduos quadrados com a variável explicativa \textit{hp}.
+
+\begin{lstlisting}[language=R, caption = {Testes de heterocedasticidade},label={lst:code20}]
+residuos2 <- residuals(modelo)^2 #residuos quadrados
+summary(lm(residuos2~mtcars$hp)) #regressao
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\caption{Sumário}
+\includegraphics[scale=1]{imagens/imagens_cap7/testesigresx.PNG}
+\label{fig:testsigresx}
+\end{figure}
+
+\noindent Conforme a \autoref{fig:testsigresx} o coeficiente da variável explicativa é estatisticamente não significativo, logo não há relação entre os resíduos quadrados e o a potência dos veículos (\textit{hp}).
+
+\subsubsection{Teste para autocorrelação}
+
+\noindent Conforme a \autoref{ch:testedw} se a estatística do teste \textit{Durbin-Watson} estiver próxima de $2$, então há evidência para ausência de autocorrelação; caso contrário há evidência para a presença de autocorrelação.
+
+\begin{lstlisting}[language=R, caption = {Teste de autocorrelação},label={lst:code21}]
+dwtest(modelo$model)
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\caption{Resutado do teste \textit{Durbin-Watson}}
+\includegraphics[scale=1.1]{imagens/imagens_cap7/dwteste.PNG}
+\label{fig:testedw}
+\end{figure}
+
+\noindent Conforme a imagem \autoref{fig:testedw} a estatística não está próxima do valor $2$, então concluímos que há presença de autocorrelação nos resíduos.
+
+\newpage
+
+\subsection{Avaliação do modelo}
+
+\noindent Agora vamos visualizar alguma métricas que citamos no \autoref{ch:avaliacao_do_modelo}, entretanto vale lembrar que elas são usadas para realizar comparação entre modelos. Aqui só vamos deixar os códigos em \textit{R}, visto que não há outros modelos para comparar com o nosso.
+
+\subsubsection{Critério de informação}
+
+\noindent Critérios de informação de \textit{Akaike} e de \textit{Schwarz}, respectivamente, na \autoref{fig:aicbic}.
+
+\begin{lstlisting}[language=R, caption = {Critério de informação},label={lst:code22}]
+AIC(modelo) #Akaike
+BIC(modelo) #Bayesian/Schwarz
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\caption{Critérios \textit{Akaike} e de \textit{Schwarz}}
+\includegraphics[scale=1.2]{imagens/imagens_cap7/aicbic.PNG}
+\label{fig:aicbic}
+\end{figure}
+
+\subsubsection{\textit{MSE} - Média do quadrados dos erros}
+
+
+\begin{lstlisting}[language=R, caption = {MSE},label={lst:code23}]
+mean(residuos2) #residuos2 foi calculado anteriormente
+\end{lstlisting}
+
+\noindent Temos como resultado o valor de $13.98982$. Vale salientar que existem outras métricas que podem ser calculados usando o pacote \textit{Metrics} (clique \href{https://cran.r-project.org/web/packages/Metrics/Metrics.pdf}{\textbf{aqui}})
+
+\subsubsection{Estatística \textit{PRESS}}
+
+\begin{lstlisting}[language=R, caption = {Estatística \textit{PRESS}},label={lst:code24}]
+PRESS(modelo)
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\caption{Resultado da statística \textit{PRESS}}
+\includegraphics[scale=0.9]{imagens/imagens_cap7/press.PNG}
+\label{fig:press}
+\end{figure}
+
+
+
+
+
+
+
+
+
+

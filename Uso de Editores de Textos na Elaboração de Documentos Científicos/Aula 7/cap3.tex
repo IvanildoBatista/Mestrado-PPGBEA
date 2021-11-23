@@ -1,0 +1,89 @@
+\chapter{Pressupostos}
+\label{ch:pressupostos}
+
+\noindent O modelo de regressão linear baseia-se em várias suposições que determinam o quão bem ele opera. A maioria deles diz respeito às características dos dados populacionais e enfoca os erros de previsão ($\varepsilon_i$). Mas ter acesso às informações de uma população é pouco comum, então devemos avaliar, de forma aproximada ou indireta, as suposições do modelo de regressão linear com informações de uma amostra. Em outras palavras, como não temos informações da população, não podemos calcular $\varepsilon_i$ diretamente. A amostra inclui apenas de $x_i$ e de $y_i$, portanto, devemos usar uma estimativa de $\varepsilon_i$. Esta estimativa, descrita anteriormente como o termo de erro na \autoref{eq:eq21}, é representado pelos resíduos do modelo, que são calculados como ($y_i - \hat{y}_i$). Em vez de distinguir os erros de previsão da população e da amostra, no entanto, presumiremos que a amostra fornece uma boa estimativa de $Y_i$ (valores de $y_i$ para a população)  com $\hat{y_i}$, de modo que ($y_i - \hat{y}_i$) $\cong$ ($y_i - Y_i$).
+
+\section{Suposições para o modelo}
+
+\noindent As suposições necessárias para o Modelo de Regressão Linear são:
+
+\begin{itemize}
+    \item[i] O erro tem média zero e variância $\sigma ^2$ , desconhecida;
+    \item[ii] Os erros são não correlacionados;
+    \item[iii] Os erros têm distribuição normal;
+    \item[iv] A variável regressora explicativa assume valores fixos.
+\end{itemize}
+
+
+\noindent As suposições $i$ e $iii$, simbolicamente, podem ser representadas por:  
+
+\begin{equation}
+\label{eq:erro}
+    \varepsilon _i \sim N(0,\sigma^2)
+\end{equation}
+
+\section{Pressupostos da Análise de Regressão}
+
+Para obtenção dos resultados, a análise de regressão baseia-se em quatro pressupostos básicos :
+
+\subsection{Linearidade}
+
+\noindent O valor médio de  $y_i$ é uma função em linha reta de $x_i$. Em outro palavras, $y_i$ e $x_i$ têm uma relação linear. Apesar de parecer um pressuposto restritivo matematicamente toda função não-linear pode ser transformada numa função linear através de técnicas logarítmicas, polinomiais e de relações recíprocas. Não nos cabe neste texto discutir as formulações matemáticas de transformação, porém a sua existência é de fundamental importância uma vez que a análise de regressão não pode ser aplicada se a função não puder ser transformada para a forma linear.
+
+\subsection{Independência dos Resíduos}
+
+\noindent Os erros de previsão ($\varepsilon_i$) são estatisticamente independentes um do outro. Na prática, isso muitas vezes implica que as observações são independentes. Uma maneira de (quase) garantir isso é para usar amostragem aleatória simples.
+A violação do pressuposto da independência dos resíduos implica na existência de forte correlação (autocorrelação) entre os residuais sucessivos. Isto é, $e_t$ não é independente de $e_{t-1} \dots, e_{t-i+1} \dots, e_{t+1}, e_{t+2}, \dots, e_{t+n}$. A falta de independência não afeta o valor dos parâmetros estimados, mas afeta diretamente as variâncias estimadas. A falta de independência dos resíduos implica em $R^2$ e \textit{estatística} $F$ elevados e \textit{teste t} reduzido se a autocorrelação é positiva e todos os testes com resultados elevados se a autocorrelação for negativa. Na \autoref{fig:indep}, considerando os resíduos no eixo \textbf{y} e os valores treinados $\hat{y}_i$ no eixo \textbf{y}, vemos no primeiro gráfico que não há um padrão nos dados, mas no segundo gráfico já percebe-se a presença de uma tendência nos resíduos que é um comportamento de um modelo com autocorrelação (sem independência nos resíduos).
+
+\begin{figure}[H]
+\centering
+\caption{Independência \textit{vs} Dependência}
+\includegraphics[scale=.75]{imagens/imagens_cap3/independencia.PNG}
+\label{fig:indep}
+\end{figure}
+
+\subsection{Homocedasticidade (ou variância constante)}
+
+\noindent Os erros de previsão têm variância equivalente para todos os valores possíveis de $x_i$. Em outras palavras, a variância dos erros é considerada constante ao longo da distribuição de $x_i$. Neste ponto, pode ser mais simples, embora impreciso, pensar sobre os valores de $y_i$ e pergunte se sua variabilidade é equivalente em diferentes valores de $x_i$. Se os resíduos não estão distribuídos ao longo da linha de regressão em torno de todo o intervalo de observações, o pressuposto da variância constante, ou homocedasticidade, é violado. A \autoref{fig:reta} a seguir ilustra o significado da variância constante dos resíduos:
+
+\begin{figure}[H]
+\centering
+\caption{Variância Constante dos Resíduos}
+\includegraphics[scale=.65]{imagens/imagens_cap3/homo1.png}
+\label{fig:reta}
+\end{figure}
+
+A  ocorrência  de  variâncias  não  constantes  nos  resíduos  é  chamada  de \textbf{heterocedasticidade}.  Sua  ocorrência  pode  estar  condicionada  a  especificações incorretas  no  modelo  de  regressão,  e  sua  detecção  é  possível  através  do  estudo residual dos erros. Na \autoref{fig:homoxhetero} vemos na primeira imagem um exemplo de homocedasticidade onde as variância do modelo é constante. Entretanto na segunda imagem observa-se que a medida que os valores de $x$ vão aumentando a variância também vai aumentando, logo há presença de heterocedasticidade.
+
+\begin{figure}[H]
+\centering
+\caption{Homocedasticidade \textit{vs} Heterocedasticidade}
+\includegraphics[scale=.8]{imagens/imagens_cap3/homoxhetero.png}
+\label{fig:homoxhetero}
+\end{figure}
+
+\noindent Outra forma mais intuitiva de entender o problema de encontra-se na \autoref{fig:homoxhetero2}. Na primeira imagem, para cada observação de $x$ as distribuições são iguais, já na segunda as distribuições são diferentes.
+
+\begin{figure}[H]
+\centering
+\caption{Homocedasticidade \textit{vs} Heterocedasticidade (densidade)}
+\includegraphics[scale=.6]{imagens/imagens_cap3/homoxhetero2.png}
+\label{fig:homoxhetero2}
+\end{figure}
+
+
+\noindent O  teste  \textit{Durbin-Watson}  pode  identificar a presença ou não de heterodasticidade  e sua  correção  esta vinculada  à  eliminação  de  algumas  variáveis  ou  a  transformação  matemática  do modelo,   trazendo   uniformidade   dos   erros   percentuais   ao   longo   da   linha   de regressão.
+	
+\subsection{Normalidade dos Resíduos}
+
+\noindent Os erros são uma variável aleatória normalmente distribuída. Também assumimos que os erros têm uma média igual a zero na população, embora isso não seja especialmente importante. Simbolicamente, a suposição de normalidade é freqüentemente apresentada como e na \autoref{eq:erro}. A porção de variância da equação ($\sigma^2$) tem implicações para a suposição de homocedasticidade. Esta  hipótese  também  apresenta  características  pouco  restritivas  uma  vez que  os  resíduos  são  resultantes  de  um  sem  número  de  fatores  menos  importantes no  que  tange  a  influência  no  comportamento  da  variável  dependente  (senão deveriam  ser  incluídos  na  equação  de  regressão,  perdendo  sua  característica residual). Na média, sua influência pode ser desprezada, uma vez que o erro médio apresenta um comportamento “normalizado”.
+
+Estatisticamente  se  possuímos  um  número  de  observações  superior  a  30  a previsão  de  dados assume a “normalidade”.  Isto porque  a  distribuição amostral dos estimadores    pode  ser  aproximada  a  curva  normal  onde n  possua  amplitude suficiente, o que na maior parte ocorre quando n é igual a 30. O Teorema do Limite Central  da  estatística  permite  esta  aproximação  e  torna  possível  o  uso  da  curva normal na avaliação da dispersão dos dados, inclusive dos resíduos, da amostra em torno  do  parâmetro  central  (média).  Assim  ao  calcularmos  sua  média  e  variância,  a extensão  de  possíveis  erros  pode  ser  avaliada;  o  que  introduz  um  intervalo  de confiança de 30 observações para a variância.
+
+Quando  o  pressuposto  da  normalidade  dos  resíduos  é  questionado, pode-se realizar dois tipos de análise:
+
+\begin{itemize}
+    \item \textbf{Visual} : os  resíduos podem ser plotados com vistas a detecção de sua distribuição próxima a normal por meio de um histograma ou de um \textit{QQplot}, com o seu intervalo de variação (o maior menos o menor valor) pode ser medido com vistas a  determinação  de  sua  dispersão  (se  próxima  a  6.0  é  considerado  dentro  da distribuição normal).
+    
+    \item \textbf{Testes estatísticos}: Podem ser realizados os testes de \textit{Kolmogorov-Smirnov (K-S)}, \textit{K-S} corrigido de \textit{Lilliefors}, \textit{Shapiro-Wilk}, \textit{Anderson-Darling}, \textit{Cramer-von Mises}, teste de assimetria de \textit{D’Agostino}, teste de curtose de \textit{Anscombe-Glynn}, teste omnibus de \textit{D’Agostino-Pearson} e o \textit{Jarque-Bera}. \citeonline{yazici2007comparison} compara diversos testes de normalidade.
+\end{itemize}
