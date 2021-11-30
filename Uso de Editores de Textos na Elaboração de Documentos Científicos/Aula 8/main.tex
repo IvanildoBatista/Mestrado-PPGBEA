@@ -1,0 +1,365 @@
+\documentclass[12pt,openright,oneside,a4paper,sumario=tradicional,brazil]{abntex2}
+
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage[alf,bibjustif]{abntex2cite}
+\usepackage{soul}
+\usepackage{xcolor}
+\usepackage{todonotes}
+\usepackage{caption}
+\usepackage{easyReview}
+\usepackage{url}
+\usepackage{ragged2e}
+\usepackage{graphicx}
+
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	citecolor=blue,
+	urlcolor=blue
+}
+
+\title{Pacote Easy Review}
+\author{Fernando Andrade, Ivanildo Batista e Ruben Vivaldi}
+\date{\today}
+
+\begin{document}
+
+\pretextual
+\imprimircapa
+\pagenumbering{roman}
+%\listoffigures
+%\newpage
+%\listoftables
+%\newpage
+\tableofcontents
+\newpage
+%o comando \textual identifica o início dos elementos textuais.
+\textual
+\pagenumbering{arabic}
+
+\chapter{Introdução}
+O \textit{easyReview} fornece uma maneira de revisar (ou realizar o processo editorial) textos no \LaTeX. É possível usar comandos para chamar a atenção de diferentes maneiras para partes do texto, ou mesmo para indicar que um texto foi adicionado, ou se precisa ser removido, ou ainda, se precisa ser substituído e/ou adicionar comentários ao texto. O pacote \textit{easyReview} exige a instalação prévia dos seguintes pacotes de maneira que possa funcionar corretamente: soul, xcolor e todonotes. Ignorar a instalação prévia desses pacotes auxiliares pode originar erros de compilação que são exibidos em arquivos .sty.
+
+Essa atividade foi feita com base na documentação do pacote Easy Review, disponível no CTAN: \textcolor{blue}{https://www.ctan.org/pkg/easyreview}.
+
+\section{Visão geral do pacote}
+
+\begin{minipage}{0.45\textwidth}
+O pacote Easy Review se destina à revisão (ou em processo editorial) de documentos \textbackslash TeX, como artigos de pesquisa, relatórios, livros, apresentações \textbackslash textit\{etc\}. Ao usar este pacote, \textbackslash alert\{os autores podem \textbackslash textbf\{facilmente\} chamar a atenção para partes específicas do texto\} \textbackslash highlight\{usando diferentes maneiras!\} Neste pequeno exemplo, você será capaz de ver tudo que o pacote Easy Review tem.
+\end{minipage}\hfill
+\begin{minipage}{0.45\textwidth}
+O pacote Easy Review se destina à revisão (ou em processo editorial) de documentos \TeX, como artigos de pesquisa, relatórios, livros, apresentações \textit{etc}. Ao usar este pacote, \alert{os autores podem \textbf{facilmente} chamar a atenção para partes específicas do texto} \highlight{usando diferentes maneiras!} Neste pequeno exemplo, você será capaz de ver tudo que o pacote Easy Review tem.
+\end{minipage}\vspace{1cm}
+\begin{minipage}{0.45\textwidth}
+\textbackslash replace\{Para obter\}\{De modo a obter\} a versão final do documento \textbackslash TeX, os autores precisarão realizar muitas mudanças em relação ao texto original. Nesse sentido, seria muito interessante ter um pacote disponível que pudesse facilitar a tarefa de destacar algumas mudanças: \textbackslash alert\{alerta para uma frase ou período\}; \textbackslash highlight\{destaque outro conteúdo \textbackslash TeX\}; \textbackslash add\{adicione partes específicas no texto\}; \textbackslash remove\{remover outras partes\}; ou até mesmo \textbackslash replace\{substituir\}\{modificar\} o texto. Outro recurso muito importante seria \textbackslash comment\{usar comandos especiais para deixar um comentário para o grupo.\}\{Esse recurso é muito importante!\}
+\end{minipage}
+\hfill
+\begin{minipage}{0.45\textwidth}
+\replace{Para obter}{De modo a obter} a versão final do documento \TeX, os autores precisarão realizar muitas mudanças em relação ao texto original. Nesse sentido, seria muito interessante ter um pacote disponível que pudesse facilitar a tarefa de destacar algumas mudanças: \alert{alerta para uma frase ou período}; \highlight{destaque outro conteúdo \TeX}; \add{adicione partes específicas no texto}; \remove{remover outras partes}; ou até mesmo \replace{substituir}{modificar} o texto. Outro recurso muito importante seria \comment{usar comandos especiais para deixar um comentário para o grupo.}{Esse recurso é muito importante!}
+\end{minipage}
+
+\chapter{Principais comandos}
+
+\section{Comando de alerta - \textbackslash alert\{\}}
+O comando \textbackslash alert\{\} é destinado a chamar a atenção do autor para uma determinada parte do texto. O texto em que foi aplicado o comando fica destacado apenas as letras do texto na cor \alert{VERMELHA}. A seguir, é possível ver um exemplo:\\
+
+\begin{minipage}{0.45\textwidth}
+Um texto sem o comando de alerta.\textbackslash alert\{Um texto com o comando alert\}.
+\end{minipage}\hfill
+\begin{minipage}{0.45\textwidth}
+Um texto sem o comando de alerta.\alert{Um texto com o comando alert}.
+\end{minipage}
+
+
+\subsection{Exemplo}
+
+\textbf{Abaixo temos uma texto em que se encontram palavras escritas erroneamente.}
+
+\begin{center}
+\justifying
+Você pode ter defeitos, viver anssioso e ficar irritado, algumas vezes, mas não se esqueça de que sua vida é a maior empreza do mundo.
+
+Só você pode evitar que ela vá à falênsia. Há muitas pessoas que precisam, admiram e torçem por você.
+
+Gostaria que você sempre se lembraçe de que ser feliz não é ter um céu sem tempestades, caminhos sem assidentes, trabalhos sem fadigas, relacionamentos sem decepções. Ser feliz é encontrar força no perdão, esperança nas batalhas, segurança no palco do medo, amor nos desencontros. Ser feliz não é apenas valorizar o sorriso, mas refletir sobre a tristeza.
+\end{center}
+
+\noindent \textbf{A \autoref{fig:alerta2} mostra o código em que usamos o comando de alerta.}
+
+\begin{figure}[htp]
+\caption{Cógido do comando de alerta}
+        \centering
+        \includegraphics[scale=.7]{imagens/exalert1.PNG}
+\label{fig:alerta2}
+\end{figure}
+
+\textbf{Agora temos a saída do código com as palavras escritas na forma errada destacadas na cor vermelha.}
+
+\begin{center}
+\justifying
+Você pode ter defeitos, viver \alert{anssioso} e ficar irritado, algumas vezes, mas não se esqueça de que sua vida é a maior \alert{empreza} do mundo.
+
+Só você pode evitar que ela vá à \alert{fal{\^e}nsia}. Há muitas pessoas que precisam, admiram e \alert{tor{\c c}em} por você.
+
+Gostaria que você sempre se \alert{lembra{\c c}e} de que ser feliz não é ter um céu sem tempestades, caminhos sem \alert{assidentes}, trabalhos sem fadigas, relacionamentos sem \alert{decepss{\~o}es}. Ser feliz é encontrar força no perdão, esperança nas batalhas, segurança no palco do medo, amor nos desencontros. Ser feliz não é apenas valorizar o sorriso, mas refletir sobre a tristeza.
+\end{center}
+
+
+\section{Comando de destaque - \textbackslash highlight\{\}}
+O comando \textbackslash highlight\{\} é destinado a chamar a atenção do autor para uma determinada parte do texto de uma forma diferente do comando "alerta". A seguir, é possível ver um exemplo:\\
+
+\begin{minipage}{0.45\textwidth}
+Um texto sem o comando de realce.\textbackslash highlight\{Um texto com o comando de destaque\}.
+\end{minipage}\hfill
+\begin{minipage}{0.45\textwidth}
+Um texto sem o comando de realce.\highlight{Um texto com o comando de destaque}.
+\end{minipage}
+
+\subsection{Exemplo}
+
+\textbf{No texto abaixo temos uma definição de macroeconomia. Iremos usar o comando de destaque para realçar partes do texto que achamos importantes ou convenientes.}
+
+\begin{center}
+    \justifying
+ A macroeconomia encara as coisas de uma forma mais ampla, olha para o grande cenário. Se você estudar macroeconomia, perceberá que as maiores preocupações dessa área estão relacionadas aos Estados, às economias nacionais e à relações econômicas internacionais. É a partir dessa análise macroeconômica que surgem indicadores muito conhecidos, que você provavelmente já deve ter ouvido falar: PIB (Produto Interno Bruto), inflação, juros, câmbio, balança comercial, entre tantos outros. Esses números são desenvolvidos a partir de análises amplas, que envolvem a produção econômica de um país inteiro, suas trocas com outros países e assim por diante   
+    
+\end{center}
+
+\textbf{A \autoref{fig:destaque2} mostra o código em que usamos o comando de destaque.}
+
+\begin{figure}[htp]
+\caption{Cógido do comando de destaque}
+        \centering
+        \includegraphics[scale=1]{imagens/exhigh3.PNG}
+\label{fig:destaque2}
+\end{figure}
+
+\newpage
+
+\textbf{Agora vemos o resultado, com a saída do código com partes do texto destacadas na cor amarela.}
+
+\begin{center}
+     \justifying
+    \highlight{A macroeconomia encara as coisas de uma forma mais ampla, olha para o grande cen{\'a}rio}. Se você estudar macroeconomia, perceberá que as maiores preocupações dessa área estão relacionadas aos Estados, às economias nacionais e à relações econômicas internacionais. É a partir dessa análise macroeconômica que surgem indicadores muito conhecidos, que você provavelmente já deve ter ouvido falar: \highlight{PIB (Produto Interno Bruto), infla{\c c}{\~a}o, juros, {c\^a}mbio, balan{\c c}a comercial, entre tantos outros}. Esses números são desenvolvidos a partir de análises amplas, que envolvem a produção econômica de um país inteiro, suas trocas com outros países e assim por diante.
+\end{center}
+
+\section{Comando de remoção - \textbackslash remove\{\}}
+Comando que um autor sugere para remover uma determinada parte do texto. A seguir, é possível ver um exemplo:\\
+
+\begin{minipage}{0.45\textwidth}
+Este texto não deve ser removido. \textbackslash remove\{Este texto deve ser removido\}.
+\end{minipage}\hfill
+\begin{minipage}{0.45\textwidth}
+Este texto não deve ser removido. \remove{Este texto deve ser removido}.
+\end{minipage}
+
+\subsection{Exemplo}
+
+\textbf{O exemplo abaixo temos um texto com uma definição errada sobre energia renovável.}
+
+\begin{center}
+\justifying
+    As energias renováveis são aquelas que dependem de processos em escala de tempo geológica para se tornarem disponíveis. Isso significa que, caso sejam esgotadas, demorarão muito tempo para se formarem novamente. Petróleo, carvão mineral e gás natural são os principais exemplos de fontes de energia renováveis. 
+\end{center}
+
+\textbf{A \autoref{fig:remove2} mostra o código em que usamos o comando de remoção.}
+
+\begin{figure}[htp]
+\caption{Cógido do comando de remoção}
+        \centering
+        \includegraphics[scale=1]{imagens/exremov3.PNG}
+\label{fig:remove2}
+\end{figure}
+
+\textbf{Vemos o resultado, com a saída do código com partes do texto na cor vermelha e riscado.}
+
+\begin{center}
+    \justifying
+    As energias renováveis são \remove{aquelas que dependem de processos em escala de tempo geol{\'o}gica para se tornarem disponíveis. Isso significa que, caso sejam esgotadas, demorar{\~a}o muito tempo para se formarem novamente. Petr{\'o}leo, carv{\~a}o mineral e g{\'a}s natural s{\~a}o os principais exemplos de fontes de energia renov{\'a}veis}.
+\end{center}
+
+\section{Comando de inserção/adição - \textbackslash add\{\}}
+Comando que um autor sugere para adicionar um novo texto em uma determinada parte do texto. A seguir, é possível ver um exemplo:\\
+
+\begin{minipage}{0.45\textwidth}
+Este texto já estava no texto. \textbackslash add\{Este texto foi adicionado agora\}.
+\end{minipage}\hfill
+\begin{minipage}{0.45\textwidth}
+Este texto já estava no texto. \add{Este texto foi adicionado agora}.
+\end{minipage}
+
+\subsection{Exemplo}
+
+\textbf{O exemplo abaixo temos um texto com uma definição sobre o jogo de xadrez.}
+
+\begin{center}
+\justifying
+Xadrez é um esporte. Pode ser classificado como um jogo de tabuleiro de natureza recreativa ou competitiva para dois jogadores.\\
+\end{center}
+
+\textbf{A \autoref{fig:remove2} mostra o código em que usamos o comando de adição.}
+
+\begin{figure}[htp]
+\caption{Cógido do comando de adição}
+        \centering
+        \includegraphics[scale=1.1]{imagens/exadd1.PNG}
+\label{fig:remove2}
+\end{figure}
+
+\textbf{Vemos o resultado, com a saída do código com partes do texto adicionadas na cor azul.}
+
+\begin{center}
+    \justifying
+    Xadrez é um esporte \add{também considerado uma arte e uma ciência}. Pode ser classificado como um jogo de tabuleiro de natureza recreativa ou competitiva para dois jogadores \add{sendo também conhecido como Xadrez Ocidental ou Xadrez Internacional para distingui-lo dos seus antecessores e de outras variantes atuais}.
+\end{center}
+
+\section{Comandos de substituição - \textbackslash replace\{\}\{\} ou \textbackslash substitute\{\}\{\}}
+Ambos os comandos são equivalentes. Deve ser usado quando um autor sugere a substituição de uma determinada parte do
+texto para uma nova. A seguir, é possível ver um exemplo:\\
+
+\begin{minipage}{0.45\textwidth}
+\textbackslash replace\{Esta parte do texto precisa ser substituído\}\{para esta parte mais recente\}
+\end{minipage}\hfill
+\begin{minipage}{0.45\textwidth}
+\replace{Esta parte do texto precisa ser substituído}{para esta parte mais recente.}
+\end{minipage}
+
+\subsection{Exemplo 1}
+
+\begin{center}
+\justifying
+Não é apenas comemorar as conkistas, mas aprender lições nos fracassos.\\
+
+\noindent Não é apenas comemorar as \replace{conkistas}{conquistas}, mas aprender lições nos fracassos.
+\end{center}
+
+\begin{figure}[htp]
+\caption{Cógido do exemplo 1 de substituição - \textit{replace}}
+        \centering
+        \includegraphics[scale=.9]{imagens/exreplace1.PNG}
+\label{fig:replace1}
+\end{figure}
+
+\begin{figure}[htp]
+\caption{Cógido do exemplo 1 de substituição - \textit{substitute}}
+        \centering
+        \includegraphics[scale=.9]{imagens/exsub1.PNG}
+\label{fig:sub1}
+\end{figure}
+
+\subsection{Exemplo 2}
+\begin{center}
+    \justifying
+Não é apenas ter júbilo nos a aplauzos, mas encontrar alegria no anonimato.\\
+
+\noindent Não é apenas ter júbilo nos a \replace{aplauzos}{aplausos}, mas encontrar alegria no anonimato.
+    
+\end{center}
+
+\begin{figure}[htp]
+\caption{Cógido do exemplo 2 de substituição - \textit{replace}}
+        \centering
+        \includegraphics[scale=.9]{imagens/exreplace2.PNG}
+\label{fig:replace2}
+\end{figure}
+
+\begin{figure}[htp]
+\caption{Cógido do exemplo 2 de substituição - \textit{substitute}}
+        \centering
+        \includegraphics[scale=.9]{imagens/exsub2.PNG}
+\label{fig:sub2}
+\end{figure}
+
+\section{Comando de comentário - \textbackslash comment\{\}\{\}}
+O comando pretende chamar a atenção do autor para uma determinada parte do texto, incluindo alguns comentários para fornecer mais informações.\\
+
+\subsection{Exemplo}
+
+\textbf{No texto abaixo temos um poema de Carlos Drummond de Andrade e vamos usar o comando de comentário para inserir uma informação sobre esse poema}.\\
+
+\begin{center}
+    \justifying
+    Quando nasci, um anjo torto
+desses que vivem na sombra
+disse: Vai, Carlos! ser gauche na vida.
+\end{center}
+
+\noindent \textbf{Abaixo temos a \autoref{fig:comment1} o código exemplo.}
+
+\begin{figure}[htp]
+\caption{Cógido do exemplo de comentário}
+        \centering
+        \includegraphics[scale=.9]{imagens/excomment1.PNG}
+\label{fig:comment1}
+\end{figure}
+
+\noindent \textbf{Abaixo temos a \autoref{fig:comment2} o resultado do código}.
+
+\begin{figure}[htp]
+\caption{Cógido do exemplo de comentário}
+        \centering
+        \includegraphics[scale=.9]{imagens/excomment2.PNG}
+\label{fig:comment2}
+\end{figure}
+
+\noindent O texto do poema está todo destacado na cor amarela e o comentário em seguida aparece destacado na cor laranja.
+
+\chapter{Técnicas avançadas}
+
+\section{Ativando ou desativando revisões}
+É possível ligar ou desligar os comentários. Em certa medida, é possível dizer que, quando os comentários estão desligados, eles não foram aceitos. A seguir, é possível ver um exemplo:\\
+
+\begin{minipage}{0.45\textwidth}
+\textbackslash setreviewson\\
+Este texto receberá os comentários. O pacote Easy Review  deve ser usado para revisão (ou em processo editorial) de documentos \textbackslash TeX, como artigos de pesquisa, relatórios, livros, apresentações \textbackslash textit\{etc\}. Usando este pacote, \textbackslash alert\{os autores podem \textbackslash textbf\{facilmente\} dar uma atenção especial a partes do texto\} \textbackslash highlight\{usando maneiras diferentes!\} Neste pequeno exemplo, você pode ver o conjunto de funções que o pacote Easy Review possui.
+\end{minipage}\hfill
+\begin{minipage}{0.45\textwidth}
+\setreviewson
+Este texto receberá os comentários. O pacote Easy Review  deve ser usado para revisão (ou em processo editorial) de documentos \TeX, como artigos de pesquisa, relatórios,
+livros, apresentações \textit{etc}. Usando este pacote, \alert{os autores podem \textbf{facilmente} dar uma atenção especial a partes do texto} \highlight{usando maneiras diferentes!} Neste pequeno exemplo, você pode ver o conjunto de funções que o pacote Easy Review possui.
+\end{minipage}\vspace{2cm}
+
+\begin{minipage}{0.45\textwidth}
+\textbackslash setreviewsoff\\
+Este texto receberá os comentários. O pacote Easy Review  deve ser usado para revisão (ou em processo editorial) de documentos \textbackslash TeX, como artigos de pesquisa, relatórios, livros, apresentações \textbackslash textit\{etc\}. Usando este pacote, \textbackslash alert\{os autores podem \textbackslash textbf\{facilmente\} dar uma atenção especial a partes do texto\} \textbackslash highlight\{usando maneiras diferentes!\} Neste pequeno exemplo, você pode ver o conjunto de funções que o pacote Easy Review possui.
+\end{minipage}\hfill
+\begin{minipage}{0.45\textwidth}
+\setreviewsoff
+Este texto receberá os comentários. O pacote Easy Review  deve ser usado para revisão (ou em processo editorial) de documentos \TeX, como artigos de pesquisa, relatórios,
+livros, apresentações \textit{etc}. Usando este pacote, \alert{os autores podem facilmente dar uma atenção especial a partes do texto} usando maneiras diferentes! Neste pequeno exemplo, você pode ver o conjunto de funções que o pacote Easy Review possui.
+\end{minipage}
+
+\section{Mudando as cores predefinidas}
+As cores padrão usadas nos comandos são fornecidas pelo pacote xcolor. É possível mudar todas as cores, exceto a cor de destaque. Para alterar as cores do comando, use uma destas atribuições:\\
+
+\textbackslash renewcommand\{\textbackslash alertColor\}\{\textbackslash textcolor\{nova cor de alerta\}\} 
+
+\textbackslash renewcommand\{\textbackslash removeColor\}\{\textbackslash textcolor\{nova cor de remoção\}\} 
+
+\textbackslash renewcommand\{\textbackslash addColor\}\{\textbackslash textcolor\{nova cor de comentário adicional\}\}
+
+\subsection{Exemplo}
+\justifying
+
+As cores padrão usadas nos comandos são fornecidas pelo pacote \textit{xcolor}. É possível mudar todas as cores, menos a cor do comando de destaque (\textit{highlight}) e de comentários (\textit{comment}). Para alterar as cores do comando, use uma destas atribuições:
+
+\begin{figure}[htp]
+        \centering
+        \includegraphics[scale=.9]{imagens/color.PNG}
+    \end{figure}
+
+\noindent A cor do comando de alerta foi alterada para azul (\textit{blue}), a do comando de remoção para laranja (\textit{orange}) e a do comando de adição para rosa (\textit{pink}).
+
+\newpage
+
+\noindent Exemplo da alteração das cores dos comandos.
+
+\begin{figure}[htp]
+        \centering
+        \includegraphics[scale=.8]{imagens/color2.PNG}
+    \end{figure}
+
+
+
+\end{document}

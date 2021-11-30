@@ -1,0 +1,261 @@
+\documentclass[aspectratio=169,smaller]{beamer}
+%\usepackage[utf8]{inputenc}
+%\usepackage{babel}[brazil]
+\usepackage{easyReview}
+\usepackage{ragged2e}
+
+\institute[]{Programa de Pós Graduação em Biometria e Estatística Aplicada}
+\title{Pacote \textit{easyReview}}
+\subtitle{Uso de Editores de Texto na elaboração de Documentos Científicos}
+
+\author[Equipe 1 - Pacote \texttt{(easyReview)}]{Ivanildo Batista \inst{1}| Ruben Vivaldi\inst{2}| Fernando Pessoa \inst{3}}
+
+%\usetheme{lucid}
+\usetheme[block=fill,progressbar=foot,background=light]{metropolis}
+
+\begin{document}
+
+
+\frame{\titlepage}
+
+\begin{frame}[plain]{\textcolor{white}{Sumário}}
+\tableofcontents
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introdução}
+\begin{frame}{Introdução}
+\justifying
+O \textit{easyReview} fornece uma maneira de revisar (ou realizar o processo editorial) textos no \LaTeX. É possível usar comandos para chamar a atenção de diferentes maneiras para parte do texto, ou mesmo para indicar que um texto foi adicionado, ou se precisa ser removido, ou se precisa ser substituído e/ou adicionar comentários ao texto.
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Instalação do pacote}
+\begin{frame}{Instalação do pacote}
+\justifying
+Assim como os demais pacotes a instação do \textit{easyReview} é realizada pelo comando abaixo.
+
+\begin{figure}
+        \centering
+        \includegraphics[scale=.8]{imagens/instalacao.PNG}
+\end{figure}
+
+A documentação em pdf do pacote pode ser verificada \href{https://ctan.math.washington.edu/tex-archive/macros/latex/contrib/easyreview/doc/easyReview.pdf}{\textbf{aqui}}.
+    
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Principais comandos}
+\begin{frame}{Comando de alerta - \textbackslash alert\{\}}
+\justifying
+Comando destinado a chamar a atenção do autor para uma determinada parte do texto. A seguir, é possível ver um exemplo:
+
+\begin{figure}
+        \centering
+        \includegraphics[scale=.8]{imagens/alerta.PNG}
+    \end{figure}
+
+Resultado abaixo:
+
+\begin{figure}
+        \centering
+        \includegraphics[scale=.9]{imagens/alerta2.PNG}
+    \end{figure}
+
+O texto em que foi aplicado o comando fica destacado apenas as letras do texto na cor \alert{VERMELHA}.
+
+\end{frame}  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Comando de destaque - \textbackslash highlight\{\}}
+\justifying
+Comando destinado a chamar a atenção do autor para uma determinada parte do texto em um comando diferente do "alerta". A seguir, é possível ver um exemplo:
+
+\begin{figure}
+        \centering
+        \includegraphics[scale=.8]{imagens/destaque.PNG}
+    \end{figure}
+
+Resultado abaixo:
+
+\begin{figure}
+        \centering
+        \includegraphics[scale=.97]{imagens/destaque2.PNG}
+    \end{figure}
+
+O texto em que foi aplicado o comando fica realçado na cor \highlight{amarela}, mas a cor das letras não se altera.
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Comando de remoção - \textbackslash remove\{\}}
+\justifying
+Comando que um autor sugere para remover uma determinada parte do texto. A seguir, é possível ver um exemplo:
+
+\begin{figure}
+        \centering
+        \includegraphics[scale=.8]{imagens/remove.PNG}
+    \end{figure}
+
+Resultado abaixo:
+
+\begin{figure}
+        \centering
+        \includegraphics[scale=1.1]{imagens/remove2.PNG}
+    \end{figure}
+
+É semelhante ao comando de ``alerta", pois a letras do texto ficam na cor \alert{VERMELHA}. Entretanto o texto também fica \remove{RISCADO}.
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Comando de adição - \textbackslash add\{\}}
+\justifying
+Comando que um autor sugere para adicionar um novo texto em uma determinada parte do texto. A seguir, é possível ver um exemplo:
+
+\begin{figure}
+        \centering
+        \includegraphics[scale=.8]{imagens/add.PNG}
+    \end{figure}
+
+Resultado abaixo:
+
+\begin{figure}
+        \centering
+        \includegraphics[scale=.8]{imagens/add2.PNG}
+    \end{figure}
+
+Também é semelhante ao comando de ``alerta", mas a cor das letras ficam destacadas em \add{AZUL}.
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Comando de substituição - \textbackslash replace\{\}  \textbackslash substitute\{\}}
+\justifying
+Comandos usados quando um autor sugere a substituição de uma determinada parte do
+texto para um mais recente. A seguir, é possível ver um exemplo:
+
+\begin{figure}
+        \centering
+        \includegraphics[scale=.8]{imagens/replace.PNG}
+    \end{figure}
+
+Resultado abaixo:
+
+\begin{figure}
+        \centering
+        \includegraphics[scale=.73]{imagens/replace2.PNG}
+    \end{figure}
+
+A parte que será substituída fica do mesmo jeito que o comando \textbackslash remove\{\} (letras vermelhas e riscado), enquanto a nova parte do texto fica igual a do comando \textbackslash add\{\} (letras na cor azul).
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Comando de comentário - \textbackslash comment\{\}}
+\justifying
+
+Esse comando pretende chamar a atenção do autor para uma determinada parte do texto, dando alguns comentários para fornecer mais informações. A seguir, é possível ver um exemplo:
+
+
+\begin{figure}
+        \centering
+        \includegraphics[scale=.8]{imagens/comment.PNG}
+    \end{figure}
+
+Resultado abaixo:
+
+\begin{figure}
+        \centering
+        \includegraphics[scale=.75]{imagens/comment2.PNG}
+    \end{figure}
+
+O trecho que será comentado será destacado na cor amarela, enquanto o comentário aparecerá destacado na cor laranja.
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Técnicas avançadas}
+
+\begin{frame}{Comando \textbackslash setreviewson\{\}}
+\justifying
+
+Funciona como um ativador dos códigos de revisão. Assim, a partir do seu uso, os recursos do \textit{easyReview} passam a ser implementados.
+
+\begin{center}
+\begin{minipage}[ht]{0.45\textwidth}
+\begin{figure}
+        \centering
+        \includegraphics[scale=.5]{imagens/setreviewson.PNG}
+    \end{figure}
+\end{minipage}
+\hspace{10pt}
+\begin{minipage}[ht]{0.45\textwidth}
+\begin{figure}
+        \centering
+        \includegraphics[scale=.5]{imagens/setreviewson2.PNG}
+    \end{figure}
+\end{minipage}
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Comando \textbackslash setreviewsoff\{\}}
+\justifying
+
+Analogamente, esse comando atua como um desativador dos códigos de revisão. Assim, quando usado, os recursos do easyreviem passam a ser "bloqueados".
+
+\begin{center}
+\begin{minipage}[ht]{0.45\textwidth}
+\begin{figure}
+        \centering
+        \includegraphics[scale=.5]{imagens/setreviewsff.PNG}
+    \end{figure}
+\end{minipage}
+\hspace{10pt}
+\begin{minipage}[ht]{0.45\textwidth}
+\begin{figure}
+        \centering
+        \includegraphics[scale=.5]{imagens/exsetoff.PNG}
+    \end{figure}
+\end{minipage}
+\end{center}
+
+Os únicos comandos que não são desativados são os de destaque e de comentário.
+
+\end{frame}
+
+\begin{frame}{Alterando as cores padrões dos comandos}
+\justifying
+
+As cores padrão usadas nos comandos são fornecidas pelo pacote \textit{xcolor}. É possível mudar todas as cores, menos a cor do comando de destaque (\textit{highlight}) e de comentários (\textit{comment}). Para alterar as cores do comando, use uma destas atribuições:
+
+\begin{figure}
+        \centering
+        \includegraphics[scale=.9]{imagens/color.PNG}
+    \end{figure}
+
+\noindent A cor do comando de alerta foi alterada para azul (\textit{blue}), a do comando de remoção para laranja (\textit{orange}) e a do comando de adição para rosa (\textit{pink}).
+\end{frame}
+
+\begin{frame}{Exemplo da alteração de cores}
+\justifying
+
+Exemplo da alteração das cores dos comandos.
+
+\begin{figure}
+        \centering
+        \includegraphics[scale=.8]{imagens/color2.PNG}
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}{Conclusão}
+\justifying
+
+Por mais simples que seja, o pacote \textit{easyReview} possui funcionalidades que permitem a revisão mais detalhada de arquivos dos mais diversos tamanhos e torna o trabalho de redação mais fácil e de melhor visualização e destaque de incongruências do texto.
+
+\end{frame}
+
+\end{document}
+
+
+
+
+
+
+
+
