@@ -1,0 +1,50 @@
+---
+title: "Plotando mapa de PE no R"
+author: "Ivanildo Batista da Silva Junior"
+date: "20 de outubro de 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+library(readxl)
+library(tidyverse)
+library(geobr)
+library(sf)
+```
+
+
+```{r}
+pe <- geobr::read_municipality("PE") %>% 
+  filter(name_muni!="Fernando De Noronha")
+```
+
+```{r}
+estacoes = read_xlsx('Estacoes meteorologicas.xlsx')
+#https://www.agritempo.gov.br/agritempo/jsp/Estacao/index.jsp?siglaUF=PE&lang=pt_br
+```
+
+```{r}
+#Transformando 
+estacoes$Latitude <- as.numeric(estacoes$Latitude)
+estacoes$Longitude <- as.numeric(estacoes$Longitude)
+```
+
+```{r}
+#dataframe com a latitude e longitude
+dt <- data.frame(lon=c(estacoes$Longitude),
+                 lat=c(estacoes$Latitude))
+```
+
+```{r}
+ggplot(dt) +
+  geom_point(aes(x=lon,y=lat),size=1,color="red") +
+  geom_sf(data=pe,fill="transparent") +
+  theme_bw()
+plot(pe)
+```
