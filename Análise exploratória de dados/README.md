@@ -1,1 +1,1 @@
-## Apresentações da cadeira de Estatística Aplicada
+## Material da disciplina de Estatística Aplicada
