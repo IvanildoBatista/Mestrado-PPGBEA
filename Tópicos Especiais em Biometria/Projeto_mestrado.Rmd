@@ -1,0 +1,659 @@
+---
+title: "Projeto do mestrado"
+author: "Ivanildo Batista da Silva Júnior"
+date: "16 de maio de 2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r include=FALSE}
+library(pals)
+library(gridExtra)
+library(SPEI)
+library(readxl)
+library(SPEI)
+library(sf)
+library(tidyverse)
+library(ggrepel)
+library(tmap)
+library(vtable)
+library(forecast)
+library(trend)
+library(heatwaveR)
+library(dplyr) 
+library(plyr)
+library(Metrics)
+library(writexl)
+```
+
+## Função SPI
+
+Função usada para calcular os Índices de Precititação Padronizada para cada uma das estações e para cada escala de tempo (1, 3, 6 e 12).
+```{r}
+source('SPI_function.R')
+```
+
+### Importando a base de dados
+
+Dados de precipitação de estações de chuva do Estado de Pernambuco de periodicidade mensal dos anos de 1962 a 2012.
+```{r}
+dados <- read.delim2("join_prec_full_region.txt", sep="\t", header = TRUE)
+dados <- dados[c('cod','year','month','prec')]
+dados$prec <- as.numeric(dados$prec)
+#Convertendo a base de dados para calcular o SPI para cada estação####
+data2 <- data.frame()
+for (i in unique(dados$cod)){
+  for (j in c(1,3,6,12)){
+    spi <- SPI(as.data.frame(dados[dados$cod==i,][,-1]), 
+               scale=j,distr="gamma") %>%tibble::as_tibble() %>% dplyr::select(3) %>% pull()
+    data2<-dplyr::bind_rows(data2,bind_cols(cod=i,ano=dados[dados$cod==i,]$year,
+                                            mes=dados[dados$cod==i,]$month,
+                                            scale=j,spi=spi))}}
+```
+
+```{r}
+dados3 <- read.delim2("join_prec_full_region.txt", sep="\t", header = TRUE)
+dados4 <- dados3 %>% filter(year==1962,month==1)%>% 
+  arrange(cod)%>% select(cod,lon,lat,region)
+```
+
+#### Calculando as frequências de seca.
+```{r}
+frequencia <- data2 %>%
+  na.omit() %>%
+  dplyr::group_by(cod,scale,ano)%>%
+  dplyr::summarise(freq = sum(spi<(-0.5)))%>% # calcula para valores menores que 0 ou menor que -0.5
+  mutate(freq1 = replace(freq, freq >0, 1))
+#inserindo as estações
+frequencia2<-left_join(frequencia,dados4,by=c('cod'='cod'))
+#frequencia2$ano <- factor(frequencia2$ano,levels = c(1962:2012))
+#calculando os valores percentuais de seca por ano e por mês
+freq <-frequencia %>% dplyr::group_by(cod,scale) %>% 
+  dplyr::summarise(freq_ano = sum(freq1>0,na.rm=TRUE)/51, freq_mes = sum(freq,na.rm=TRUE)/612)
+#inserindo as estações
+freq2 <- left_join(freq,dados4,by=c('cod'='cod'))
+freq2<-freq2 %>% select(cod,lon,lat,region,scale,freq_ano,freq_mes)
+
+frequencia3 <- data2 %>%
+  na.omit() %>%
+  dplyr::group_by(cod,scale,mes)%>%
+  dplyr::summarise(freq = sum(spi<(-0.5)))%>% # calcula para valores menores que 0 ou menor que -0.5
+  mutate(freq1 = replace(freq, freq >0, 1))
+```
+
+#### Calculando a Intensidade de seca.
+```{r}
+intensidade <- data2 %>%
+  na.omit()%>% group_by(cod,scale,ano)%>% 
+  dplyr::summarise(int=mean(spi[spi<0],na.rm=TRUE)) %>% abs()%>% 
+  mutate(category=cut(int, breaks=c(0.5, 1, 1.5, 2, Inf),
+                      labels=c("Seca leve","Seca moderada","Seca pesada","Seca extrema")))
+
+intensidade2 <- left_join(intensidade,dados4,by=c('cod'='cod'))
+intensidade2<-intensidade2 %>% select(cod,lon,lat,region,scale,int,category)
+```
+
+```{r}
+data3 <- left_join(data2,dados4,by=c('cod'='cod'))
+data3<-data3 %>% select(cod,lon,lat,region,ano,mes,scale,spi)
+data4<-data3 %>% group_by(ano,cod,scale) %>% 
+  dplyr::summarise(soma = sum(spi<=(-0.5),na.rm = TRUE)) %>% filter(scale==1)
+data5 <- data4 %>% mutate(periodo=cut(ano, breaks=c(1961,1979,1996,2012),
+                              labels=c("começo","meio","fim")))
+data6 <- data5 %>% group_by(cod,scale,periodo) %>% 
+  dplyr::summarise(soma_freq = sum(soma,na.rm=TRUE))
+data7 <- left_join(data6,dados4,by=c('cod'='cod'))
+```
+
+### Mapa de Pernambuco
+
+Mapa de Pernambuco com as estações meteorológicas de cada umas das mesorregiões (Zona da Mata, Agreste  e Sertão) e suas respectivas frequências de seca para a escala de tempo 1. A frequências de seca nas estações do Sertão estão muito baixas, por isso é necessário investigar o motivos delas estarem com esse comportamento, sendo que o Sertão é uma região inserida no semiárido nordestino (conhecido pela sua baixa precipitação).
+
+```{r echo=FALSE, out.width="130%"}
+freq2$lon<- as.numeric(freq2$lon)
+freq2$lat<- as.numeric(freq2$lat)
+macroreg <- read_sf('macroreg.shp')
+freq2 %>% 
+  filter(scale==1) %>% 
+  ggplot()+
+  geom_point(aes(x=lon,y=lat,color=freq_mes),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+
+  #facet_wrap(~scale)+
+  scale_color_gradientn(colours = jet(10))+
+  geom_text(aes(x=lon,y=lat,label=cod))
+```
+### Frequência de seca mensal.
+```{r fig.width = 12}
+freq2 %>% 
+  #filter(scale==1) %>% 
+  ggplot()+geom_point(aes(x=lon,y=lat,color=freq_mes),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+
+  facet_wrap(~scale)+scale_color_gradientn(colours = jet(10))
+```
+
+### Frequência de seca anual.
+```{r fig.width = 12}
+freq2 %>% 
+  #filter(scale==1) %>% 
+  ggplot()+geom_point(aes(x=lon,y=lat,color=freq_ano),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+
+  facet_wrap(~scale)+scale_color_gradientn(colours = jet(10))
+```
+
+## Série de tempo mensal de frequência de seca
+
+Série de tempo mensal de frequência de seca para cada estação meteorológica do Sertão na escala de tempo 1 que apresentaram frequência baixa.
+```{r  fig.width = 12}
+#ESTAÇÃO 1
+p1<-frequencia2 %>% filter(cod==1,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p2<-frequencia3 %>% filter(cod==1,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p1,p2,ncol=2, top = "Frequências de secas anuais e mensais acumuladas para a estação 1")
+
+#ESTAÇÃO 2
+p3<-frequencia2 %>% filter(cod==2,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p4<-frequencia3 %>% filter(cod==2,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p3,p4,ncol=2, top = "Frequências de secas anuais e mensais acumuladas para a estação 2") 
+
+#ESTAÇÃO 4
+p5<-frequencia2 %>% filter(cod==4,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p6<-frequencia3 %>% filter(cod==4,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p5,p6,ncol=2, top = "Frequências de secas anuais e mensais acumuladas para a estação 4") 
+
+#ESTAÇÃO 5
+p7<-frequencia2 %>% filter(cod==5,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p8<-frequencia3 %>% filter(cod==5,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p7,p8,ncol=2, top = "Frequências de secas anuais e mensais acumuladas para a estação 5") 
+
+#ESTAÇÃO 13
+p9<-frequencia2 %>%filter(cod==13,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p10<-frequencia3%>% filter(cod==13,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p9,p10,ncol=2,top = "Frequências de secas anuais e mensais acumuladas para a estação 13") 
+#ESTAÇÃO 36
+p11<-frequencia2%>%filter(cod==36,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p12<-frequencia3 %>%filter(cod==36,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p11,p12,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 36") 
+
+#ESTAÇÃO 44
+p13<-frequencia2%>%filter(cod==44,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p14<-frequencia3 %>%filter(cod==44,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p13,p14,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 44") 
+
+#ESTAÇÃO 45
+p15<-frequencia2%>%filter(cod==45,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p16<-frequencia3 %>%filter(cod==45,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p15,p16,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 45") 
+
+#ESTAÇÃO 50
+p17<-frequencia2%>%filter(cod==50,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p18<-frequencia3 %>%filter(cod==50,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p17,p18,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 50") 
+
+#ESTAÇÃO 51
+p19<-frequencia2%>%filter(cod==51,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p20<-frequencia3 %>%filter(cod==51,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p19,p20,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 51") 
+
+#ESTAÇÃO 54
+p21<-frequencia2%>%filter(cod==54,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p22<-frequencia3 %>%filter(cod==54,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p21,p22,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 54")
+
+#ESTAÇÃO 69
+p23<-frequencia2%>%filter(cod==69,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p24<-frequencia3 %>%filter(cod==69,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p23,p24,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 69")
+
+#ESTAÇÃO 70
+p25<-frequencia2%>%filter(cod==70,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p26<-frequencia3 %>%filter(cod==70,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p25,p26,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 70")
+
+#ESTAÇÃO 74
+p27<-frequencia2%>%filter(cod==74,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p28<-frequencia3 %>%filter(cod==74,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p27,p28,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 74")
+
+#ESTAÇÃO 75
+p29<-frequencia2%>%filter(cod==75,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p30<-frequencia3 %>%filter(cod==75,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p27,p28,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 75")
+
+#ESTAÇÃO 81
+p31<-frequencia2%>%filter(cod==81,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p32<-frequencia3 %>%filter(cod==81,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p31,p32,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 81")
+
+#ESTAÇÃO 82
+p33<-frequencia2%>%filter(cod==82,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p34<-frequencia3 %>%filter(cod==82,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p33,p34,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 82")
+
+#ESTAÇÃO 83
+p35<-frequencia2%>%filter(cod==83,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p36<-frequencia3 %>%filter(cod==83,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p35,p36,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 83")
+
+#ESTAÇÃO 84
+p37<-frequencia2%>%filter(cod==84,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p38<-frequencia3 %>%filter(cod==84,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p37,p38,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 84")
+
+#ESTAÇÃO 86
+p39<-frequencia2%>%filter(cod==86,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p40<-frequencia3 %>%filter(cod==86,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p39,p40,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 86")
+
+#ESTAÇÃO 88
+p41<-frequencia2%>%filter(cod==88,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p42<-frequencia3 %>%filter(cod==88,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p41,p42,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 88")
+
+#ESTAÇÃO 90
+p43<-frequencia2%>%filter(cod==90,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p44<-frequencia3 %>%filter(cod==90,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p43,p44,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 90")
+
+#ESTAÇÃO 92
+p45<-frequencia2%>%filter(cod==92,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p46<-frequencia3 %>%filter(cod==92,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p45,p46,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 92")
+
+#ESTAÇÃO 93
+p47<-frequencia2%>%filter(cod==93,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p48<-frequencia3%>%filter(cod==93,scale==1) %>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p47,p48,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 93")
+
+#ESTAÇÃO 120
+p49<-frequencia2%>%filter(cod==120,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p50<-frequencia3 %>%filter(cod==120,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p49,p50,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 120")
+
+#ESTAÇÃO 125
+p51<-frequencia2%>%filter(cod==125,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p52<-frequencia3 %>%filter(cod==125,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p51,p52,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 125")
+
+#ESTAÇÃO 140
+p53<-frequencia2%>%filter(cod==140,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p54<-frequencia3 %>%filter(cod==140,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p53,p54,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 140")
+
+#ESTAÇÃO 143
+p55<-frequencia2%>%filter(cod==143,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p56<-frequencia3 %>%filter(cod==143,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p55,p56,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 143")
+
+#ESTAÇÃO 146
+p57<-frequencia2%>%filter(cod==146,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p58<-frequencia3 %>%filter(cod==146,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p57,p58,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 146")
+
+#ESTAÇÃO 147
+p59<-frequencia2%>%filter(cod==147,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p60<-frequencia3 %>%filter(cod==147,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p59,p60,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 147")
+
+#ESTAÇÃO 153
+p61<-frequencia2%>%filter(cod==153,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p62<-frequencia3 %>%filter(cod==153,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p61,p62,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 153")
+
+#ESTAÇÃO 155
+p63<-frequencia2%>%filter(cod==155,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p64<-frequencia3 %>%filter(cod==155,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p63,p64,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 155")
+
+#ESTAÇÃO 159
+p65<-frequencia2%>%filter(cod==159,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p66<-frequencia3 %>%filter(cod==159,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p65,p66,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 159")
+
+#ESTAÇÃO 161
+p67<-frequencia2%>%filter(cod==161,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p68<-frequencia3 %>%filter(cod==161,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p67,p68,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 161")
+
+#ESTAÇÃO 164
+p69<-frequencia2%>%filter(cod==164,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p70<-frequencia3 %>%filter(cod==164,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p69,p70,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 164")
+
+#ESTAÇÃO 165
+p71<-frequencia2%>%filter(cod==165,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p72<-frequencia3 %>%filter(cod==165,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p71,p72,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 165")
+
+#ESTAÇÃO 166
+p73<-frequencia2%>%filter(cod==166,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p74<-frequencia3 %>%filter(cod==166,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p73,p74,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 166")
+
+#ESTAÇÃO 167
+p75<-frequencia2%>%filter(cod==167,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p76<-frequencia3 %>%filter(cod==167,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p75,p76,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 167")
+
+#ESTAÇÃO 168
+p77<-frequencia2%>%filter(cod==168,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p78<-frequencia3 %>%filter(cod==168,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p77,p78,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 168")
+
+#ESTAÇÃO 172
+p79<-frequencia2%>%filter(cod==172,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p80<-frequencia3 %>%filter(cod==172,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p79,p80,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 172")
+
+#ESTAÇÃO 173
+p81<-frequencia2%>%filter(cod==173,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p82<-frequencia3 %>%filter(cod==173,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p81,p82,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 173")
+
+#ESTAÇÃO 175
+p83<-frequencia2%>%filter(cod==175,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p84<-frequencia3 %>%filter(cod==175,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p83,p84,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 175")
+
+#ESTAÇÃO 176
+p85<-frequencia2%>%filter(cod==176,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p86<-frequencia3 %>%filter(cod==176,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p85,p86,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 176")
+
+#ESTAÇÃO 179
+p87<-frequencia2%>%filter(cod==179,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p88<-frequencia3 %>%filter(cod==179,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p87,p88,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 179")
+
+#ESTAÇÃO 180
+p89<-frequencia2%>%filter(cod==180,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p90<-frequencia3 %>%filter(cod==180,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p89,p90,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 180")
+
+#ESTAÇÃO 181
+p91<-frequencia2%>%filter(cod==181,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p92<-frequencia3 %>%filter(cod==181,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p91,p92,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 181")
+
+#ESTAÇÃO 184
+p93<-frequencia2%>%filter(cod==184,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p94<-frequencia3 %>%filter(cod==184,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p93,p92,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 184")
+
+#ESTAÇÃO 190
+p95<-frequencia2%>%filter(cod==190,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p96<-frequencia3 %>%filter(cod==190,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p95,p96,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 190")
+
+#ESTAÇÃO 208
+p97<-frequencia2%>%filter(cod==208,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p98<-frequencia3 %>%filter(cod==208,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p97,p98,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 208")
+
+#ESTAÇÃO 230
+p99<-frequencia2%>%filter(cod==230,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p100<-frequencia3%>%filter(cod==230,scale==1)%>% ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p99,p100,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 230")
+
+#ESTAÇÃO 234
+p101<-frequencia2%>%filter(cod==234,scale==1)%>%ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p102<-frequencia3%>%filter(cod==234,scale==1)%>%ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p101,p102,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 234")
+
+#ESTAÇÃO 235
+p103<-frequencia2%>%filter(cod==235,scale==1)%>%ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p104<-frequencia3%>%filter(cod==235,scale==1)%>%ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p103,p104,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 235")
+
+#ESTAÇÃO 242
+p105<-frequencia2%>%filter(cod==242,scale==1)%>%ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p106<-frequencia3%>%filter(cod==242,scale==1)%>%ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p105,p106,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 242")
+
+#ESTAÇÃO 255
+p107<-frequencia2%>%filter(cod==255,scale==1)%>%ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p108<-frequencia3%>%filter(cod==255,scale==1)%>%ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p105,p106,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 255")
+
+#ESTAÇÃO 260
+p109<-frequencia2%>%filter(cod==260,scale==1)%>%ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p110<-frequencia3%>%filter(cod==260,scale==1)%>%ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p109,p110,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 260")
+
+#ESTAÇÃO 261
+p111<-frequencia2%>%filter(cod==261,scale==1)%>%ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p112<-frequencia3%>%filter(cod==261,scale==1)%>%ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p111,p112,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 261")
+
+#ESTAÇÃO 347
+p113<-frequencia2%>%filter(cod==347,scale==1)%>%ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p114<-frequencia3%>%filter(cod==347,scale==1)%>%ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p113,p114,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 347")
+
+#ESTAÇÃO 423
+p115<-frequencia2%>%filter(cod==423,scale==1)%>%ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p116<-frequencia3%>%filter(cod==423,scale==1)%>%ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p115,p116,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 423")
+
+#ESTAÇÃO 424
+p117<-frequencia2%>%filter(cod==424,scale==1)%>%ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p118<-frequencia3%>%filter(cod==424,scale==1)%>%ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p117,p118,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 424")
+
+#ESTAÇÃO 425
+p119<-frequencia2%>%filter(cod==425,scale==1)%>%ggplot()+geom_bar(aes(y=freq,x=ano), position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+p120<-frequencia3%>%filter(cod==425,scale==1)%>%ggplot()+geom_bar(aes(y=freq,x=mes),position="dodge",
+                    stat='identity', color="white", fill="blue")#+facet_wrap(~scale)
+grid.arrange(p119,p120,ncol=2,top="Frequências de secas anuais e mensais acumuladas para a estação 425")
+```
+
+### Separando os mapas das mesorregiões de Pernambuco.
+```{r}
+sertao<-macroreg[macroreg$MACRO=="SERTAO",]
+zona<-macroreg[macroreg$MACRO=="MATA",]
+agreste<-macroreg[macroreg$MACRO=="AGRESTE",]
+```
+
+### Frequência de seca dO Sertão ao longo do tempo.
+```{r, out.width="130%"}
+frequencia2$lon<- as.numeric(frequencia2$lon)
+frequencia2$lat<- as.numeric(frequencia2$lat)
+frequencia2 %>% 
+  filter(scale==1,region=='SertÃ£o') %>% 
+  ggplot()+geom_point(aes(x=lon,y=lat,color=freq),size=1)+
+  geom_sf(data=sertao, fill='transparent',show.legend = TRUE)+
+  facet_wrap(~ano)+ scale_color_gradientn(colours = jet(10))
+```
+
+### Intensidade de seca do Sertão ao longo do tempo.
+```{r, out.width="130%"}
+intensidade<-left_join(intensidade,dados4,by=c('cod'='cod'))
+intensidade$lon<- as.numeric(intensidade$lon)
+intensidade$lat<- as.numeric(intensidade$lat)
+intensidade%>% filter(scale==1,region=='SertÃ£o') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=1)+ geom_sf(data=sertao, fill='transparent',show.legend = TRUE)+facet_wrap(~ano)+ scale_color_gradientn(colours = jet(10))
+  #geom_text(aes(x=lon,y=lat,label=cod))
+```
+
+### Intensidade de seca do Agreste ao longo do tempo.
+```{r, out.width="130%"}
+intensidade%>% filter(scale==1,region=='Agreste') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=1)+
+  geom_sf(data=agreste, fill='transparent',show.legend = TRUE)+facet_wrap(~ano)+ scale_color_gradientn(colours = jet(10))
+```
+
+### Intensidade de seca da Zona da Mata ao longo do tempo.
+```{r, out.width="130%"}
+intensidade%>% filter(scale==1,region=='Zona da Mata') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=1)+
+  geom_sf(data=zona, fill='transparent',show.legend = TRUE)+facet_wrap(~ano)+ scale_color_gradientn(colours = jet(10))
+
+```
+
+###Calculando a ÁREA AFETADA PELA SECA.
+```{r, out.width="130%"}
+freqqq<- frequencia %>% group_by(ano,cod,scale) %>% dplyr::summarise(area=sum(freq,na.rm = TRUE))%>% 
+  mutate(area1 = replace(area, area >0, 1))
+
+freqqq<-left_join(freqqq,dados4,by=c('cod'='cod'))
+area<- freqqq %>%group_by(ano,scale,region) %>% dplyr::summarise(area_total=sum(area1,na.rm = TRUE)/133)%>% mutate(category=cut(area_total, breaks=c(0,0.1, 0.25, 0.33, 0.5, 1),labels=c("Sem seca aparente","Seca local","Seca regional parcial","Seca regional","Seca global"))) 
+#area e 1596
+```
+
+### Série de tempo por escala e por região da ÁREA AFETADA PELA SECA.
+```{r, out.width="130%"}
+area%>%  ggplot()+geom_line(aes(y=area_total,x=ano),size=1)+ 
+  geom_hline(yintercept=0.1, linetype="dashed", color = "red",size=.8)+ 
+  geom_hline(yintercept=0.25, linetype="dashed", color = "red",size=.8)+ 
+  geom_hline(yintercept=0.33, linetype="dashed", color = "red",size=.8)+ 
+  geom_hline(yintercept=0.5, linetype="dashed", color = "red",size=.8)+ 
+  geom_hline(yintercept=1, linetype="dashed", color = "red",size=.8)+
+  facet_wrap(region~scale)
+```
+
+```{r}
+p1<-freq2 %>% filter(scale==1) %>% 
+  ggplot()+geom_point(aes(x=lon,y=lat,color=freq_ano),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+
+  scale_color_gradientn(colours = jet(10))
+
+p2<-freq2 %>% filter(scale==3) %>% 
+  ggplot()+geom_point(aes(x=lon,y=lat,color=freq_ano),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+
+  scale_color_gradientn(colours = jet(10))
+
+p3<-freq2 %>% filter(scale==6) %>% 
+  ggplot()+geom_point(aes(x=lon,y=lat,color=freq_ano),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+
+  scale_color_gradientn(colours = jet(10))
+
+p4<-freq2 %>% filter(scale==12) %>% 
+  ggplot()+geom_point(aes(x=lon,y=lat,color=freq_ano),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+
+  scale_color_gradientn(colours = jet(10))
+
+grid.arrange(p1,p2,p3,p4,ncol=2,nrow=2)
+```
+
+
+
+
+
+

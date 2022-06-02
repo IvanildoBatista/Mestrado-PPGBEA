@@ -1,0 +1,159 @@
+---
+title: "Calculando SPI"
+author: "Ivanildo Batista da Silva Júnior"
+date: "21 de outubro de 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Calculando SPI e gerando mapas
+
+### Carregando os principais pacotes pacotes
+
+```{r, warning=FALSE}
+library(readxl)
+library(SPEI)
+library(tidyverse)
+library(geobr)
+library(sf)
+library(tmap)
+```
+
+### Importando as bases de dados
+
+Dados de precipitação e de longitude e latitude das estações meteorológicas em Pernambuco. Os dados com as informações das estações meteorológicas podem ser obtidas [aqui](https://www.agritempo.gov.br/agritempo/jsp/Estacao/index.jsp?siglaUF=PE&lang=pt_br).
+
+```{r}
+chuva = read_xlsx('precipitacao.xlsx')
+estacoes = read_xlsx('Estacoes meteorologicas.xlsx')
+```
+
+Primeiras observações 
+```{r}
+head(chuva)
+```
+
+```{r, message=FALSE}
+plot(chuva$prec, type = "l", main = 'Série temporal de precipitação',
+     xlab = 'Período de tempo', ylab = '')
+```
+
+### SPI's
+
+Calculando os SPI's para as escalas de tempo 1, 3, 6, 9, 12, 24 e 48.
+
+```{r}
+spi1 <- spi(na.omit(chuva$prec), 1)
+spi3 <- spi(na.omit(chuva$prec), 3)
+spi6 <- spi(na.omit(chuva$prec), 6)
+spi9 <- spi(na.omit(chuva$prec), 9)
+spi12 <- spi(na.omit(chuva$prec), 12)
+spi24 <- spi(na.omit(chuva$prec), 24)
+spi48 <- spi(na.omit(chuva$prec), 48)
+```
+
+```{r}
+#head(spi6$fitted, 12)
+```
+
+Plotando os gráficos das séries de SPI's.
+
+```{r}
+par(mfrow=c(2,4))
+plot(spi1, 'SPI-1')
+plot(spi3, 'SPI-3')
+plot(spi6, 'SPI-6')
+plot(spi9, 'SPI9')
+plot(spi12, 'SPI-12')
+plot(spi24, 'SPI-24')
+plot(spi48, 'SPI-48')
+```
+
+Distribuição (histograma) dos índices de SPI's.
+
+```{r}
+par(mfrow=c(2,4))
+hist(spi1$fitted, main="Histograma do SPI 1",
+     xlab=" ", ylab="Frequência", breaks=30)
+hist(spi3$fitted, main="Histograma do SPI 3",
+     xlab=" ", ylab="Frequência", breaks=30)
+hist(spi6$fitted, main="Histograma do SPI 6",
+     xlab=" ", ylab="Frequência", breaks=30)
+hist(spi9$fitted, main="Histograma do SPI 9",
+     xlab=" ", ylab="Frequência", breaks=30)
+hist(spi12$fitted, main="Histograma do SPI 12",
+     xlab=" ", ylab="Frequência", breaks=30)
+hist(spi24$fitted, main="Histograma do SPI 24",
+     xlab=" ", ylab="Frequência", breaks=30)
+hist(spi48$fitted, main="Histograma do SPI 48",
+     xlab=" ", ylab="Frequência", breaks=30)
+```
+
+# Gerando mapas com *GeoBR*
+
+Mapa de Pernambuco com os seus municípios, com exceção de Fernando de Noronha.
+
+```{r, message=FALSE}
+pe <- geobr::read_municipality("PE") %>% 
+  filter(name_muni!="Fernando De Noronha")
+```
+
+Mapa do Brasil e de Pernambuco.
+```{r}
+Bra <- geobr::read_country(year=2010, simplified=TRUE, 
+                           showProgress = TRUE)
+
+PE <- geobr::read_state(code_state = "PE", 
+                        year = 2010, simplified = TRUE,
+                        showProgress = TRUE)
+```
+
+
+Transformando as colunas latitude e longitude para o tipo numérico.
+```{r}
+#Transformando 
+estacoes$Latitude <- as.numeric(estacoes$Latitude)
+estacoes$Longitude <- as.numeric(estacoes$Longitude)
+```
+
+Criando uma *dataframe* com os dados de longitude e latitude.
+```{r}
+#dataframe com a latitude e longitude
+dt <- data.frame(lon=c(estacoes$Longitude),
+                 lat=c(estacoes$Latitude))
+```
+
+
+Mapa do Brasil e de Pernambuco.
+```{r}
+ggplot(dt) + geom_sf(data=Bra,fill="transparent") + geom_sf(data=pe, colors='red') + theme_bw() 
+```
+
+Mapa do Brasil e de Pernambuco com os municípios e com delimitações.
+```{r}
+ggplot(dt) + geom_sf(data=Bra,fill="transparent") +
+  geom_point(aes(x=lon,y=lat),size=1,color="red") + 
+  geom_sf(data=PE,fill="transparent") + theme_minimal() + xlim(-41,-35) + ylim(-10,-7)
+```
+
+Mapa do Estado de Pernambuco com a localização das estações meteorológicas na cor vermelha.
+```{r}
+ggplot(dt, fill='white') +
+  geom_point(aes(x=lon,y=lat),size=1,color="red") +
+  geom_sf(data=pe,fill="transparent") +
+  theme_bw() + labs(x='Longitude', y='Latitude', title='Estado de pernambuco e suas estações meteorológicas')
+```
+
+
+
+
+
+
+
+
+
+
+
