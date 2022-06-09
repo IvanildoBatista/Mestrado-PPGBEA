@@ -1,0 +1,446 @@
+#IMPORTANDO OS PACOTES
+install.packages(c('SPEI','readxl','sf','tidyverse','geobr','tmap','vtable','forecast','ggrepel',
+                   'trend','heatwaveR','dplyr','plyr','Metrics','writexl','gridExtra','pals'))
+library(pals)
+library(gridExtra) 
+library(SPEI)
+library(readxl)
+library(SPEI)
+library(sf)
+library(tidyverse)
+library(geobr)
+library(tmap)
+library(vtable)
+library(forecast)
+library(trend)
+library(heatwaveR)
+library(dplyr) 
+library(plyr)
+library(Metrics)
+library(writexl)
+library(ggrepel)
+
+# 1-Importando a função de cálculo do SPI----------------------------------------------------
+source('SPI_function.R')
+
+# 2-Tratamento da base de dados -------------------------------------------------------------
+dados <- readr::read_tsv("join_prec_full_region.txt")
+dados <- dados[c('cod','year','month','prec')]
+dados$prec <- as.numeric(dados$prec)
+data2 <- data.frame()
+for (i in unique(dados$cod)){
+  for (j in c(1,3,6,12)){
+    spi <- SPI(as.data.frame(dados[dados$cod==i,][,-1]), 
+               scale=j,distr="gamma") %>%tibble::as_tibble() %>% dplyr::select(3) %>% pull()
+    data2<-dplyr::bind_rows(data2,bind_cols(cod=i,ano=dados[dados$cod==i,]$year,
+                                            mes=dados[dados$cod==i,]$month,
+                                            scale=j,spi=spi))}}
+
+# 3-Inserindo as estações do ano -------------------------------------------------------------
+#https://recima21.com.br/index.php/recima21/article/view/573
+#Primavera -> Setembro, Outubro e Novembro
+#Verão -> Dezembro, Janeiro e Feveiro
+#Outono -> Março, Abril e Maio
+#Inverno -> Junho, Julho e Agosto
+
+data2$season <-c()
+data2$season[data2$mes==1] <- "VERAO"
+data2$season[data2$mes==2] <- "VERAO"
+data2$season[data2$mes==3] <- "OUTONO"
+data2$season[data2$mes==4] <- "OUTONO"
+data2$season[data2$mes==5] <- "OUTONO"
+data2$season[data2$mes==6] <- "INVERNO"
+data2$season[data2$mes==7] <- "INVERNO"
+data2$season[data2$mes==8] <- "INVERNO"
+data2$season[data2$mes==9] <- "PRIMAVERA"
+data2$season[data2$mes==10] <- "PRIMAVERA"
+data2$season[data2$mes==11] <- "PRIMAVERA"
+data2$season[data2$mes==12] <- "VERAO"
+
+# 4-Criando as categorias de SPI -------------------------------------------------------------
+data2<-data2 %>% 
+  mutate(category=cut(spi, breaks=c(-Inf,-2,-1.5,-1,-0.5,Inf),
+                      labels=c("Seca Extrema","Seca severa",
+                               "Seca moderada","Seca leve","Não seca")))
+
+# 5-Base de dados das estações pluviométricas ------------------------------------------------
+dados3 <- read.delim2("join_prec_full_region.txt", sep="\t", header = TRUE)
+dados4 <- dados3 %>% filter(year==1962,month==1)%>%arrange(cod)%>% select(cod,lon,lat,region)
+
+# 6- Inserindo as longitudes, latitudes e regiões das estações pluviométricas -----------------
+data2<-left_join(data2,dados4,by=c('cod'='cod'))
+
+# 7-Gráfico das frequências de seca por região ------------------------------------------------
+ggplot(data2 %>% filter(category!="" & category!="Não seca"))+geom_bar(aes(x=category,fill=region),position='dodge')+ 
+  scale_fill_brewer(palette="Set1")+facet_wrap(~scale)
+
+# 8-Calculando as frequências de seca anual e mensal ----------------------------------------------
+
+frequencia <- data2 %>% na.omit() %>% dplyr::group_by(cod,scale,ano)%>%dplyr::summarise(freq = sum(spi<(-0.5)))%>% # calcula para valores menores que 0 ou menor que -0.5
+  mutate(freq1 = replace(freq, freq >0, 1))
+frequencia2<-left_join(frequencia,dados4,by=c('cod'='cod'))
+#calculando os valores percentuais de seca por ano e por mês
+freq <-frequencia %>% dplyr::group_by(cod,scale) %>% dplyr::summarise(freq_ano = sum(freq1>0,na.rm=TRUE)/51, 
+                   freq_mes = sum(freq,na.rm=TRUE)/612)
+freq2 <- left_join(freq,dados4,by=c('cod'='cod'))
+freq2<-freq2 %>% select(cod,lon,lat,region,scale,freq_ano,freq_mes)
+
+# 9-Calculando as frequências de secas sazonais ----------------------------------------------
+
+frequencia3 <- data2 %>%na.omit() %>%  dplyr::group_by(cod,scale,season,ano)%>%
+  dplyr::summarise(freq = sum(spi<(-0.5)))%>% # calcula para valores menores que 0 ou menor que -0.5
+  mutate(freq1 = replace(freq, freq >0, 1))
+frequencia4<-left_join(frequencia3,dados4,by=c('cod'='cod'))
+freq3 <-frequencia3 %>% dplyr::group_by(cod,scale,season) %>% 
+  dplyr::summarise(freq_ano = sum(freq1>0,na.rm=TRUE),freq_sazonal = sum(freq,na.rm=TRUE)/204)
+freq4 <- left_join(freq3,dados4,by=c('cod'='cod'))
+freq4<-freq4 %>% select(cod,lon,lat,season,scale,freq_ano,freq_sazonal)
+
+# 9-Calculando as intensidades de secas anuais e suas categorias --------------------------------
+
+intensidade <- data2 %>%na.omit()%>% group_by(cod,scale,ano)%>% 
+  dplyr::summarise(int=mean(spi[spi<0],na.rm=TRUE)) %>% abs()%>% 
+  mutate(category=cut(int, breaks=c(0.5, 1, 1.5, 2, Inf),labels=c("Seca leve","Seca moderada","Seca pesada",
+                                                                  "Seca extrema")))
+intensidade2 <- left_join(intensidade,dados4,by=c('cod'='cod'))
+intensidade2<-intensidade2 %>% select(cod,lon,lat,region,scale,int,category)
+
+# 10-Calculando as intensidades de secas sazonais e suas categorias --------------------------------
+
+intensidade3 <- data2 %>% na.omit()%>% group_by(cod,scale,season)%>% 
+  dplyr::summarise(int=abs(mean(spi[spi<0],na.rm=TRUE))) %>% 
+  mutate(category=cut(int, breaks=c(0.5, 1, 1.5, 2, Inf),labels=c("Seca leve","Seca moderada","Seca pesada",
+                                                                  "Seca extrema")))
+intensidade4 <- left_join(intensidade3,dados4,by=c('cod'='cod'))
+intensidade4<-intensidade4 %>% select(cod,lon,lat,region,scale,int,category,season)
+
+# 11-Calculando a Área afetada pela seca e suas categorias -------------------------------------
+#categorias calculadas com base no número de estações por região
+#PARA COLOCAR ANUAL, TROCA freq POR freq1
+freqqq<- frequencia %>% group_by(ano,cod,scale) %>% dplyr::summarise(area=sum(freq,na.rm = TRUE))%>% 
+  mutate(area1 = replace(area, area >0, 1))
+
+freqqq<-left_join(freqqq,dados4,by=c('cod'='cod'))
+area<- freqqq %>%group_by(ano,scale,region) %>% 
+  dplyr::summarise(area_total=sum(area1,na.rm = TRUE)/133)%>% 
+  mutate(category=cut(area_total, breaks=c(0,0.1, 0.25, 0.33, 0.5, 1),
+                      labels=c("Sem seca aparente","Seca local","Seca regional parcial",
+                               "Seca regional","Seca global"))) 
+
+freqqq2<- frequencia2 %>% group_by(ano,cod,scale,region) %>% dplyr::summarise(area=sum(freq,na.rm = TRUE))%>% 
+  mutate(area1 = replace(area, area >0, 1))
+freqqq2$estacoes <-c()
+freqqq2$estacoes[freqqq2$region=='SertÃ£o'] <- 64
+freqqq2$estacoes[freqqq2$region=='Agreste'] <- 45
+freqqq2$estacoes[freqqq2$region=='Zona da Mata'] <- 24
+area2<- freqqq2 %>%group_by(ano,scale,region,estacoes) %>% dplyr::summarise(area_total=sum(area1,na.rm = TRUE))
+
+area2<-area2%>%mutate(area_percentual=area_total/estacoes,category=cut(area_percentual,breaks=c(0,0.1, 0.25, 0.33, 0.5, 1),
+                                                          labels=c("Sem seca aparente","Seca local","Seca regional parcial","Seca regional","Seca global")))
+
+g1<-area2%>%  ggplot()+geom_point(aes(y=area_percentual,x=ano),size=3.5)+ 
+  geom_line(aes(y=area_percentual,x=ano),size=.5)+
+  geom_hline(yintercept=0.1, linetype="dashed", color = "red",size=.8)+ 
+  geom_hline(yintercept=0.25, linetype="dashed", color = "red",size=.8)+ 
+  geom_hline(yintercept=0.33, linetype="dashed", color = "red",size=.8)+ 
+  geom_hline(yintercept=0.5, linetype="dashed", color = "red",size=.8)+ 
+  geom_hline(yintercept=1, linetype="dashed", color = "red",size=.8)+ facet_wrap(~scale)
+
+ggplot(area2,aes(category,area_total,fill=region))+geom_bar(stat="identity",position="dodge")+
+  scale_fill_brewer(palette="Set1")+facet_wrap(~scale)
+
+ggplot(area2)+geom_bar(aes(x=category,fill=region),position='dodge')+ 
+  scale_fill_brewer(palette="Set1")+facet_wrap(~scale)
+
+# 12-Calculando a Área afetada pela seca e suas categorias -------------------------------------
+#categorias calculadas com base no número de estações totais do estado
+freqqq<- frequencia %>% group_by(ano,cod,scale) %>% dplyr::summarise(area=sum(freq,na.rm = TRUE))%>% 
+  mutate(area1 = replace(area, area >0, 1))
+
+freqqq2<-left_join(freqqq,dados4,by=c('cod'='cod'))
+area3<- freqqq %>%group_by(ano,scale) %>% dplyr::summarise(area_total=sum(area1,na.rm = TRUE)/133)%>% 
+  mutate(category=cut(area_total, breaks=c(0,0.1, 0.25, 0.33, 0.5, 1),
+                      labels=c("Sem seca aparente","Seca local","Seca regional parcial",
+                               "Seca regional","Seca global"))) 
+
+freqqq<-left_join(freqqq,dados4,by=c('cod'='cod'))
+area<- freqqq %>%group_by(ano,scale,region) %>% dplyr::summarise(area_total=sum(area1,na.rm = TRUE)/133)%>% 
+  mutate(category=cut(area_total, breaks=c(0,0.1, 0.25, 0.33, 0.5, 1),
+                      labels=c("Sem seca aparente","Seca local","Seca regional parcial",
+                               "Seca regional","Seca global"))) 
+
+g2<-area3%>%  ggplot()+geom_point(aes(y=area_total,x=ano),size=3.5)+ 
+  geom_line(aes(y=area_total,x=ano),size=.5)+
+  geom_hline(yintercept=0.1, linetype="dashed", color = "red",size=.8)+ 
+  geom_hline(yintercept=0.25, linetype="dashed", color = "red",size=.8)+ 
+  geom_hline(yintercept=0.33, linetype="dashed", color = "red",size=.8)+ 
+  geom_hline(yintercept=0.5, linetype="dashed", color = "red",size=.8)+ 
+  geom_hline(yintercept=1, linetype="dashed", color = "red",size=.8)+
+  facet_wrap(~scale)
+
+grid.arrange(g1,g2)
+###################################################################################################
+################################### ÁREA AFETADA SAZONAL###########################################
+###################################################################################################
+
+freqqq3<- frequencia3 %>% group_by(cod,season,scale) %>% dplyr::summarise(area=sum(freq,na.rm = TRUE))%>% 
+  mutate(area1 = replace(area, area >0, 1))
+freqqq3<-left_join(freqqq3,dados4,by=c('cod'='cod'))
+freqqq3$estacoes <-c()
+freqqq3$estacoes[freqqq3$region=='SertÃ£o'] <- 64
+freqqq3$estacoes[freqqq3$region=='Agreste'] <- 45
+freqqq3$estacoes[freqqq3$region=='Zona da Mata'] <- 24
+
+area3<- freqqq3 %>%group_by(cod,scale,season) %>% dplyr::summarise(area_total=sum(area,na.rm = TRUE))%>% 
+  mutate(category=cut(area_total, breaks=c(0,0.1, 0.25, 0.33, 0.5, 1),
+                      labels=c("Sem seca aparente","Seca local","Seca regional parcial","Seca regional",
+                               "Seca global")))
+area3<-left_join(area3,dados4,by=c('cod'='cod'))
+area3 %>% view()
+
+freqqq3<-left_join(freqqq3,dados4,by=c('cod'='cod'))
+area4<- freqqq3 %>%group_by(ano,season,scale,region) %>% dplyr::summarise(area_total=sum(area1,na.rm = TRUE))%>% 
+  mutate(category=cut(area_total, breaks=c(0,0.1, 0.25, 0.33, 0.5, 1),
+                      labels=c("Sem seca aparente","Seca local","Seca regional parcial",
+                               "Seca regional","Seca global"))) 
+
+area3%>%  ggplot()+geom_line(aes(y=area_total,x=ano),size=3.5)+ 
+  geom_line(aes(y=area_total,x=season),size=.5)+
+  geom_hline(yintercept=0.1, linetype="dashed", color = "red",size=.8)+ 
+  geom_hline(yintercept=0.25, linetype="dashed", color = "red",size=.8)+ 
+  geom_hline(yintercept=0.33, linetype="dashed", color = "red",size=.8)+ 
+  geom_hline(yintercept=0.5, linetype="dashed", color = "red",size=.8)+ 
+  geom_hline(yintercept=1, linetype="dashed", color = "red",size=.8)+
+  facet_wrap(~scale)
+
+# 13-Calculando a precipitação acumulada -------------------------------------
+
+prec_acumulada2 %>% view()
+frequencia2%>% view()
+frequencia2$ano <- factor(frequencia2$ano,levels = c(1962:2012))
+
+# 14-Gráfico com a frequência mensal para as estações -------------------------------------
+p1<-ggplot(frequencia2%>% filter(cod==1,scale==1), aes(y=freq,x=ano, fill=region)) +geom_bar(position="dodge", stat='identity')+ geom_line(color='black')+  geom_point()+ ylab('Frequência 1')
+p2<-ggplot(frequencia2%>% filter(cod==2,scale==1), aes(y=freq,x=ano, fill=region)) +geom_bar(position="dodge", stat='identity') + geom_line(color='black')+  geom_point()+ylab('Frequência 2')
+p3<-ggplot(frequencia2%>% filter(cod==4,scale==1), aes(y=freq,x=ano, fill=region)) +geom_bar(position="dodge", stat='identity')+ ylab('Frequência 4')
+p4<-ggplot(frequencia2%>% filter(cod==5,scale==1), aes(y=freq,x=ano, fill=region)) +geom_bar(position="dodge", stat='identity')+ ylab('Frequência 5')
+grid.arrange(p1, p2, p3,p4, ncol=2) 
+#https://www.apac.pe.gov.br/agrometeorologia/196-agrometeorologia/544-fracao-de-cobertura-vegetal
+
+#15- Longitude e Latitude como valor numérico -------------------------------------
+freq2$lon<- as.numeric(freq2$lon)
+freq2$lat<- as.numeric(freq2$lat)
+freq4$lon<- as.numeric(freq4$lon)
+freq4$lat<- as.numeric(freq4$lat)
+frequencia2$lon<- as.numeric(frequencia2$lon)
+frequencia2$lat<- as.numeric(frequencia2$lat)
+intensidade2$lon<- as.numeric(intensidade2$lon)
+intensidade2$lat<- as.numeric(intensidade2$lat)
+intensidade4$lon<- as.numeric(intensidade4$lon)
+intensidade4$lat<- as.numeric(intensidade4$lat)
+
+#15- Lendo o shapefile das regiões de Pernambuco -------------------------------------
+macroreg <- read_sf('macroreg.shp') #lendo o shapefile das macrorregiões de pernambuco
+
+#MAPA COM AS FREQUÊNCIAS MENSAIS
+freq4 %>% 
+  #filter(scale==1) %>% 
+  ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=2.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+
+  facet_wrap(~scale)+scale_color_gradientn(colours = jet(10))
+#geom_text(aes(x=lon,y=lat,label=cod))
+
+#Frequência ANUAL
+p1<-freq2 %>% filter(scale==1) %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_ano),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))
+p2<-freq2 %>% filter(scale==3) %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_ano),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))
+p3<-freq2 %>% filter(scale==6) %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_ano),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))
+p4<-freq2 %>% filter(scale==12) %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_ano),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))
+grid.arrange(p1,p2,p3,p4,ncol=4,nrow=1)
+
+#Frequência sazonal de seca no INVERNO
+p1<-freq4 %>% filter(scale==1,season=='INVERNO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p2<-freq4 %>% filter(scale==3,season=='INVERNO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p3<-freq4 %>% filter(scale==6,season=='INVERNO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p4<-freq4 %>% filter(scale==12,season=='INVERNO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+grid.arrange(p1,p2,p3,p4,ncol=2,nrow=2)
+
+#Frequência sazonal de seca no VERAO
+p1<-freq4 %>% filter(scale==1,season=='VERAO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p2<-freq4 %>% filter(scale==3,season=='VERAO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p3<-freq4 %>% filter(scale==6,season=='VERAO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p4<-freq4 %>% filter(scale==12,season=='VERAO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+grid.arrange(p1,p2,p3,p4,ncol=2,nrow=2)
+
+#Frequência sazonal de seca no OUTONO
+p1<-freq4 %>% filter(scale==1,season=='OUTONO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p2<-freq4 %>% filter(scale==3,season=='OUTONO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p3<-freq4 %>% filter(scale==6,season=='OUTONO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p4<-freq4 %>% filter(scale==12,season=='OUTONO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+grid.arrange(p1,p2,p3,p4,ncol=2,nrow=2)
+
+#Frequência sazonal de seca no PRIMAVERA
+p1<-freq4 %>% filter(scale==1,season=='PRIMAVERA') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p2<-freq4 %>% filter(scale==3,season=='PRIMAVERA') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p3<-freq4 %>% filter(scale==6,season=='PRIMAVERA') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p4<-freq4 %>% filter(scale==12,season=='PRIMAVERA') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+grid.arrange(p1,p2,p3,p4,ncol=2,nrow=2)
+
+#Intensidade sazonal de seca no INVERNO
+p1<-intensidade4 %>% filter(scale==1,season=='INVERNO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p2<-intensidade4 %>% filter(scale==3,season=='INVERNO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p3<-intensidade4 %>% filter(scale==6,season=='INVERNO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p4<-intensidade4 %>% filter(scale==12,season=='INVERNO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+grid.arrange(p1,p2,p3,p4,ncol=2,nrow=2)
+
+#Intensidade sazonal de seca no VERAO
+p1<-intensidade4 %>% filter(scale==1,season=='VERAO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p2<-intensidade4 %>% filter(scale==3,season=='VERAO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p3<-intensidade4 %>% filter(scale==6,season=='VERAO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p4<-intensidade4 %>% filter(scale==12,season=='VERAO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+grid.arrange(p1,p2,p3,p4,ncol=2,nrow=2)
+
+#Intensidade sazonal de seca no OUTONO
+p1<-intensidade4 %>% filter(scale==1,season=='OUTONO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p2<-intensidade4 %>% filter(scale==3,season=='OUTONO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p3<-intensidade4 %>% filter(scale==6,season=='OUTONO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p4<-intensidade4 %>% filter(scale==12,season=='OUTONO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+grid.arrange(p1,p2,p3,p4,ncol=2,nrow=2)
+
+#Intensidade sazonal de seca no PRIMAVERA
+p1<-intensidade4 %>% filter(scale==1,season=='PRIMAVERA') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p2<-intensidade4 %>% filter(scale==3,season=='PRIMAVERA') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p3<-intensidade4 %>% filter(scale==6,season=='PRIMAVERA') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+p4<-intensidade4 %>% filter(scale==12,season=='PRIMAVERA') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=3.5)+
+  geom_sf(data=macroreg, fill='transparent',show.legend = TRUE)+scale_color_gradientn(colours = jet(10))
+grid.arrange(p1,p2,p3,p4,ncol=2,nrow=2)
+###############################################################################################################
+############################################################################################################
+############################################################################################################
+
+p1<-freq2 %>% filter(scale==1) %>% ggplot()+geom_point(aes(lon,lat,color=freq_ano),size=1.5)+ geom_sf(data=macroreg,fill='transparent')+scale_color_gradientn(colours = jet(10)) +theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+  labs(x='',y='')
+p2<-freq2 %>% filter(scale==3) %>% ggplot()+geom_point(aes(lon,lat,color=freq_ano),size=1.5)+ geom_sf(data=macroreg,fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p3<-freq2 %>% filter(scale==6) %>% ggplot()+geom_point(aes(lon,lat,color=freq_ano),size=1.5)+ geom_sf(data=macroreg,fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p4<-freq2 %>% filter(scale==12)%>% ggplot()+geom_point(aes(lon,lat,color=freq_ano),size=1.5)+geom_sf(data=macroreg,fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p5<-freq4 %>% filter(scale==1,season=='VERAO') %>% ggplot()+geom_point(aes(lon,lat,color=freq_sazonal),size=1.5)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p6<-freq4 %>% filter(scale==3,season=='VERAO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=1.5)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p7<-freq4 %>% filter(scale==6,season=='VERAO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=1.5)+ geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p8<-freq4 %>% filter(scale==12,season=='VERAO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=1.5)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p9<-freq4 %>% filter(scale==1,season=='OUTONO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=1.5)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p10<-freq4 %>% filter(scale==3,season=='OUTONO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=1.5)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p11<-freq4 %>% filter(scale==6,season=='OUTONO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=1.5)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p12<-freq4 %>% filter(scale==12,season=='OUTONO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=1.5)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p13<-freq4 %>% filter(scale==1,season=='INVERNO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=1.5)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p14<-freq4 %>% filter(scale==3,season=='INVERNO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=1.5)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p15<-freq4 %>% filter(scale==6,season=='INVERNO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=1.5)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p16<-freq4 %>% filter(scale==12,season=='INVERNO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=1.5)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p17<-freq4 %>% filter(scale==1,season=='PRIMAVERA') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=1.5)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p18<-freq4 %>% filter(scale==3,season=='PRIMAVERA') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=1.5)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p19<-freq4 %>% filter(scale==6,season=='PRIMAVERA') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=1.5)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p20<-freq4 %>% filter(scale==12,season=='PRIMAVERA') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=freq_sazonal),size=1.5)+ geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+grid.arrange(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,ncol=4,nrow=5)
+
+
+p1<-intensidade2 %>% filter(scale==1) %>% ggplot()+geom_point(aes(lon,lat,color=int),size=2)+ geom_sf(data=macroreg,fill='transparent')+scale_color_gradientn(colours = jet(10)) +theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+  labs(x='',y='')
+p2<-intensidade2 %>% filter(scale==3) %>% ggplot()+geom_point(aes(lon,lat,color=int),size=2)+ geom_sf(data=macroreg,fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p3<-intensidade2 %>% filter(scale==6) %>% ggplot()+geom_point(aes(lon,lat,color=int),size=2)+ geom_sf(data=macroreg,fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p4<-intensidade2 %>% filter(scale==12)%>% ggplot()+geom_point(aes(lon,lat,color=int),size=2)+geom_sf(data=macroreg,fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p5<-intensidade4 %>% filter(scale==1,season=='VERAO') %>% ggplot()+geom_point(aes(lon,lat,color=int),size=2)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p6<-intensidade4 %>% filter(scale==3,season=='VERAO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=2)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p7<-intensidade4 %>% filter(scale==6,season=='VERAO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=2)+ geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p8<-intensidade4 %>% filter(scale==12,season=='VERAO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=2)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p9<-intensidade4 %>% filter(scale==1,season=='OUTONO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=2)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p10<-intensidade4 %>% filter(scale==3,season=='OUTONO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=2)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p11<-intensidade4 %>% filter(scale==6,season=='OUTONO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=2)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p12<-intensidade4 %>% filter(scale==12,season=='OUTONO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=2)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p13<-intensidade4 %>% filter(scale==1,season=='INVERNO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=2)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p14<-intensidade4 %>% filter(scale==3,season=='INVERNO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=2)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p15<-intensidade4 %>% filter(scale==6,season=='INVERNO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=2)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p16<-intensidade4 %>% filter(scale==12,season=='INVERNO') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=2)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p17<-intensidade4 %>% filter(scale==1,season=='PRIMAVERA') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=2)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p18<-intensidade4 %>% filter(scale==3,season=='PRIMAVERA') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=2)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p19<-intensidade4 %>% filter(scale==6,season=='PRIMAVERA') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=2)+geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+p20<-intensidade4 %>% filter(scale==12,season=='PRIMAVERA') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=2)+ geom_sf(data=macroreg, fill='transparent')+scale_color_gradientn(colours = jet(10))+ theme(axis.ticks.x = element_blank(),axis.text.x = element_blank(),axis.ticks.y = element_blank(),axis.text.y = element_blank(),legend.key.size = unit(.35, 'cm'))+labs(x='',y='')
+grid.arrange(p6,p10,p14,p18,ncol=1,nrow=4)
+
+
+#MAPAS COM AS FREQUÊNCIAS ANUAIS
+frequencia2 %>% 
+  filter(scale==1,region=='SertÃ£o') %>% 
+  ggplot()+geom_point(aes(x=lon,y=lat,color=freq),size=2.5)+
+  geom_sf(data=sertao, fill='transparent',show.legend = TRUE)+
+  facet_wrap(~ano)+ scale_color_gradientn(colours = jet(10))
+#MAPA DA INTENSIDADE
+
+intensidade<-left_join(intensidade,dados4,by=c('cod'='cod'))
+intensidade$lon<- as.numeric(intensidade$lon)
+intensidade$lat<- as.numeric(intensidade$lat)
+intensidade%>% filter(scale==12,region=='SertÃ£o') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=2.5)+
+  geom_sf(data=sertao, fill='transparent',show.legend = TRUE)+facet_wrap(~ano)+ scale_color_gradientn(colours = jet(10))
+  #geom_text(aes(x=lon,y=lat,label=cod))
+
+intensidade%>% filter(scale==12,region=='Agreste') %>% ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=2.5)+
+  geom_sf(data=agreste, fill='transparent',show.legend = TRUE)+facet_wrap(~ano)+ scale_color_gradientn(colours = jet(10))
+
+intensidade%>% 
+  filter(scale==12,region=='Zona da Mata') %>% 
+  ggplot()+geom_point(aes(x=lon,y=lat,color=int),size=2.5)+
+  geom_sf(data=zona, fill='transparent',show.legend = TRUE)+
+  facet_wrap(~ano)+ scale_color_gradientn(colours = jet(10))
+
+area3 %>% 
+  filter(scale==6,region=='Zona da Mata') %>% #
+  ggplot()+geom_point(aes(x=lon,y=lat,color=area),size=2.5)+
+  geom_sf(data=zona, fill='transparent',show.legend = TRUE)+
+  facet_wrap(~ano)+ scale_color_gradientn(colours = jet(10))
+#unique(area3$region)"SertÃ£o"      "Agreste"      "Zona da Mata"
+
+sertao<-macroreg[macroreg$MACRO=="SERTAO",]
+zona<-macroreg[macroreg$MACRO=="MATA",]
+agreste<-macroreg[macroreg$MACRO=="AGRESTE",]
+
+frequencia3 <- data2 %>%
+  na.omit() %>%
+  dplyr::group_by(cod,scale,mes)%>%
+  dplyr::summarise(freq = sum(spi<(-0.5)))%>% # calcula para valores menores que 0 ou menor que -0.5
+  mutate(freq1 = replace(freq, freq >0, 1))
+
+
+
+
+
+
