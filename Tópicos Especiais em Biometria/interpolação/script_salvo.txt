@@ -724,3 +724,173 @@ intensidade4 #intensidade de seca sazonal
 area #área afetada pela seca
 area2 #área afetada pela seca
 area3 %>% view() #área afetada pela seca sazonal
+
+#-------------------------------------------------------------------------------------------------------------------
+
+library(tidyverse)
+
+# read data
+dt <- readr::read_tsv("teste.txt") %>% 
+  mutate(season=tolower(season))
+
+
+# anual -------------------------------------------------------------------
+
+# scale=12, tipos de seca
+tot_seca_12 <- data2 %>% 
+  dplyr::filter(scale==12,
+                !is.na(spi)
+  ) %>% 
+  dplyr::group_by(cod,lon,lat,region) %>% 
+  dplyr::summarise(freq_seca=sum(category!="Não seca")/601,.groups = "keep") %>%
+  # dplyr::summarise(freq_seca=sum(category=="Seca moderada")/601,.groups = "keep") %>% 
+  mutate(scale=12,seca="Total",.before=freq_seca)
+
+
+
+#Selecionando uma escala e uma categoria para interpolar
+data5<-tot_seca_12
+#Base que será usada para interporlar os dados de frequência das categorias de seca
+data5<-data5[c('lon','lat','freq_seca')] #definindo as colunas desejadas: latitude, longitude e frequência de seca
+data5$x <- as.numeric(data5$lon) #definindo longitude como valor numérico
+data5$y <- as.numeric(data5$lat) #definindo latitude como valor numérico
+
+#Criando um grid
+x.range <- as.numeric(c(-42.375, -33.875))
+y.range <- as.numeric(c(-10.375, -6.875))
+pe.grid <- expand.grid(x = seq(from = x.range[1],to = x.range[2],by = .003125),
+                       y = seq(from = y.range[1],to = y.range[2],by = .003125))
+coordinates(data5)<- ~x + y #colocando os dados no formato SpatialPointsDataFrame
+coordinates(pe.grid) <- ~x + y#colocando o grid no formato SpatialPointsDataFrame
+
+#calculando o IDW e colocando em formato dataframe
+idw.output <- as.data.frame(idw(formula=freq_seca~1, locations=data5, pe.grid))
+names(idw.output)[1:3] <- c("Longitude", "Latitude", "freq")#renomeando as colunas de latitude e longitude
+
+pe.contorno1 <- readShapeSpatial("Macroreg.shp") #importando o shapefile (esse método está depreciado, mas ainda pode ser usado)
+pe.contorno2 <- fortify(tz.contour1, region = "MACRO") #colocando o shapefile no formato fortify
+
+
+idw.r <- rasterFromXYZ(idw.output[,c('Longitude','Latitude','freq')]) #criando um objeto raster
+idw.crp <- crop(idw.r, pe.contorno1) #cria um objeto geográfico
+idw.msk <- mask(idw.crp,pe.contorno1) #cria um novo objeto raster
+idw.msk.df <- as.data.frame(rasterToPoints(idw.msk)) #Camada raster para linhas de contorno em formato dataframe
+names(idw.msk.df)[1:2]<-c('Longitude','Latitude') #renomeando as colunas de longitude e latitude do dataframe
+
+#Gráfico do mapa com a interpolação dos valores do IDW da frequência de seca em Pernambuco
+ggplot()+ 
+  geom_tile(data = idw.msk.df, alpha = 2,aes(x = Longitude,y = Latitude,fill = round(freq, 2))) + 
+  #camada com os valores interpolados
+  scale_fill_gradientn(colors = c("purple","blue","green","yellow","orange","red"))+
+  #camada com as cores dos valores
+  geom_path(data = pe.contorno2, aes(long, lat, group = group), color = "black") +
+  #camada do contorno do mapa
+  #geom_point(data = as.data.frame(data5), aes(x ,y), shape = 16, cex = 1, color = "black") + 
+  #camada com os pontos das localizações das estações pluviométricas
+  labs(fill = "Freq.", title = "Frequência de seca **categoria** (**escala**) em PE") +
+  coord_equal() + theme_classic()+ theme(legend.position = "bottom", legend.key.width = unit(2, 'cm'),
+                                         plot.title = element_text(size = 15))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+tot_seca_leve_12 <- data2 %>% dplyr::filter(scale==12,!is.na(spi)
+  ) %>% dplyr::group_by(cod,lon,lat,region) %>% 
+  # dplyr::summarise(freq_seca=sum(category!="Não seca")/601,.groups = "keep") %>%
+  dplyr::summarise(freq_seca=sum(category=="Seca leve")/601,.groups = "keep") %>%
+  mutate(scale=12,seca="Seca leve",.before=freq_seca)
+
+tot_seca_moderada_12 <- data2 %>% dplyr::filter(scale==12,!is.na(spi)
+  ) %>% dplyr::group_by(cod,lon,lat,region) %>% 
+  # dplyr::summarise(freq_seca=sum(category!="Não seca")/601,.groups = "keep") %>%
+  dplyr::summarise(freq_seca=sum(category=="Seca moderada")/601,.groups = "keep") %>%
+  mutate(scale=12,seca="Seca moderada",.before=freq_seca)
+
+tot_seca_severa_12 <- data2 %>% dplyr::filter(scale==12,!is.na(spi)
+  ) %>% dplyr::group_by(cod,lon,lat,region) %>% 
+  # dplyr::summarise(freq_seca=sum(category!="Não seca")/601,.groups = "keep") %>%
+  dplyr::summarise(freq_seca=sum(category=="Seca severa")/601,.groups = "keep") %>%
+  mutate(scale=12,seca="Seca severa",.before=freq_seca)
+
+tot_seca_extrema_12 <- data2 %>% dplyr::filter(scale==12,!is.na(spi)
+  ) %>% dplyr::group_by(cod,lon,lat,region) %>% 
+  # dplyr::summarise(freq_seca=sum(category!="Não seca")/601,.groups = "keep") %>%
+  dplyr::summarise(freq_seca=sum(category=="Seca Extrema")/601,.groups = "keep") %>%
+  mutate(scale=12,seca="Seca Extrema",.before=freq_seca)
+
+
+out <- bind_rows(
+  tot_seca_12,
+  tot_seca_leve_12,
+  tot_seca_moderada_12,
+  tot_seca_severa_12,
+  tot_seca_extrema_12
+)
+###
+
+# sazonal ----------------------------------------------------------------
+
+# verao = 151
+# primavera = 153
+# outono = 153
+# inverno = 153
+
+# scale=3, season =primavera,verao,outono,inverno
+dt %>% 
+  dplyr::filter(scale==3,
+                season=="primavera",
+                !is.na(spi)
+  ) %>% 
+  dplyr::group_by(cod,lon,lat,region) %>% 
+  dplyr::summarise(freq_seca=sum(category!="Não seca")/153,.groups = "keep") %>%
+  # dplyr::summarise(freq_seca=sum(category=="Seca moderada")/153,.groups = "keep") %>%
+  mutate(scale=12,seca="Total",.before=freq_seca)
+####
+
+# juntar (terminar...)
+out <- bind_rows(
+  tot_seca_12,
+  tot_seca_moderada_12
+)
+
+
+# barplot -----------------------------------------------------------------
+
+dt %>% 
+  dplyr::filter(scale==12,
+                region=="Zona da Mata",
+                !is.na(spi)
+  ) %>% 
+  pull(category) %>% 
+  magrittr::equals("Seca moderada") %>% 
+  sum() %>% 
+  magrittr::divide_by(((51*64*12)-(11*64)))
+
+
+
+# sertao
+sum(x$category!="Não seca",na.rm=T)/((51*64*12)-(11*64))
+
+# agreste
+sum(x$category!="Não seca",na.rm=T)/((51*45*12)-(11*45))
+
+# zona da mata
+sum(x$category!="Não seca",na.rm=T)/((51*24*12)-(11*24))
